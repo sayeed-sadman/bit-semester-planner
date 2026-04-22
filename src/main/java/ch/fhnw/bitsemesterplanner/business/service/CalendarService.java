@@ -76,13 +76,13 @@ public class CalendarService {
             List<CalendarEventDTO> events = new ArrayList<>();
             List<VEvent> vEvents = calendar.getComponents(Component.VEVENT);
             for (VEvent event : vEvents) {
-                String title = event.getProperty(Property.SUMMARY)
-                        .map(Property::getValue).orElse("(No Title)");
+                Property summaryProp = event.getProperty(Property.SUMMARY);
+                String title = summaryProp != null ? summaryProp.getValue() : "(No Title)";
 
-                LocalDateTime start = parseIcsDate(event.getProperty(Property.DTSTART)
-                        .map(Property::getValue).orElse(null));
-                LocalDateTime end = parseIcsDate(event.getProperty(Property.DTEND)
-                        .map(Property::getValue).orElse(null));
+                Property dtStartProp = event.getProperty(Property.DTSTART);
+                Property dtEndProp = event.getProperty(Property.DTEND);
+                LocalDateTime start = parseIcsDate(dtStartProp != null ? dtStartProp.getValue() : null);
+                LocalDateTime end = parseIcsDate(dtEndProp != null ? dtEndProp.getValue() : null);
 
                 if (start == null) continue;
                 if (end == null) end = start.plusHours(1);
