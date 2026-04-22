@@ -1,0 +1,210 @@
+<svg width="680" height="1080" viewBox="0 0 680 1080" role="img" xmlns="http://www.w3.org/2000/svg" style="background:white; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+  <title>BIT Semester Planner — Use Case Diagram</title>
+  <desc>Use case diagram showing three actors: Public User, Student, and Admin, and their interactions with the BIT Semester Planner system.</desc>
+
+  <!-- System boundary -->
+  <rect x="140" y="20" width="400" height="1040" rx="16" fill="none" stroke="#1f1e1d" stroke-opacity="0.3" stroke-width="0.5" stroke-dasharray="6 4"/>
+  <text x="340" y="44" text-anchor="middle" fill="#3d3d3a" font-size="12">BIT Semester Planner System</text>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- AUTHENTICATION -->
+  <!-- ══════════════════════════════════════════ -->
+  <text x="340" y="72" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">Authentication</text>
+
+  <!-- View landing page | US-04 -->
+  <ellipse cx="340" cy="100" rx="108" ry="22" fill="#f5f4ed" stroke="#1f1e1d" stroke-opacity="0.3" stroke-width="0.5"/>
+  <text x="340" y="97" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">View landing page</text>
+  <text x="340" y="112" text-anchor="middle" fill="#888" font-size="9.5">US-04</text>
+
+  <!-- Login | US-01, US-03 -->
+  <ellipse cx="340" cy="148" rx="108" ry="22" fill="#f5f4ed" stroke="#1f1e1d" stroke-opacity="0.3" stroke-width="0.5"/>
+  <text x="340" y="145" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Login</text>
+  <text x="340" y="160" text-anchor="middle" fill="#888" font-size="9.5">US-01, US-03</text>
+
+  <!-- Register account | US-02 -->
+  <ellipse cx="340" cy="196" rx="108" ry="22" fill="#f5f4ed" stroke="#1f1e1d" stroke-opacity="0.3" stroke-width="0.5"/>
+  <text x="340" y="193" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Register account</text>
+  <text x="340" y="208" text-anchor="middle" fill="#888" font-size="9.5">US-02</text>
+
+  <!-- Edit profile | US-07 -->
+  <ellipse cx="340" cy="244" rx="108" ry="22" fill="#f5f4ed" stroke="#1f1e1d" stroke-opacity="0.3" stroke-width="0.5"/>
+  <text x="340" y="241" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Edit profile</text>
+  <text x="340" y="256" text-anchor="middle" fill="#888" font-size="9.5">US-07</text>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- MODULE CATALOG -->
+  <!-- ══════════════════════════════════════════ -->
+  <text x="340" y="290" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">Module catalog</text>
+
+  <!-- Browse modules | US-08, US-14 -->
+  <ellipse cx="340" cy="318" rx="108" ry="22" fill="#d6e4f6" stroke="#4682d5" stroke-width="0.5"/>
+  <text x="340" y="315" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Browse modules</text>
+  <text x="340" y="330" text-anchor="middle" fill="#888" font-size="9.5">US-08, US-14</text>
+
+  <!-- Filter modules | US-09, US-15 -->
+  <ellipse cx="340" cy="366" rx="108" ry="22" fill="#d6e4f6" stroke="#4682d5" stroke-width="0.5"/>
+  <text x="340" y="363" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Filter modules</text>
+  <text x="340" y="378" text-anchor="middle" fill="#888" font-size="9.5">US-09, US-15</text>
+
+  <!-- View module details | US-10, US-16 -->
+  <ellipse cx="340" cy="414" rx="108" ry="22" fill="#d6e4f6" stroke="#4682d5" stroke-width="0.5"/>
+  <text x="340" y="411" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">View module details</text>
+  <text x="340" y="426" text-anchor="middle" fill="#888" font-size="9.5">US-10, US-16</text>
+
+  <!-- Add module to planner | US-17 -->
+  <ellipse cx="340" cy="462" rx="108" ry="22" fill="#d6e4f6" stroke="#4682d5" stroke-width="0.5"/>
+  <text x="340" y="459" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Add module to planner</text>
+  <text x="340" y="474" text-anchor="middle" fill="#888" font-size="9.5">US-17</text>
+
+  <!-- Remove module from planner | US-18 -->
+  <ellipse cx="340" cy="510" rx="108" ry="22" fill="#d6e4f6" stroke="#4682d5" stroke-width="0.5"/>
+  <text x="340" y="507" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Remove module from planner</text>
+  <text x="340" y="522" text-anchor="middle" fill="#888" font-size="9.5">US-18</text>
+
+  <!-- Create module | US-11 -->
+  <ellipse cx="340" cy="558" rx="108" ry="22" fill="#f6eedf" stroke="#805c1f" stroke-width="0.5"/>
+  <text x="340" y="555" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Create module</text>
+  <text x="340" y="570" text-anchor="middle" fill="#888" font-size="9.5">US-11</text>
+
+  <!-- Edit module | US-12 -->
+  <ellipse cx="340" cy="606" rx="108" ry="22" fill="#f6eedf" stroke="#805c1f" stroke-width="0.5"/>
+  <text x="340" y="603" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Edit module</text>
+  <text x="340" y="618" text-anchor="middle" fill="#888" font-size="9.5">US-12</text>
+
+  <!-- Delete module | US-13 -->
+  <ellipse cx="340" cy="654" rx="108" ry="22" fill="#f6eedf" stroke="#805c1f" stroke-width="0.5"/>
+  <text x="340" y="651" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Delete module</text>
+  <text x="340" y="666" text-anchor="middle" fill="#888" font-size="9.5">US-13</text>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SEMESTER PLANNER -->
+  <!-- ══════════════════════════════════════════ -->
+  <text x="340" y="700" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">Semester planner</text>
+
+  <!-- View planned modules | US-19, US-20, US-21 -->
+  <ellipse cx="340" cy="728" rx="108" ry="22" fill="#d6e4f6" stroke="#4682d5" stroke-width="0.5"/>
+  <text x="340" y="725" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">View planned modules</text>
+  <text x="340" y="740" text-anchor="middle" fill="#888" font-size="9.5">US-19, US-20, US-21</text>
+
+  <!-- Add note to module | US-22 -->
+  <ellipse cx="340" cy="776" rx="108" ry="22" fill="#d6e4f6" stroke="#4682d5" stroke-width="0.5"/>
+  <text x="340" y="773" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Add note to module</text>
+  <text x="340" y="788" text-anchor="middle" fill="#888" font-size="9.5">US-22</text>
+
+  <!-- Edit / Remove note | US-23 -->
+  <ellipse cx="340" cy="824" rx="108" ry="22" fill="#d6e4f6" stroke="#4682d5" stroke-width="0.5"/>
+  <text x="340" y="821" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Edit / Remove note</text>
+  <text x="340" y="836" text-anchor="middle" fill="#888" font-size="9.5">US-23</text>
+
+  <!-- Enforce 2-elective rule | US-29 -->
+  <ellipse cx="340" cy="872" rx="108" ry="22" fill="#f7ecec" stroke="#a73d39" stroke-width="0.5"/>
+  <text x="340" y="869" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Enforce 2-elective rule</text>
+  <text x="340" y="884" text-anchor="middle" fill="#888" font-size="9.5">US-29</text>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- CALENDAR OVERVIEW -->
+  <!-- ══════════════════════════════════════════ -->
+  <text x="340" y="918" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">Calendar overview</text>
+
+  <!-- Connect ICS calendar | US-25 -->
+  <ellipse cx="340" cy="946" rx="108" ry="22" fill="#d6e4f6" stroke="#4682d5" stroke-width="0.5"/>
+  <text x="340" y="943" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Connect ICS calendar</text>
+  <text x="340" y="958" text-anchor="middle" fill="#888" font-size="9.5">US-25</text>
+
+  <!-- View weekly events | US-26, US-28 -->
+  <ellipse cx="340" cy="994" rx="108" ry="22" fill="#d6e4f6" stroke="#4682d5" stroke-width="0.5"/>
+  <text x="340" y="991" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">View weekly events</text>
+  <text x="340" y="1006" text-anchor="middle" fill="#888" font-size="9.5">US-26, US-28</text>
+
+  <!-- Detect event conflicts | US-27 -->
+  <ellipse cx="340" cy="1042" rx="108" ry="22" fill="#d6e4f6" stroke="#4682d5" stroke-width="0.5"/>
+  <text x="340" y="1039" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Detect event conflicts</text>
+  <text x="340" y="1054" text-anchor="middle" fill="#888" font-size="9.5">US-27</text>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- ACTOR: Public User (left, grey) -->
+  <!-- ══════════════════════════════════════════ -->
+  <g>
+    <circle cx="48" cy="172" r="14" fill="none" stroke="#1f1e1d" stroke-opacity="0.4" stroke-width="1"/>
+    <line x1="48" y1="186" x2="48" y2="218" stroke="#1f1e1d" stroke-opacity="0.4" stroke-width="1"/>
+    <line x1="28" y1="196" x2="68" y2="196" stroke="#1f1e1d" stroke-opacity="0.4" stroke-width="1"/>
+    <line x1="48" y1="218" x2="32" y2="238" stroke="#1f1e1d" stroke-opacity="0.4" stroke-width="1"/>
+    <line x1="48" y1="218" x2="64" y2="238" stroke="#1f1e1d" stroke-opacity="0.4" stroke-width="1"/>
+    <text x="48" y="255" text-anchor="middle" fill="#3d3d3a" font-size="11">Public user</text>
+  </g>
+
+  <!-- ACTOR: Student (left, blue) -->
+  <g>
+    <circle cx="48" cy="620" r="14" fill="none" stroke="#4682d5" stroke-width="1"/>
+    <line x1="48" y1="634" x2="48" y2="666" stroke="#4682d5" stroke-width="1"/>
+    <line x1="28" y1="644" x2="68" y2="644" stroke="#4682d5" stroke-width="1"/>
+    <line x1="48" y1="666" x2="32" y2="686" stroke="#4682d5" stroke-width="1"/>
+    <line x1="48" y1="666" x2="64" y2="686" stroke="#4682d5" stroke-width="1"/>
+    <text x="48" y="702" text-anchor="middle" fill="#3d3d3a" font-size="11">Student</text>
+  </g>
+
+  <!-- ACTOR: Admin (right, amber) -->
+  <g>
+    <circle cx="632" cy="590" r="14" fill="none" stroke="#805c1f" stroke-width="1"/>
+    <line x1="632" y1="604" x2="632" y2="636" stroke="#805c1f" stroke-width="1"/>
+    <line x1="612" y1="614" x2="652" y2="614" stroke="#805c1f" stroke-width="1"/>
+    <line x1="632" y1="636" x2="616" y2="656" stroke="#805c1f" stroke-width="1"/>
+    <line x1="632" y1="636" x2="648" y2="656" stroke="#805c1f" stroke-width="1"/>
+    <text x="632" y="672" text-anchor="middle" fill="#3d3d3a" font-size="11">Admin</text>
+  </g>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- CONNECTIONS: Public User → shared use cases -->
+  <!-- ══════════════════════════════════════════ -->
+  <line x1="62" y1="168" x2="232" y2="100" stroke="#1f1e1d" stroke-opacity="0.15" stroke-width="0.5"/>
+  <line x1="62" y1="172" x2="232" y2="148" stroke="#1f1e1d" stroke-opacity="0.15" stroke-width="0.5"/>
+  <line x1="62" y1="176" x2="232" y2="196" stroke="#1f1e1d" stroke-opacity="0.15" stroke-width="0.5"/>
+  <line x1="62" y1="180" x2="232" y2="244" stroke="#1f1e1d" stroke-opacity="0.15" stroke-width="0.5"/>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- CONNECTIONS: Student → use cases (blue) -->
+  <!-- ══════════════════════════════════════════ -->
+  <line x1="62" y1="616" x2="232" y2="148" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="619" x2="232" y2="196" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="622" x2="232" y2="244" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="625" x2="232" y2="318" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="628" x2="232" y2="366" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="631" x2="232" y2="414" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="634" x2="232" y2="462" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="637" x2="232" y2="510" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="640" x2="232" y2="728" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="643" x2="232" y2="776" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="646" x2="232" y2="824" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="649" x2="232" y2="946" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="652" x2="232" y2="994" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="655" x2="232" y2="1042" stroke="#4682d5" stroke-width="0.5"/>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- CONNECTIONS: Admin → use cases (amber) -->
+  <!-- ══════════════════════════════════════════ -->
+  <line x1="618" y1="586" x2="448" y2="148" stroke="#805c1f" stroke-width="0.5"/>
+  <line x1="618" y1="589" x2="448" y2="196" stroke="#805c1f" stroke-width="0.5"/>
+  <line x1="618" y1="592" x2="448" y2="244" stroke="#805c1f" stroke-width="0.5"/>
+  <line x1="618" y1="595" x2="448" y2="318" stroke="#805c1f" stroke-width="0.5"/>
+  <line x1="618" y1="598" x2="448" y2="366" stroke="#805c1f" stroke-width="0.5"/>
+  <line x1="618" y1="601" x2="448" y2="414" stroke="#805c1f" stroke-width="0.5"/>
+  <line x1="618" y1="604" x2="448" y2="558" stroke="#805c1f" stroke-width="0.5"/>
+  <line x1="618" y1="607" x2="448" y2="606" stroke="#805c1f" stroke-width="0.5"/>
+  <line x1="618" y1="610" x2="448" y2="654" stroke="#805c1f" stroke-width="0.5"/>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- LEGEND — below Admin actor -->
+  <!-- ══════════════════════════════════════════ -->
+  <rect x="570" y="692" width="14" height="14" rx="3" fill="#f7ecec" stroke="#a73d39" stroke-width="0.5"/>
+  <text x="590" y="703" fill="#3d3d3a" font-size="11">Business rule</text>
+
+  <rect x="570" y="714" width="14" height="14" rx="3" fill="#d6e4f6" stroke="#4682d5" stroke-width="0.5"/>
+  <text x="590" y="725" fill="#3d3d3a" font-size="11">Student use case</text>
+
+  <rect x="570" y="736" width="14" height="14" rx="3" fill="#f6eedf" stroke="#805c1f" stroke-width="0.5"/>
+  <text x="590" y="747" fill="#3d3d3a" font-size="11">Admin use case</text>
+
+  <rect x="570" y="758" width="14" height="14" rx="3" fill="#f5f4ed" stroke="#1f1e1d" stroke-opacity="0.3" stroke-width="0.5"/>
+  <text x="590" y="769" fill="#3d3d3a" font-size="11">Shared use case</text>
+
+</svg>

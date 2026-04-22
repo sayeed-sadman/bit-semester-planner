@@ -47,6 +47,9 @@ system switches and less risk of missing important information.
 
 ## 1. Analysis
 
+### Use Case Diagram
+![Use Case Diagram](docs/use-case-diagram.svg)
+
 ### User Stories
 
 #### Authentication
