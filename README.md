@@ -11,7 +11,7 @@ and Arts Northwestern Switzerland.
 | Sayeed Sadman | @sayeed-sadman | |
 | Eva Siegenthaler | @evasiegenthaler | |
 | Kesanet Girmay | @Kesanet | |
-| Renjita B R | @RenjitaBR | |
+| Renjita Byju Resmi | @RenjitaBR | |
 
 ## Links
 - Video Presentation: *to be added*
