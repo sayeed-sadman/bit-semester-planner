@@ -43,6 +43,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/planner/**").hasRole("STUDENT")
                 .requestMatchers("/api/notes/**").hasRole("STUDENT")
                 .requestMatchers("/api/calendars/**").hasRole("STUDENT")
+                // Student account deletion
+                .requestMatchers(HttpMethod.DELETE, "/api/auth/me").hasRole("STUDENT")
                 // Any authenticated user
                 .requestMatchers("/api/auth/me").authenticated()
                 .anyRequest().authenticated()

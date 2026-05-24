@@ -22,7 +22,7 @@ public class AuthController {
     }
 
     record RegisterRequest(String firstName, String lastName, String email, String password) {}
-    record UpdateProfileRequest(String firstName, String lastName, String email, String password) {}
+    record UpdateProfileRequest(String firstName, String lastName, String email, String password, String currentPassword) {}
 
     @PostMapping("/register")
     @Operation(summary = "Register a new student account")
@@ -41,6 +41,15 @@ public class AuthController {
         return ResponseEntity.ok(userService.getCurrentUser(auth));
     }
 
+    @DeleteMapping("/me")
+    @Operation(summary = "Delete current user account")
+    @ApiResponse(responseCode = "204", description = "Account deleted successfully")
+    @ApiResponse(responseCode = "401", description = "Not authenticated")
+    public ResponseEntity<Void> deleteMe(Authentication auth) {
+        userService.deleteCurrentUser(auth.getName());
+        return ResponseEntity.noContent().build();
+    }
+
     @PutMapping("/me")
     @Operation(summary = "Update current user profile")
     @ApiResponse(responseCode = "200", description = "Profile updated successfully")
@@ -49,7 +58,7 @@ public class AuthController {
     public ResponseEntity<User> updateMe(Authentication auth, @RequestBody UpdateProfileRequest req) {
         User current = userService.getCurrentUser(auth);
         User updated = userService.updateProfile(
-                current.getUserID(), req.firstName(), req.lastName(), req.email(), req.password());
+                current.getUserID(), req.firstName(), req.lastName(), req.email(), req.password(), req.currentPassword());
         return ResponseEntity.ok(updated);
     }
 }

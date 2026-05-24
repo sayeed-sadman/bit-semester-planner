@@ -1,5 +1,6 @@
 package ch.fhnw.bitsemesterplanner.business.service;
 
+import ch.fhnw.bitsemesterplanner.business.exception.BusinessRuleException;
 import ch.fhnw.bitsemesterplanner.business.exception.DuplicateEntryException;
 import ch.fhnw.bitsemesterplanner.business.exception.EntityNotFoundException;
 import ch.fhnw.bitsemesterplanner.data.domain.Role;
@@ -50,7 +51,7 @@ public class UserService implements UserDetailsService {
         return findByEmail(auth.getName());
     }
 
-    public User updateProfile(Long userId, String firstName, String lastName, String email, String password) {
+    public User updateProfile(Long userId, String firstName, String lastName, String email, String password, String currentPassword) {
         User user = findById(userId);
         if (firstName != null) user.setFirstName(firstName);
         if (lastName != null) user.setLastName(lastName);
@@ -61,9 +62,17 @@ public class UserService implements UserDetailsService {
             user.setEmail(email);
         }
         if (password != null && !password.isBlank()) {
+            if (currentPassword == null || currentPassword.isBlank() || !passwordEncoder.matches(currentPassword, user.getPassword())) {
+                throw new BusinessRuleException("Current password is incorrect.");
+            }
             user.setPassword(passwordEncoder.encode(password));
         }
         return userRepository.save(user);
+    }
+
+    public void deleteCurrentUser(String email) {
+        User user = findByEmail(email);
+        userRepository.delete(user);
     }
 
     @Override

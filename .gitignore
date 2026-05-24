@@ -31,6 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
-CODE_BRIEFING.md
+BACKEND_CODE_BRIEFING.md
 data/
-CODE_BRIEFING.mddata/
+FRONTEND_CODE_BRIEFING.md

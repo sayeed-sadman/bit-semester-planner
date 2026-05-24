@@ -79,7 +79,7 @@ public class CalendarController {
     }
 
     @GetMapping("/events/all")
-    @Operation(summary = "Fetch events from all connected calendars for the current week, with overlap detection")
+    @Operation(summary = "Fetch all events from all connected calendars, with overlap detection")
     @ApiResponse(responseCode = "200", description = "Merged events with overlap flags returned")
     public ResponseEntity<List<CalendarEventDTO>> getAllEvents(Authentication auth) {
         User student = userService.getCurrentUser(auth);

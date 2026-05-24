@@ -16,10 +16,9 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalAdjusters;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,10 +68,6 @@ public class CalendarService {
             CalendarBuilder builder = new CalendarBuilder();
             Calendar calendar = builder.build(response.body());
 
-            LocalDate today = LocalDate.now();
-            LocalDate weekStart = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-            LocalDate weekEnd = weekStart.plusDays(6);
-
             List<CalendarEventDTO> events = new ArrayList<>();
             List<VEvent> vEvents = calendar.getComponents(Component.VEVENT);
             for (VEvent event : vEvents) {
@@ -87,10 +82,7 @@ public class CalendarService {
                 if (start == null) continue;
                 if (end == null) end = start.plusHours(1);
 
-                LocalDate eventDate = start.toLocalDate();
-                if (!eventDate.isBefore(weekStart) && !eventDate.isAfter(weekEnd)) {
-                    events.add(new CalendarEventDTO(title, start, end, calendarName, false));
-                }
+                events.add(new CalendarEventDTO(title, start, end, calendarName, false));
             }
             return events;
         } catch (Exception e) {
@@ -128,8 +120,11 @@ public class CalendarService {
     private LocalDateTime parseIcsDate(String dateStr) {
         if (dateStr == null || dateStr.isBlank()) return null;
         try {
+            // Strip timezone suffix (Z) and extract only the date/time digits
             String cleaned = dateStr.replace("Z", "").replace("z", "");
-            if (cleaned.length() >= 15 && cleaned.charAt(8) == 'T') {
+            int tIdx = cleaned.indexOf('T');
+            if (tIdx == 8) {
+                // DateTime format: 20260521T171500
                 int year  = Integer.parseInt(cleaned.substring(0, 4));
                 int month = Integer.parseInt(cleaned.substring(4, 6));
                 int day   = Integer.parseInt(cleaned.substring(6, 8));
@@ -138,10 +133,11 @@ public class CalendarService {
                 int sec   = cleaned.length() >= 15 ? Integer.parseInt(cleaned.substring(13, 15)) : 0;
                 return LocalDateTime.of(year, month, day, hour, min, sec);
             } else if (cleaned.length() >= 8) {
+                // Date-only format: 20260501 — holidays, all-day events
                 int year  = Integer.parseInt(cleaned.substring(0, 4));
                 int month = Integer.parseInt(cleaned.substring(4, 6));
                 int day   = Integer.parseInt(cleaned.substring(6, 8));
-                return LocalDateTime.of(year, month, day, 0, 0, 0);
+                return LocalDateTime.of(LocalDate.of(year, month, day), LocalTime.MIDNIGHT);
             }
         } catch (Exception ignored) {
         }
