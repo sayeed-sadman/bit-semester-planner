@@ -39,10 +39,17 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/modules").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/modules/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/modules/**").hasRole("ADMIN")
+                // Public chat endpoint (userId optional for scoped retrieval)
+                .requestMatchers(HttpMethod.POST, "/api/chat").permitAll()
                 // Student-only endpoints
                 .requestMatchers("/api/planner/**").hasRole("STUDENT")
                 .requestMatchers("/api/notes/**").hasRole("STUDENT")
                 .requestMatchers("/api/calendars/**").hasRole("STUDENT")
+                .requestMatchers(HttpMethod.POST, "/api/rag/upload").hasAnyRole("STUDENT", "ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/rag/uploads").hasAnyRole("STUDENT", "ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/rag/uploads/**").hasAnyRole("STUDENT", "ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/rag/match-module").hasRole("ADMIN")
+                .requestMatchers("/api/rag/**").hasRole("STUDENT")
                 // Student account deletion
                 .requestMatchers(HttpMethod.DELETE, "/api/auth/me").hasRole("STUDENT")
                 // Any authenticated user

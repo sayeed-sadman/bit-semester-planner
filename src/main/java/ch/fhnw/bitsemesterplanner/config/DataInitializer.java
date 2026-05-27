@@ -27,8 +27,6 @@ public class DataInitializer {
 
     @PostConstruct
     public void init() {
-        if (moduleRepository.count() > 0) return;
-
         if (!userRepository.existsByEmail("admin@fhnw.ch")) {
             User admin = new User();
             admin.setFirstName("Admin");
@@ -38,6 +36,18 @@ public class DataInitializer {
             admin.setRole(Role.ADMIN);
             userRepository.save(admin);
         }
+
+        if (!userRepository.existsByEmail("student@fhnw.ch")) {
+            User student = new User();
+            student.setFirstName("Demo");
+            student.setLastName("Student");
+            student.setEmail("student@fhnw.ch");
+            student.setPassword(passwordEncoder.encode("student123"));
+            student.setRole(Role.STUDENT);
+            userRepository.save(student);
+        }
+
+        if (moduleRepository.count() > 0) return;
 
         saveModule("Internet Technology",
                 "Introduction to web architecture, REST APIs, Spring Boot and cloud deployment",

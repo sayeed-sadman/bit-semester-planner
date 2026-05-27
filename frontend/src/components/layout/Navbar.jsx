@@ -22,6 +22,11 @@ export default function Navbar() {
 
   const homeLink = isAdmin ? "/admin/modules" : "/dashboard";
 
+  const handleLogout = () => {
+    sessionStorage.removeItem("chatMessages");
+    logout();
+  };
+
   return (
     <nav
       className="bg-white border-b border-[#E0E4EB] px-8"
@@ -60,7 +65,7 @@ export default function Navbar() {
                 Edit Profile
               </Link>
               <button
-                onClick={logout}
+                onClick={handleLogout}
                 className="px-4 py-2 rounded-button border border-surface-border text-dark-secondary text-sm font-medium hover:bg-surface-section transition-colors"
               >
                 Logout

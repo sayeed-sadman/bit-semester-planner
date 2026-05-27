@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useState } from "react";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
+import ChatBot from "./components/ChatBot/ChatBot";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 
@@ -17,6 +19,8 @@ import NoteDetailPage from "./pages/NoteDetailPage";
 import EditProfilePage from "./pages/EditProfilePage";
 
 export default function App() {
+  const [pendingSuggestion, setPendingSuggestion] = useState(null);
+
   return (
     <BrowserRouter>
       <AuthProvider>
@@ -43,6 +47,7 @@ export default function App() {
             </Routes>
           </main>
           <Footer />
+          <ChatBot onSuggestNote={(text) => setPendingSuggestion(text)} />
         </div>
       </AuthProvider>
     </BrowserRouter>
