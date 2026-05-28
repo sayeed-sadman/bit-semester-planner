@@ -94,6 +94,7 @@ export default function ChatBot({ onSuggestNote }) {
   const [adminFormSemester, setAdminFormSemester] = useState("1");
   const [adminFormModuleType, setAdminFormModuleType] = useState("COMPULSORY");
   const [adminFormLecturer, setAdminFormLecturer] = useState("");
+  const [adminFormLecturerEmail, setAdminFormLecturerEmail] = useState("");
   const [adminModuleStatus, setAdminModuleStatus] = useState(null); // null | "saving" | "saved" | "error"
 
   // Documents panel state
@@ -127,18 +128,21 @@ export default function ChatBot({ onSuggestNote }) {
   // Pre-fill create form when no match found
   useEffect(() => {
     if (moduleMatchResult && !moduleMatchResult.matched) {
+      const facts = moduleMatchResult.suggestions?.detectedFacts || [];
+      const get = (prefix) => {
+        const fact = facts.find((f) => f.startsWith(prefix + ": "));
+        return fact ? fact.slice(prefix.length + 2) : "";
+      };
       const titleFromFile = (moduleMatchResult.fileName || "")
         .replace(/\.[^.]+$/, "")
         .replace(/[-_]/g, " ");
-      setAdminFormTitle(titleFromFile);
-      const notesFact = moduleMatchResult.suggestions?.detectedFacts?.find((f) =>
-        f.startsWith("Notes:")
-      );
-      setAdminFormDescription(notesFact ? notesFact.replace("Notes: ", "").substring(0, 200) : "");
-      setAdminFormCredits("");
+      setAdminFormTitle(get("Module Title") || titleFromFile);
+      setAdminFormDescription(get("Short Description").substring(0, 500));
+      setAdminFormCredits(get("Credits"));
       setAdminFormSemester("1");
       setAdminFormModuleType("COMPULSORY");
-      setAdminFormLecturer("");
+      setAdminFormLecturer(get("Lecturer"));
+      setAdminFormLecturerEmail(get("Lecturer Email"));
       setAdminModuleStatus(null);
     }
   }, [moduleMatchResult]);
@@ -275,7 +279,7 @@ export default function ChatBot({ onSuggestNote }) {
       description: adminFormDescription || "No description provided.",
       credits: parseInt(adminFormCredits),
       lecturerName: adminFormLecturer || "TBD",
-      lecturerEmail: "tbd@fhnw.ch",
+      lecturerEmail: adminFormLecturerEmail || "tbd@fhnw.ch",
       semester: parseInt(adminFormSemester),
       campus: "Brugg-Windisch",
       moduleType: adminFormModuleType,
@@ -572,7 +576,7 @@ export default function ChatBot({ onSuggestNote }) {
                     <div className="flex flex-col gap-1 flex-1">
                       <label className="text-xs font-medium text-dark-muted">Semester</label>
                       <select value={adminFormSemester} onChange={(e) => setAdminFormSemester(e.target.value)} className={inputCls}>
-                        {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
+                        {[1, 2, 3, 4, 5, 6].map((s) => (
                           <option key={s} value={s}>{s}</option>
                         ))}
                       </select>
@@ -590,6 +594,11 @@ export default function ChatBot({ onSuggestNote }) {
                   <div className="flex flex-col gap-1">
                     <label className="text-xs font-medium text-dark-muted">Lecturer</label>
                     <input value={adminFormLecturer} onChange={(e) => setAdminFormLecturer(e.target.value)} placeholder="Lecturer name" className={inputCls} />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-medium text-dark-muted">Lecturer Email</label>
+                    <input type="email" value={adminFormLecturerEmail} onChange={(e) => setAdminFormLecturerEmail(e.target.value)} placeholder="e.g. lecturer@fhnw.ch" className={inputCls} />
                   </div>
 
                   {adminModuleStatus === "saved" && <p className="text-xs font-medium text-success">Module created successfully! Check the module catalog.</p>}

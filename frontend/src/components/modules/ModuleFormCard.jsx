@@ -29,6 +29,16 @@ export default function ModuleFormCard({ values, onChange, errors = {} }) {
         />
       </FieldCard>
 
+      <FieldCard label="Description" error={errors.description}>
+        <textarea
+          rows={4}
+          value={values.description || ""}
+          onChange={(e) => onChange("description", e.target.value)}
+          placeholder="Module description..."
+          className={`${INPUT_BASE} resize-none`}
+        />
+      </FieldCard>
+
       <FieldCard label="Module Type" error={errors.moduleType}>
         <select
           value={values.moduleType || ""}
@@ -98,16 +108,6 @@ export default function ModuleFormCard({ values, onChange, errors = {} }) {
           onChange={(e) => onChange("lecturerEmail", e.target.value)}
           placeholder="e.g. jane.smith@fhnw.ch"
           className={INPUT_BASE}
-        />
-      </FieldCard>
-
-      <FieldCard label="Description" error={errors.description}>
-        <textarea
-          rows={4}
-          value={values.description || ""}
-          onChange={(e) => onChange("description", e.target.value)}
-          placeholder="Module description..."
-          className={`${INPUT_BASE} resize-none`}
         />
       </FieldCard>
     </div>
