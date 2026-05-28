@@ -6,7 +6,7 @@
       "version": "20"
     }
   },
-  "postCreateCommand": "cd /workspaces/bit-semester-planner && ./mvnw spring-boot:run -DskipTests > /tmp/backend.log 2>&1 & sleep 40 && cd /workspaces/bit-semester-planner/frontend && npm install && npm run dev > /tmp/frontend.log 2>&1 &",
+  "postStartCommand": "bash /workspaces/bit-semester-planner/start.sh",
   "forwardPorts": [8080, 5173],
   "portsAttributes": {
     "8080": { "label": "Backend API", "onAutoForward": "notify" },
