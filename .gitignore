@@ -35,5 +35,5 @@ build/
 ### Environment ###
 .env
 BACKEND_CODE_BRIEFING.md
-data/
+/data/
 FRONTEND_CODE_BRIEFING.md
