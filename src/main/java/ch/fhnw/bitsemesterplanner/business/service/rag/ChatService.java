@@ -78,7 +78,7 @@ public class ChatService {
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
 
-    @Value("${anthropic.api.key}")
+    @Value("${anthropic.api.key:NOT_SET}")
     private String apiKey;
 
     public ChatService() {
@@ -87,6 +87,7 @@ public class ChatService {
     }
 
     public Stream<String> streamChat(String userQuestion, List<DocumentChunk> contextChunks, String appContext, List<String> calendarEvents, String userRole) {
+        if (apiKey.equals("NOT_SET")) throw new RuntimeException("Anthropic API key not configured.");
         System.out.println("STREAM STARTING");
         try {
             String systemPrompt = buildSystemPrompt(contextChunks, appContext, calendarEvents, userRole);
@@ -138,6 +139,7 @@ public class ChatService {
     }
 
     public String chat(String userQuestion, List<DocumentChunk> contextChunks, String appContext, List<String> calendarEvents, String userRole) {
+        if (apiKey.equals("NOT_SET")) throw new RuntimeException("Anthropic API key not configured.");
         try {
             String systemPrompt = buildSystemPrompt(contextChunks, appContext, calendarEvents, userRole);
 
