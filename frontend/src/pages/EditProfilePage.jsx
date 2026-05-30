@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth, AUTH_STORAGE_KEY } from "../context/AuthContext";
 import { getMe, updateMe, deleteMe } from "../services/authService";
-import { setAuthCredentials, clearAuthCredentials } from "../services/api";
+import { clearAuthCredentials } from "../services/api";
 import PageHeader from "../components/layout/PageHeader";
 import InputField from "../components/common/InputField";
 import SuccessBanner from "../components/common/SuccessBanner";
 import ConfirmModal from "../components/common/ConfirmModal";
 
 export default function EditProfilePage() {
-  const { user, isAdmin, updateUser, clearUser } = useAuth();
+  const { user, isAdmin, updateUser, clearUser, updateStoredCredentials } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ firstName: "", lastName: "", email: "", currentPassword: "", newPassword: "", confirmPassword: "" });
   const [errors, setErrors] = useState({});
@@ -81,7 +81,18 @@ export default function EditProfilePage() {
       const updated = await updateMe(payload);
       updateUser(updated);
       if (form.newPassword) {
-        setAuthCredentials(form.email, form.newPassword);
+        // Password changed (possibly alongside email): update both in-memory and localStorage.
+        updateStoredCredentials(form.email, form.newPassword);
+      } else if (!isAdmin) {
+        // Email may have changed without a password change: refresh the stored email while
+        // preserving the existing password so the next page load doesn't get a 401.
+        const stored = localStorage.getItem(AUTH_STORAGE_KEY);
+        if (stored) {
+          try {
+            const { password } = JSON.parse(atob(stored));
+            updateStoredCredentials(form.email, password);
+          } catch { /* stored value corrupt — leave credentials unchanged */ }
+        }
       }
       setForm((f) => ({ ...f, currentPassword: "", newPassword: "", confirmPassword: "" }));
       setShowSuccess(true);

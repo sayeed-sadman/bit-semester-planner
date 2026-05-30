@@ -126,15 +126,13 @@ export function useChatBot() {
       }
 
       if (!firstChunk) {
-        setMessages((prev) => {
-          const next = prev.map((m) =>
+        setMessages((prev) =>
+          prev.map((m) =>
             m.id === assistantId
               ? { ...m, text: m.text.replace(/\n-/g, "\n\n-") }
               : m
-          );
-          console.log("FINAL TEXT:", JSON.stringify(next[next.length - 1]?.text));
-          return next;
-        });
+          )
+        );
       }
 
       if (firstChunk) {

@@ -39,8 +39,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/modules").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/modules/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/modules/**").hasRole("ADMIN")
-                // Public chat endpoint (userId optional for scoped retrieval)
-                .requestMatchers(HttpMethod.POST, "/api/chat").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/chat").authenticated()
                 // Student-only endpoints
                 .requestMatchers("/api/planner/**").hasRole("STUDENT")
                 .requestMatchers("/api/notes/**").hasRole("STUDENT")

@@ -119,7 +119,7 @@ public class DocumentController {
         User student = userService.getCurrentUser(auth);
         DocumentUpload upload = documentUploadRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Upload not found with ID: " + id));
-        if (!upload.getStudent().getUserID().equals(student.getUserID())) {
+        if (upload.getStudent() == null || !upload.getStudent().getUserID().equals(student.getUserID())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         documentChunkRepository.deleteAll(documentChunkRepository.findByDocumentUploadId(id));

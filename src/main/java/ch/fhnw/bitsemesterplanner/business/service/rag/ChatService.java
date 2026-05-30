@@ -88,7 +88,6 @@ public class ChatService {
 
     public Stream<String> streamChat(String userQuestion, List<DocumentChunk> contextChunks, String appContext, List<String> calendarEvents, String userRole) {
         if (apiKey.equals("NOT_SET")) throw new RuntimeException("Anthropic API key not configured.");
-        System.out.println("STREAM STARTING");
         try {
             String systemPrompt = buildSystemPrompt(contextChunks, appContext, calendarEvents, userRole);
 
@@ -113,7 +112,6 @@ public class ChatService {
                     .build();
 
             HttpResponse<Stream<String>> response = httpClient.send(request, HttpResponse.BodyHandlers.ofLines());
-            System.out.println("[streamChat] Anthropic HTTP status: " + response.statusCode());
 
             return response.body()
                     .filter(line -> line.startsWith("data: "))
@@ -202,10 +200,6 @@ public class ChatService {
             sb.append("\n\n").append(appContext);
         }
 
-        String prompt = sb.toString();
-        System.out.println("=== SYSTEM PROMPT START ===");
-        System.out.println(prompt.substring(0, Math.min(200, prompt.length())));
-        System.out.println("=== SYSTEM PROMPT END ===");
-        return prompt;
+        return sb.toString();
     }
 }

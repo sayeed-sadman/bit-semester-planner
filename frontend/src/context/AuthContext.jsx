@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { setAuthCredentials, clearAuthCredentials } from "../services/api";
 import { getMe } from "../services/authService";
 
-const AUTH_STORAGE_KEY = "auth_credentials";
+export const AUTH_STORAGE_KEY = "auth_credentials";
 
 const AuthContext = createContext(null);
 
@@ -53,6 +53,11 @@ export function AuthProvider({ children }) {
     window.location.href = "/login";
   };
 
+  const updateStoredCredentials = (email, password) => {
+    setAuthCredentials(email, password);
+    localStorage.setItem(AUTH_STORAGE_KEY, btoa(JSON.stringify({ email, password })));
+  };
+
   const updateUser = (userData) => {
     setUser((prev) => ({ ...prev, ...userData }));
   };
@@ -60,7 +65,7 @@ export function AuthProvider({ children }) {
   const clearUser = () => setUser(null);
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, isAdmin, isStudent, loading, login, logout, updateUser, clearUser }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, isAdmin, isStudent, loading, login, logout, updateStoredCredentials, updateUser, clearUser }}>
       {children}
     </AuthContext.Provider>
   );

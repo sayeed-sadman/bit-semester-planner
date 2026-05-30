@@ -38,7 +38,6 @@ export default function MyCalendarSection() {
     setLoading(true);
     getAllEvents()
       .then((evs) => {
-        console.log("Raw events from backend:", evs);
         const mapped = evs.map((ev) => ({
           ...ev,
           start: ev.startDateTime,

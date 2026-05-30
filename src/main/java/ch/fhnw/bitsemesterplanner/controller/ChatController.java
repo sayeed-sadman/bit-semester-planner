@@ -50,7 +50,6 @@ public class ChatController {
     @Operation(summary = "Ask a question; optionally scoped to a student's uploaded documents")
     @ApiResponse(responseCode = "200", description = "Answer returned")
     public ResponseEntity<ChatResponse> chat(@RequestBody ChatRequest req, Authentication authentication) {
-        System.out.println("Chat request - userId: " + req.userId());
         String userRole = "STUDENT";
         if (authentication != null && authentication.isAuthenticated()) {
             userRole = authentication.getAuthorities().stream()
@@ -82,7 +81,6 @@ public class ChatController {
                     ));
                 }
                 calendarEvents = eventStrings;
-                System.out.println("Calendar events found: " + calendarEvents.size());
             } catch (Exception ignored) {
                 // calendar fetch failure must not break chat
             }
@@ -96,7 +94,6 @@ public class ChatController {
     @Operation(summary = "Stream a chat response chunk by chunk via SSE")
     @ApiResponse(responseCode = "200", description = "SSE stream of text chunks")
     public SseEmitter streamChat(@RequestBody ChatRequest req, Authentication authentication) {
-        System.out.println("STREAM ENDPOINT HIT");
         try {
             String userRole = "STUDENT";
             if (authentication != null && authentication.isAuthenticated()) {
@@ -133,8 +130,6 @@ public class ChatController {
                     // calendar fetch failure must not break chat
                 }
             }
-
-            System.out.println("CONTEXT BUILT");
 
             SseEmitter emitter = new SseEmitter(120_000L);
             final List<DocumentChunk> finalTopChunks = topChunks;
