@@ -1,9 +1,24 @@
 #!/bin/bash
-cd /workspaces/bit-semester-planner
+LOG=/tmp/lifecycle.log
 
-nohup ./mvnw spring-boot:run -DskipTests > /tmp/backend.log 2>&1 &
+echo "$(date) start.sh: invoked" >> "$LOG"
 
-# Run the frontend startup in a fully detached subshell so this script exits
-# immediately. Without this, the 40-second sleep blocks the Codespaces lifecycle
-# shell, which is killed before the frontend launch line is ever reached.
-nohup bash -c 'sleep 40 && cd /workspaces/bit-semester-planner/frontend && npm run dev >> /tmp/frontend.log 2>&1' > /dev/null 2>&1 &
+# Backend: only start if not already launching or running
+if ! pgrep -f "spring-boot:run" > /dev/null 2>&1; then
+    echo "$(date) start.sh: launching backend" >> "$LOG"
+    nohup bash -c "cd /workspaces/bit-semester-planner && ./mvnw spring-boot:run -DskipTests >> /tmp/backend.log 2>&1" > /dev/null 2>&1 &
+    echo "$(date) start.sh: backend launcher PID $!" >> "$LOG"
+else
+    echo "$(date) start.sh: backend already running, skipping" >> "$LOG"
+fi
+
+# Frontend: only start if neither vite nor a pending npm run dev is running
+if ! pgrep -f "vite" > /dev/null 2>&1 && ! pgrep -f "npm run dev" > /dev/null 2>&1; then
+    echo "$(date) start.sh: scheduling frontend (30s delay)" >> "$LOG"
+    nohup bash -c "sleep 30 && cd /workspaces/bit-semester-planner/frontend && npm run dev >> /tmp/frontend.log 2>&1" > /dev/null 2>&1 &
+    echo "$(date) start.sh: frontend scheduler PID $!" >> "$LOG"
+else
+    echo "$(date) start.sh: frontend already running or pending, skipping" >> "$LOG"
+fi
+
+echo "$(date) start.sh: done" >> "$LOG"

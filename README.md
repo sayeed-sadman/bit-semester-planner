@@ -155,8 +155,8 @@ integration, and profile management.
 
 Use cases shared by both roles include login, profile editing, and
 read access to the module catalogue. The diagram covers user stories
-US-01 through US-29. The AI Study Assistant and document upload
-functionality (US-30 through US-35) were introduced during development
+US-01 through US-28. The AI Study Assistant and document upload
+functionality (US-29 through US-34) were introduced during development
 and are not reflected in this diagram.
 
 ### 2.2 User Stories
@@ -214,22 +214,16 @@ and are not reflected in this diagram.
 | US-27 | Student | As a student, I want to see overlapping events across my connected calendars so that I can detect conflicts and plan my time better. |
 | US-28 | Student | As a student, I want the calendar view to be read-only so that event creation, updates, and deletions remain managed in my external calendar applications. |
 
-#### Business Rule
-
-| # | Role | User Story |
-|---|------|------------|
-| US-29 | Student | As a student, I want the system to allow at most two elective modules in my semester plan so that my plan follows the defined elective limit. |
-
 #### Study Assistant & Document Upload
 
 | # | Role | User Story |
 |---|------|------------|
-| US-30 | Both | As a student or admin, I want to upload a PDF or DOCX so that the AI can analyse its content. |
-| US-31 | Student | As a student, I want the AI to extract exam dates, deadlines, and grading from my upload so that I can quickly capture key information from lecture documents. |
-| US-32 | Student | As a student, I want to save the extracted information directly to my module notes so that I do not have to copy it manually. |
-| US-33 | Admin | As an admin, I want the system to match an uploaded PDF to an existing module so that I can update the module catalogue with accurate information. |
-| US-34 | Both | As a student or admin, I want to ask the AI study assistant questions about my modules and receive streamed answers so that I get immediate, contextual responses. |
-| US-35 | Student | As a student, I want the chatbot to be aware of my calendar events when answering scheduling questions so that its responses reflect my actual commitments. |
+| US-29 | Both | As a student or admin, I want to upload a PDF or DOCX so that the AI can analyse its content. |
+| US-30 | Student | As a student, I want the AI to extract exam dates, deadlines, and grading from my upload so that I can quickly capture key information from lecture documents. |
+| US-31 | Student | As a student, I want to save the extracted information directly to my module notes so that I do not have to copy it manually. |
+| US-32 | Admin | As an admin, I want the system to match an uploaded PDF to an existing module so that I can update the module catalogue with accurate information. |
+| US-33 | Both | As a student or admin, I want to ask the AI study assistant questions about my modules and receive streamed answers so that I get immediate, contextual responses. |
+| US-34 | Student | As a student, I want the chatbot to be aware of my calendar events when answering scheduling questions so that its responses reflect my actual commitments. |
 
 ### 2.3 Business Rules
 
