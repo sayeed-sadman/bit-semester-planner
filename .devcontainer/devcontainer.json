@@ -10,7 +10,7 @@
   "forwardPorts": [8080],
   "portsAttributes": {
     "8080": { "label": "Backend API", "onAutoForward": "notify" },
-    "5173": { "label": "Frontend", "onAutoForward": "openBrowser" }
+    "5173": { "label": "Frontend", "onAutoForward": "openBrowserOnce" }
   },
   "customizations": {
     "vscode": {
