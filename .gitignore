@@ -35,3 +35,14 @@ build/
 ### Environment ###
 /data/
 /docs/knowledge/.temp/
+
+### Runtime module PDFs (added by admin during session — not seed data) ###
+/docs/knowledge/*.pdf
+!/docs/knowledge/Algorithms and Data Structures.pdf
+!/docs/knowledge/Business Intelligence.pdf
+!/docs/knowledge/Internet Technology.pdf
+!/docs/knowledge/Logistics and Supply Chain Management.pdf
+!/docs/knowledge/Quantum Disruption.pdf
+!/docs/knowledge/Social Engineering with Africa.pdf
+!/docs/knowledge/Statistics and Probability.pdf
+!/docs/knowledge/Topics in Business Information Technology.pdf
