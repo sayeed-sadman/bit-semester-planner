@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
@@ -47,4 +48,9 @@ public class User {
     @JsonIgnore
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StudentCalendar> calendars = new ArrayList<>();
+
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DocumentUpload> documentUploads = new ArrayList<>();
 }
