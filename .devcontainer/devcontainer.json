@@ -6,8 +6,8 @@
       "version": "20"
     }
   },
-  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y tmux && cd /workspaces/bit-semester-planner && chmod +x mvnw start.sh 2>/dev/null || true && bash mvnw dependency:resolve -q && cd frontend && npm install",
-  "postStartCommand": "bash /workspaces/bit-semester-planner/start.sh && tmux attach -t bitsemesterplanner",
+  "postCreateCommand": "cd /workspaces/bit-semester-planner && chmod +x mvnw start.sh 2>/dev/null || true && bash mvnw dependency:resolve -q && cd frontend && npm install",
+  "postStartCommand": "bash /workspaces/bit-semester-planner/start.sh",
   "forwardPorts": [8080, 5173],
   "portsAttributes": {
     "8080": { "label": "Backend API", "onAutoForward": "notify" },
