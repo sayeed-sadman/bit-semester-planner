@@ -1,0 +1,35 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Backend",
+      "type": "shell",
+      "command": "cd /workspaces/bit-semester-planner && ./mvnw spring-boot:run -DskipTests",
+      "isBackground": true,
+      "problemMatcher": [],
+      "runOptions": {
+        "runOn": "folderOpen"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "label": "Backend"
+      }
+    },
+    {
+      "label": "Start Frontend",
+      "type": "shell",
+      "command": "sleep 10 && cd /workspaces/bit-semester-planner/frontend && npm run dev",
+      "isBackground": true,
+      "problemMatcher": [],
+      "runOptions": {
+        "runOn": "folderOpen"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "label": "Frontend"
+      }
+    }
+  ]
+}
