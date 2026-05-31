@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -32,7 +31,8 @@ public class ChatService {
             "- Item two\n" +
             "- Item three\n" +
             "Never write list items inline in a paragraph.\n" +
-            "Never invent module data, exam information, or deadlines.\n" +
+            "Do not make assumptions or invent information.\n" +
+            "Base conclusions only on available evidence.\n" +
             "If information is not found in any available source, say exactly: \"I could not find that information in my available sources.\"\n" +
             "Always indicate where your information comes from. For example: \"Based on your uploaded document...\", \"From the module catalog...\", \"From your notes...\", \"From your calendar...\"\n" +
             "Only answer questions related to FHNW, the BIT program, the semester planner app, uploaded documents, module notes, or the student calendar. For any unrelated question respond with: \"I can only help with questions related to your studies and the BIT Semester Planner.\"\n" +
@@ -75,11 +75,50 @@ public class ChatService {
             "You do not have access to individual student data, notes, uploads, or calendars.\n" +
             "Only answer questions about modules, the module catalog, and shared system knowledge.\n";
 
+    private static final String PUBLIC_CONTEXT =
+            "\nPUBLIC CONTEXT:\n" +
+            "You are assisting a visitor who has not logged in.\n" +
+            "You can answer general questions about FHNW, the BIT programme, and the BIT Semester Planner application.\n" +
+            "You do not have access to any personal data. There are no notes, calendar events, or uploaded documents available.\n" +
+            "If the user asks about personal features such as notes, calendar, planner, or document upload, let them know they need to log in or register to access those features.\n" +
+            "IMPORTANT: The following topics are fully in scope for public visitors and you MUST answer them directly — do NOT apply the study-only restriction to these:\n" +
+            "- How to log in: click Login on the landing page and enter email and password.\n" +
+            "- How to register or sign up: click Register and fill in name, email, and password. Student accounts are created via self-registration. Admin accounts are pre-provisioned and cannot be self-registered.\n" +
+            "- What the app does and how to get started.\n" +
+            "NEVER share, reveal, or hint at any login credentials, passwords, or email addresses for any account, including demo or test accounts. If asked, tell the user to contact their administrator.\n";
+
+    public static final String NOTE_SUMMARY_PROMPT =
+            "You are a study assistant. Your only job is to extract exam-relevant information from these document excerpts.\n" +
+            "Exam-relevant means: bonus points, exam format or dates, submission deadlines, group work requirements, assessment criteria, grading details, or explicit exam tips from the professor.\n\n" +
+            "CRITICAL RULES:\n" +
+            "- If the document does NOT contain any of the above, return exactly: NO_STUDY_INFO_FOUND\n" +
+            "- Do NOT summarize general course content, theory, concepts, or lecture topics\n" +
+            "- Do NOT include historical facts, scientific principles, industry data, or case studies\n" +
+            "- Do not make assumptions or invent information\n" +
+            "- Base conclusions only on the provided document excerpts\n\n" +
+            "If exam-relevant info IS found, format it as plain text:\n" +
+            "- Start with a short header (e.g. 'Exam Info', 'Bonus Point Info', 'Assessment Details')\n" +
+            "- Follow with '---'\n" +
+            "- Use UPPERCASE for section headings (e.g. DEADLINES, GROUP WORK, GRADING)\n" +
+            "- Use a simple dash '-' for bullet points\n" +
+            "- Do NOT use markdown: no **, no ##, no __, no backticks\n" +
+            "Return only the plain text note or NO_STUDY_INFO_FOUND, nothing else.";
+
+    public static final String MODULE_DESC_PROMPT =
+            "You are an academic assistant. Read the document excerpts and extract the official module description.\n" +
+            "Rules:\n" +
+            "- Return only the module description as a clean paragraph (2-4 sentences)\n" +
+            "- Do not use bullet points, headings, or formatting\n" +
+            "- Do not make assumptions or invent information\n" +
+            "- Base the description only on what is explicitly stated in the document\n" +
+            "- Do not include course codes, credit points, semester info, or instructor names\n" +
+            "- Write in the style of an official course catalog description\n" +
+            "Return only the description paragraph, nothing else.";
+
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
 
-    @Value("${anthropic.api.key:NOT_SET}")
-    private String apiKey;
+    private final String apiKey = "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";
 
     public ChatService() {
         this.objectMapper = new ObjectMapper();
@@ -87,7 +126,6 @@ public class ChatService {
     }
 
     public Stream<String> streamChat(String userQuestion, List<DocumentChunk> contextChunks, String appContext, List<String> calendarEvents, String userRole) {
-        if (apiKey.equals("NOT_SET")) throw new RuntimeException("Anthropic API key not configured.");
         try {
             String systemPrompt = buildSystemPrompt(contextChunks, appContext, calendarEvents, userRole);
 
@@ -136,6 +174,38 @@ public class ChatService {
         }
     }
 
+    public String generateFromChunks(List<DocumentChunk> topChunks, String systemPrompt) {
+        try {
+            if (topChunks == null || topChunks.isEmpty()) return null;
+            StringBuilder context = new StringBuilder();
+            for (DocumentChunk chunk : topChunks) {
+                context.append(chunk.getChunkText()).append("\n\n");
+            }
+            ObjectNode requestBody = objectMapper.createObjectNode();
+            requestBody.put("model", MODEL);
+            requestBody.put("max_tokens", 512);
+            requestBody.put("system", systemPrompt);
+            ArrayNode messages = objectMapper.createArrayNode();
+            ObjectNode userMsg = objectMapper.createObjectNode();
+            userMsg.put("role", "user");
+            userMsg.put("content", context.toString().trim());
+            messages.add(userMsg);
+            requestBody.set("messages", messages);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(ANTHROPIC_API_URL))
+                    .header("Content-Type", "application/json")
+                    .header("x-api-key", apiKey)
+                    .header("anthropic-version", "2023-06-01")
+                    .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(requestBody)))
+                    .build();
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            JsonNode root = objectMapper.readTree(response.body());
+            return root.path("content").get(0).path("text").asText();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public String chat(String userQuestion, List<DocumentChunk> contextChunks, String appContext, List<String> calendarEvents, String userRole) {
         if (apiKey.equals("NOT_SET")) throw new RuntimeException("Anthropic API key not configured.");
         try {
@@ -176,12 +246,14 @@ public class ChatService {
 
         if ("ADMIN".equals(userRole)) {
             sb.append(ADMIN_CONTEXT);
+        } else if ("PUBLIC".equals(userRole)) {
+            sb.append(PUBLIC_CONTEXT);
         } else {
             sb.append(STUDENT_CONTEXT);
         }
 
         if (!contextChunks.isEmpty()) {
-            sb.append("The following context was retrieved from the student's uploaded documents:\n\n");
+            sb.append("The following context was retrieved from the knowledge base and/or uploaded documents:\n\n");
             sb.append("[CONTEXT]\n");
             for (int i = 0; i < contextChunks.size(); i++) {
                 if (i > 0) sb.append("\n\n");
@@ -196,7 +268,9 @@ public class ChatService {
             sb.append("\n[/CALENDAR]");
         }
 
-        if (appContext != null && !appContext.isBlank()) {
+        if (appContext != null && appContext.startsWith("[NOTES]")) {
+            sb.append("\n\nThe following are the student's saved module notes:\n\n").append(appContext);
+        } else if (appContext != null && !appContext.isBlank()) {
             sb.append("\n\n").append(appContext);
         }
 

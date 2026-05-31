@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import { getAll } from "../services/moduleService";
 import { getPlanner, addModule, removeModule } from "../services/plannerService";
 import ModuleTable from "../components/modules/ModuleTable";
@@ -10,6 +11,7 @@ import ConfirmModal from "../components/common/ConfirmModal";
 
 export default function StudentCatalogPage() {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [modules, setModules] = useState([]);
   const [plannerIds, setPlannerIds] = useState(new Set());
   const [plannerModules, setPlannerModules] = useState([]);
@@ -25,16 +27,19 @@ export default function StudentCatalogPage() {
   const [addingId, setAddingId] = useState(null);
 
   useEffect(() => {
-    Promise.all([getAll(), getPlanner()])
+    const fetches = isAuthenticated
+      ? Promise.all([getAll(), getPlanner()])
+      : getAll().then((mods) => [mods, []]);
+    fetches
       .then(([mods, planner]) => {
-        setModules([...mods].sort((a, b) => a.semester - b.semester));
+        setModules([...mods].sort((a, b) => a.title.localeCompare(b.title)));
         const normalized = planner.map((sm) => sm.module);
         setPlannerModules(normalized);
         setPlannerIds(new Set(normalized.map((m) => m.moduleID)));
       })
       .catch(() => setError("Unable to connect to the server. Please try again later."))
       .finally(() => setLoading(false));
-  }, []);
+  }, [isAuthenticated]);
 
   const electiveCount = plannerModules.filter((m) => m.moduleType === "ELECTIVE").length;
 
@@ -83,15 +88,17 @@ export default function StudentCatalogPage() {
   return (
     <div className="max-w-screen-xl mx-auto px-6 py-8">
       <div className="mb-6">
-        <Link
-          to="/dashboard"
-          className="inline-flex items-center gap-1 text-primary text-sm font-medium hover:text-primary-dark transition-colors mb-3"
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          Back to My Planner
-        </Link>
+        {isAuthenticated && (
+          <Link
+            to="/dashboard"
+            className="inline-flex items-center gap-1 text-primary text-sm font-medium hover:text-primary-dark transition-colors mb-3"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Back to My Planner
+          </Link>
+        )}
         <h1 className="text-2xl font-bold text-dark">Module Catalog</h1>
       </div>
 
@@ -159,7 +166,14 @@ export default function StudentCatalogPage() {
                       >
                         View Detail
                       </button>
-                      {inPlanner ? (
+                      {!isAuthenticated ? (
+                        <Link
+                          to="/login"
+                          className="px-3 py-1.5 bg-success text-white text-xs font-medium rounded-input hover:bg-success-dark transition-colors"
+                        >
+                          Login to add
+                        </Link>
+                      ) : inPlanner ? (
                         <>
                           <button
                             onClick={() => setRemoveTarget(m)}

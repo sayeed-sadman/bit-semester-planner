@@ -37,8 +37,8 @@ export default function App() {
               <Route path="/admin/modules/:id" element={<ProtectedRoute role="ADMIN"><AdminModuleDetailPage /></ProtectedRoute>} />
 
               <Route path="/dashboard" element={<ProtectedRoute role="STUDENT"><StudentDashboardPage /></ProtectedRoute>} />
-              <Route path="/modules" element={<ProtectedRoute role="STUDENT"><StudentCatalogPage /></ProtectedRoute>} />
-              <Route path="/modules/:id" element={<ProtectedRoute role="STUDENT"><StudentModuleDetailPage /></ProtectedRoute>} />
+              <Route path="/modules" element={<StudentCatalogPage />} />
+              <Route path="/modules/:id" element={<StudentModuleDetailPage />} />
               <Route path="/notes/:moduleId" element={<ProtectedRoute role="STUDENT"><NoteDetailPage /></ProtectedRoute>} />
 
               <Route path="/profile" element={<ProtectedRoute><EditProfilePage /></ProtectedRoute>} />

@@ -64,13 +64,20 @@ public class ExtractionService {
             "credits", "semester", "campus", "bachelor", "master",
             "date", "datum", "version");
 
-    private static final Pattern SHORT_DESC_HEADER = Pattern.compile(
-            "(?i)^[ \\t]*((?:Leading principle|Short description|Kurzbeschreibung)" +
-            "(?:[ \\t]*/[ \\t]*(?:Leading principle|Short description|Kurzbeschreibung))*)[ \\t:/]*");
+    private static final Pattern SHORT_DESC_FULL = Pattern.compile(
+            "(?is)(?:Leading principle|Short description|Kurzbeschreibung)[^\\n]*\\n(.*?)" +
+            "(?=\\n[ \\t]*(?:Module content|Competencies to be achieved|Prerequisites|" +
+            "Teaching and learning|Literature|Remarks|Grading|Assessment|Learning outcomes?" +
+            "|Learning objectives?|Objectives?|Content|Workload|Contact hours?" +
+            "|Module aims?|Intended learning)[ \\t]*(?:\\n|$))");
 
-    private static final Pattern SECTION_HEADER_LINE = Pattern.compile(
-            "(?i)^(Module content|Competencies|Prerequisites|Teaching and learning|" +
-            "Literature|Remarks|Grading|Assessment)[:\\s]*$");
+    private static final List<String> DESC_STOP_HEADERS = List.of(
+            "Module content", "Competencies to be achieved", "Prerequisites",
+            "Teaching and learning", "Literature", "Remarks", "Grading", "Assessment",
+            "Learning outcomes", "Learning objectives", "Objectives", "Content",
+            "Workload", "Contact hours", "Module aims", "Intended learning",
+            "Module coordinator", "Language of instruction", "Assessment criteria");
+
 
     private static final Pattern CREDITS_INLINE = Pattern.compile(
             "(?:ECTS\\s*:?\\s*(\\d+)|(\\d+)\\s*ECTS|Credits?\\s*:?\\s*(\\d+))",
@@ -115,20 +122,18 @@ public class ExtractionService {
         String lecturerEmail    = extractLecturerEmail(rawText);
         String campus           = extractCampus(rawText);
 
-        String suggestedNoteText =
-                "Module Notes\n" +
-                "---\n" +
-                "Exam Style:        " + examStyle        + "\n" +
-                "Exam Date:         " + examDate         + "\n" +
-                "Duration:          " + duration         + "\n" +
-                "Allowed Materials: " + allowedMaterials + "\n" +
-                "---\n" +
-                "Grading:           " + grading          + "\n" +
-                "Bonus Points:      " + bonusPoints      + "\n" +
-                "Deadlines:         " + deadlines        + "\n" +
-                "Group Work:        " + groupWork        + "\n" +
-                "---\n" +
-                "Notes:\n" + additionalNotes;
+        StringBuilder noteBuilder = new StringBuilder("Module Notes\n---\n");
+        if (!NO_INFO.equals(examStyle))        noteBuilder.append("Exam Style:        ").append(examStyle).append("\n");
+        if (!NO_INFO.equals(examDate))         noteBuilder.append("Exam Date:         ").append(examDate).append("\n");
+        if (!NO_INFO.equals(duration))         noteBuilder.append("Duration:          ").append(duration).append("\n");
+        if (!NO_INFO.equals(allowedMaterials)) noteBuilder.append("Allowed Materials: ").append(allowedMaterials).append("\n");
+        if (!NO_INFO.equals(grading))          noteBuilder.append("Grading:           ").append(grading).append("\n");
+        if (!NO_INFO.equals(bonusPoints) && !"None".equals(bonusPoints))
+                                               noteBuilder.append("Bonus Points:      ").append(bonusPoints).append("\n");
+        if (!NO_INFO.equals(deadlines))        noteBuilder.append("Deadlines:         ").append(deadlines).append("\n");
+        if (!NO_INFO.equals(groupWork))        noteBuilder.append("Group Work:        ").append(groupWork).append("\n");
+        if (!additionalNotes.isBlank())        noteBuilder.append("Notes:\n").append(additionalNotes).append("\n");
+        String suggestedNoteText = noteBuilder.toString();
 
         List<String> facts = new ArrayList<>();
         if (!NO_INFO.equals(examStyle))        facts.add("Exam Style: "        + examStyle);
@@ -188,11 +193,21 @@ public class ExtractionService {
         return found.isEmpty() ? NO_INFO : sanitize(String.join(", ", found));
     }
 
+    private static final List<String> GRADING_CONTEXT_KEYWORDS = List.of(
+            "exam", "grade", "grading", "assignment", "project", "quiz",
+            "mark", "final", "midterm", "test", "submission", "pass");
+
     private String extractGrading(String text) {
         Set<String> snippets = new LinkedHashSet<>();
         for (String segment : text.split("[\\n,;]+")) {
             String trimmed = segment.trim().replaceAll("\\s+", " ");
             if (PERCENTAGE.matcher(trimmed).find() || WORTH_POINTS.matcher(trimmed).find()) {
+                String segLower = trimmed.toLowerCase();
+                boolean looksLikeGrading = false;
+                for (String kw : GRADING_CONTEXT_KEYWORDS) {
+                    if (segLower.contains(kw)) { looksLikeGrading = true; break; }
+                }
+                if (!looksLikeGrading) continue;
                 snippets.add(trimmed.length() > 60 ? trimmed.substring(0, 57) + "…" : trimmed);
                 if (snippets.size() >= 5) break;
             }
@@ -279,39 +294,49 @@ public class ExtractionService {
     }
 
     private String extractShortDescription(String text) {
-        String[] lines = text.split("\\n", -1);
-        // Find the header line; keep the Matcher so we can use m.end() on the same line
-        int headerLineIdx = -1;
-        Matcher headerMatch = null;
-        for (int i = 0; i < lines.length; i++) {
-            Matcher m = SHORT_DESC_HEADER.matcher(lines[i]);
-            if (m.find()) {
-                headerLineIdx = i;
-                headerMatch = m;
-                break;
+        // Try precise regex with section-header lookahead first
+        Matcher m = SHORT_DESC_FULL.matcher(text);
+        if (m.find()) {
+            String captured = m.group(1)
+                    .replaceAll("[ \\t]+", " ")
+                    .replaceAll("\\n+", " ")
+                    .trim();
+            if (!captured.isEmpty()) {
+                if (captured.length() > 2000) captured = captured.substring(0, 2000).trim();
+                return sanitize(captured);
             }
         }
-        if (headerLineIdx < 0) return NO_INFO;
-        StringBuilder sb = new StringBuilder();
-        // Capture description text that sits on the same line as the header, after m.end()
-        String remainder = lines[headerLineIdx].substring(headerMatch.end())
-                .replaceAll("^[ \\t/:]+", "")
-                .trim();
-        if (!remainder.isEmpty()) {
-            sb.append(remainder);
+
+        // Fallback: locate the keyword and capture from right after it
+        String[] keywords = {"Short description", "Leading principle", "Kurzbeschreibung"};
+        String lower = text.toLowerCase();
+        for (String kw : keywords) {
+            int idx = lower.indexOf(kw.toLowerCase());
+            if (idx < 0) continue;
+            int startPos = idx + kw.length();
+            // Skip optional colon and inline whitespace immediately after the keyword
+            while (startPos < text.length() && ":  \t".indexOf(text.charAt(startPos)) >= 0) {
+                startPos++;
+            }
+            String chunk = text.substring(startPos, Math.min(text.length(), startPos + 3000));
+            String chunkLower = chunk.toLowerCase();
+            int stopAt = chunk.length();
+            for (String stop : DESC_STOP_HEADERS) {
+                // Only stop if the header appears at the start of a new line
+                int si = chunkLower.indexOf("\n" + stop.toLowerCase());
+                if (si >= 0 && si < stopAt) stopAt = si + 1;
+            }
+            String captured = chunk.substring(0, stopAt)
+                    .replaceAll("[ \\t]+", " ")
+                    .replaceAll("\\n+", " ")
+                    .trim();
+            if (!captured.isEmpty()) {
+                if (captured.length() > 2000) captured = captured.substring(0, 2000).trim();
+                return sanitize(captured);
+            }
         }
-        // Continue collecting subsequent lines until a section header or 500 chars
-        for (int i = headerLineIdx + 1; i < lines.length; i++) {
-            String trimmed = lines[i].trim();
-            if (sb.length() == 0 && trimmed.isEmpty()) continue; // skip leading blank lines only
-            if (SECTION_HEADER_LINE.matcher(trimmed).find()) break; // stop before next section
-            if (sb.length() > 0) sb.append(" ");
-            sb.append(trimmed);
-            if (sb.length() >= 500) break;
-        }
-        String extracted = sb.toString().trim();
-        if (extracted.length() > 500) extracted = extracted.substring(0, 500).trim();
-        return extracted.isEmpty() ? NO_INFO : sanitize(extracted);
+
+        return NO_INFO;
     }
 
     private String extractCredits(String text) {

@@ -24,8 +24,9 @@ export default function ModuleDetailCard({ module }) {
       <Field label="Lecturer" value={module.lecturerName} />
       <Field label="Lecturer Email" value={module.lecturerEmail} />
       <Field label="Language" value={module.language} />
-      <div className="sm:col-span-2">
-        <Field label="Description" value={module.description} />
+      <div className="sm:col-span-2 flex flex-col gap-1">
+        <span className="text-xs font-medium text-dark-muted uppercase tracking-wide">Description</span>
+        <span className="text-sm text-dark-secondary whitespace-pre-wrap">{module.description || "—"}</span>
       </div>
       <Field label="Schedule" value={module.schedule} />
       <Field label="Location" value={module.location} />

@@ -4,6 +4,19 @@ import { getById, update, deleteModule } from "../services/moduleService";
 import Badge from "../components/common/Badge";
 import SuccessBanner from "../components/common/SuccessBanner";
 import ConfirmModal from "../components/common/ConfirmModal";
+import PdfViewerModal from "../components/common/PdfViewerModal";
+
+function getAuthHeaders() {
+  const headers = {};
+  const stored = localStorage.getItem("auth_credentials");
+  if (stored) {
+    try {
+      const { email, password } = JSON.parse(atob(stored));
+      headers["Authorization"] = "Basic " + btoa(`${email}:${password}`);
+    } catch {}
+  }
+  return headers;
+}
 
 const FIELD_LABELS = {
   title: "Module Name",
@@ -95,8 +108,11 @@ function EditableField({ fieldKey, value, onSave, onSaved }) {
           </button>
         </div>
       ) : (
-        <div className="flex items-center justify-between gap-4">
-          <span className="text-sm text-dark-secondary">
+        <div className="flex items-start justify-between gap-4">
+          <span
+            className="text-sm text-dark-secondary"
+            style={fieldKey === "description" ? { whiteSpace: "pre-wrap" } : {}}
+          >
             {fieldKey === "moduleType" ? <Badge type={value} /> : (value || "—")}
           </span>
           <button
@@ -123,6 +139,9 @@ export default function AdminModuleDetailPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [savedToast, setSavedToast] = useState(false);
+  const [showPdf, setShowPdf] = useState(false);
+  const [replacePdfFile, setReplacePdfFile] = useState(null);
+  const [pdfUploadStatus, setPdfUploadStatus] = useState(null);
   const toastTimerRef = useRef(null);
 
   useEffect(() => {
@@ -175,6 +194,12 @@ export default function AdminModuleDetailPage() {
       </Link>
 
       <div className="relative flex items-center justify-center mb-6">
+        <button
+          onClick={() => setShowPdf(true)}
+          className="absolute left-0 px-4 py-2 bg-primary text-white text-sm font-semibold rounded-button hover:bg-primary-dark transition-colors"
+        >
+          Official Description
+        </button>
         <h1 className="text-2xl font-bold text-dark">Module Detail</h1>
         <button
           onClick={() => setShowDeleteModal(true)}
@@ -183,6 +208,14 @@ export default function AdminModuleDetailPage() {
           Delete Module
         </button>
       </div>
+
+      {showPdf && module && (
+        <PdfViewerModal
+          pdfUrl={`/api/modules/${module.moduleID}/pdf`}
+          title={`${module.title} — Official Description`}
+          onClose={() => setShowPdf(false)}
+        />
+      )}
 
       <SuccessBanner
         isVisible={showCreatedBanner}
@@ -200,6 +233,41 @@ export default function AdminModuleDetailPage() {
             onSaved={showSavedToast}
           />
         ))}
+      </div>
+
+      <div className="mt-3 bg-white border border-surface-border rounded-card px-4 py-4">
+        <span className="text-xs font-medium text-dark-muted uppercase tracking-wide block mb-2">
+          Upload / Replace Official Description PDF
+        </span>
+        <div className="flex items-center gap-3 flex-wrap">
+          <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 border border-surface-border rounded-input text-sm text-dark-muted hover:border-primary hover:text-primary transition-colors">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <path d="M3 2h7l3 3v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round"/>
+              <path d="M10 2v3h3" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round"/>
+            </svg>
+            {replacePdfFile ? replacePdfFile.name : "Choose PDF…"}
+            <input type="file" accept=".pdf" className="hidden" onChange={(e) => { setReplacePdfFile(e.target.files[0] || null); setPdfUploadStatus(null); }} />
+          </label>
+          <button
+            onClick={async () => {
+              if (!replacePdfFile) return;
+              setPdfUploadStatus("uploading");
+              const formData = new FormData();
+              formData.append("file", replacePdfFile);
+              try {
+                const res = await fetch(`/api/modules/${id}/pdf`, { method: "POST", headers: getAuthHeaders(), body: formData });
+                setPdfUploadStatus(res.ok ? "done" : "error");
+                if (res.ok) setReplacePdfFile(null);
+              } catch { setPdfUploadStatus("error"); }
+            }}
+            disabled={!replacePdfFile || pdfUploadStatus === "uploading"}
+            className="px-3 py-2 bg-primary text-white text-sm font-medium rounded-input hover:bg-primary-dark transition-colors disabled:opacity-50"
+          >
+            {pdfUploadStatus === "uploading" ? "Uploading…" : "Upload"}
+          </button>
+          {pdfUploadStatus === "done" && <span className="text-xs text-success font-medium">PDF updated successfully.</span>}
+          {pdfUploadStatus === "error" && <span className="text-xs text-danger font-medium">Upload failed. Please try again.</span>}
+        </div>
       </div>
 
       <ConfirmModal

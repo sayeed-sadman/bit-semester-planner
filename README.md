@@ -129,7 +129,7 @@ of missing important information.
   dashboard and a full-page editor at `/notes/:moduleId`.
 - **Calendar Integration** — Connect any ICS calendar feed; events are
   visualised in a weekly grid with overlap detection.
-- **AI Study Assistant** — RAG-powered chatbot available on every authenticated page; answers questions about FHNW/BIT studies, uploaded documents, and calendar schedules while streaming responses via SSE.
+- **AI Study Assistant** — RAG-powered chatbot available on every page; unauthenticated visitors can ask general FHNW/BIT questions, while logged-in students and admins receive personalised assistance grounded in their own documents, notes, and calendar events, streamed via SSE.
 - **Document Upload & Analysis** — Upload a PDF or DOCX; the AI extracts
   exam dates, grading, deadlines, credits, and lecturer information;
   students can save the results directly to module notes, and admins can
@@ -156,7 +156,7 @@ integration, and profile management.
 Use cases shared by both roles include login, profile editing, and
 read access to the module catalogue. The diagram covers user stories
 US-01 through US-28. The AI Study Assistant and document upload
-functionality (US-29 through US-34) were introduced during development
+functionality (US-29 through US-35) were introduced during development
 and are not reflected in this diagram.
 
 ### 2.2 User Stories
@@ -224,6 +224,7 @@ and are not reflected in this diagram.
 | US-32 | Admin | As an admin, I want the system to match an uploaded PDF to an existing module so that I can update the module catalogue with accurate information. |
 | US-33 | Both | As a student or admin, I want to ask the AI study assistant questions about my modules and receive streamed answers so that I get immediate, contextual responses. |
 | US-34 | Student | As a student, I want the chatbot to be aware of my calendar events when answering scheduling questions so that its responses reflect my actual commitments. |
+| US-35 | Public | As an unauthenticated visitor, I want to ask the AI study assistant general questions about FHNW and the BIT programme so that I can learn about the programme before registering. |
 
 ### 2.3 Business Rules
 
@@ -277,7 +278,7 @@ The following business rules define the constraints and policies that govern the
 | FR-24 | The system shall detect and visually highlight overlapping events across connected calendars. |
 | FR-25 | Calendar events shall be read-only within the application; creation, editing, and deletion remain in the external calendar tool. |
 | **AI Study Assistant** | |
-| FR-26 | An AI-powered study assistant shall be available on every page accessible to authenticated users. |
+| FR-26 | An AI-powered study assistant shall be available on every page of the application, including public pages. Unauthenticated visitors may ask general questions about FHNW and the BIT programme; authenticated users additionally receive personalised assistance based on their data. |
 | FR-27 | The assistant shall answer questions related to FHNW studies, BIT modules, uploaded documents, and academic deadlines. |
 | FR-28 | When responding to scheduling questions, the assistant shall take the student's connected calendar events into account. |
 | FR-29 | Chat history shall be retained for the duration of the browser session and cleared when the browser is closed. |
@@ -320,7 +321,7 @@ The following business rules define the constraints and policies that govern the
 | NFR-17 | All API endpoints shall be documented using OpenAPI 3.0 and accessible via Swagger UI from the running application without requiring access to the source code. |
 | **Portability** | |
 | NFR-18 | The application shall be deployable on GitHub Codespaces without requiring local installation. All services shall start automatically when the development environment is initialised. |
-| NFR-19 | The application shall be fully reproducible by any team member or evaluator directly from the repository, with no additional configuration required beyond setting the external AI API key. |
+| NFR-19 | The application shall be fully reproducible by any team member or evaluator directly from the repository, with no additional configuration required. |
 | **Version Control** | |
 | NFR-20 | All source code and project artefacts shall be maintained in a Git-based version control repository with traceable change history. |
 
@@ -419,10 +420,10 @@ All 11 pages were first designed in Figma before implementation. The Figma file 
 | `/register` | `RegisterPage` | Unauthenticated | Student self-registration form. |
 | `/admin/modules` | `AdminCatalogPage` | Admin | Browse and manage all BIT modules; filter by semester and module type. |
 | `/admin/modules/new` | `AdminAddModulePage` | Admin | Create a new module entry in the catalogue. |
-| `/admin/modules/:id` | `AdminModuleDetailPage` | Admin | View, edit, or delete an existing module. |
+| `/admin/modules/:id` | `AdminModuleDetailPage` | Admin | View, edit, or delete an existing module. Includes a button to open the official module description PDF in a floating viewer. |
 | `/dashboard` | `StudentDashboardPage` | Student | Personal workspace combining semester planning, module notes, calendar integration, and AI-assisted study support. |
 | `/modules` | `StudentCatalogPage` | Student | Browse the full BIT module catalogue with filter options. |
-| `/modules/:id` | `StudentModuleDetailPage` | Student | View module details; add or remove the module from the semester plan. |
+| `/modules/:id` | `StudentModuleDetailPage` | Student | View module details; add or remove the module from the semester plan. Includes a button to open the official module description PDF in a floating viewer. |
 | `/notes/:moduleId` | `NoteDetailPage` | Student | Full-page note editor for a specific planned module. |
 | `/profile` | `EditProfilePage` | Admin + Student | Edit name and password; students may also update their email address or permanently delete their account. |
 
@@ -438,7 +439,8 @@ All 11 pages were first designed in Figma before implementation. The Figma file 
 | `AddCalendarPopup` | dashboard/AddCalendarPopup.jsx | Form for connecting a new ICS calendar feed by entering a URL and display name. |
 | `NoteDetailPage` | pages/NoteDetailPage.jsx | Full-page note editor for a specific planned module, accessible at `/notes/:moduleId`. |
 | `ConfirmModal` | common/ConfirmModal.jsx | Reusable confirmation dialog used before all destructive actions such as deletion and account removal. |
-| `ChatBot` | ChatBot/ChatBot.jsx | Floating AI study assistant rendered in the bottom-right corner of every authenticated page. Provides contextual study assistance through streaming responses, supports document upload (PDF and DOCX) for AI-assisted analysis, and includes a document management panel for viewing and deleting uploaded files. Displays role-specific panels after upload: note-save for students, module update or creation for admins. |
+| `PdfViewerModal` | common/PdfViewerModal.jsx | Full-screen overlay that renders an official module description PDF inside an iframe. Triggered from module detail pages for both admin and student roles. Closes on button click, backdrop click, or Escape key. |
+| `ChatBot` | ChatBot/ChatBot.jsx | Floating AI study assistant rendered in the bottom-right corner of every page. Provides contextual study assistance through streaming responses, supports document upload (PDF and DOCX) for AI-assisted analysis, and includes a document management panel for viewing and deleting uploaded files. Displays role-specific panels after upload: note-save for students, module update or creation for admins. |
 | `useChatBot` | ChatBot/useChatBot.js | Custom hook that serves as the state-management layer for the ChatBot component. Manages message history, SSE stream handling, file upload and deletion, and session-scoped chat persistence. |
 
 ### 4.6 Responsive Layout
@@ -533,7 +535,7 @@ ch.fhnw.bitsemesterplanner/
 | **Database** | | |
 | H2 (file-based) | Embedded relational database | Persisting all application data between restarts using a local file; accessible via H2 Console for development inspection |
 | **API Documentation** | | |
-| springdoc-openapi / Swagger UI | OpenAPI 3.0 documentation generator | Auto-generating interactive API documentation for all 27 endpoints from controller annotations; accessible at `/swagger-ui.html` |
+| springdoc-openapi / Swagger UI | OpenAPI 3.0 documentation generator | Auto-generating interactive API documentation for all 30 endpoints from controller annotations; accessible at `/swagger-ui.html` |
 | **Calendar Integration** | | |
 | ical4j | Java iCalendar parsing library | Fetching and parsing ICS calendar feeds from external URLs; extracting event data including all-day and datetime formats |
 | **AI & RAG** | | |
@@ -674,14 +676,14 @@ if they are not already present in the database.
 
 | Module | Semester | Credits | Type | Campus |
 |--------|----------|---------|------|--------|
+| Algorithms and Data Structures | 4 | 3 | ELECTIVE | Basel |
+| Business Intelligence | 4 | 5 | COMPULSORY | Basel |
 | Internet Technology | 4 | 5 | COMPULSORY | Basel |
-| Software Engineering | 3 | 5 | COMPULSORY | Basel |
-| Project Management | 4 | 3 | COMPULSORY | Basel |
-| Web Development | 3 | 3 | COMPULSORY | Windisch |
-| Business Intelligence | 5 | 5 | ELECTIVE | Windisch |
-| Data Science | 5 | 5 | ELECTIVE | Basel |
-| Machine Learning | 6 | 5 | ELECTIVE | Windisch |
-| Digital Transformation | 6 | 3 | ELECTIVE | Basel |
+| Logistics and Supply Chain Management | 4 | 5 | COMPULSORY | Basel |
+| Quantum Disruption | 4 | 3 | ELECTIVE | Basel |
+| Social Engineering with Africa | 4 | 3 | ELECTIVE | Basel |
+| Statistics and Probability | 4 | 5 | COMPULSORY | Basel |
+| Topics in Business Information Technology | 4 | 5 | COMPULSORY | Basel |
 
 User accounts are seeded individually by email check. Modules are
 seeded as a batch only when the module table is empty.
@@ -693,9 +695,7 @@ processes any PDF or DOCX files found there. Each file is extracted,
 chunked, and embedded via the Anthropic API, then persisted as a
 `DocumentUpload` (with `student = null`, marking it as shared
 knowledge) along with its associated `DocumentChunk` records.
-Files already present in the database are skipped. The directory is
-included in the repository as an empty placeholder; knowledge documents
-are added by the operator prior to deployment.
+Files already present in the database are skipped. The `docs/knowledge/` directory currently contains 8 official BIT module description PDFs which are processed automatically on first startup, providing the assistant with accurate module content from day one.
 
 ---
 
@@ -705,7 +705,7 @@ are added by the operator prior to deployment.
 
 The BIT Semester Planner exposes a RESTful HTTP API under the `/api/`
 path prefix. The following principles are applied consistently across
-all 27 endpoints.
+all 30 endpoints.
 
 **Resource-Oriented Endpoint Design**
 
@@ -768,6 +768,9 @@ user's profile on sign-in.
 |--------|----------|---------|------------------------|
 | `GET` | `/api/modules` | Return all modules in the BIT catalogue. Supports optional query parameters `semester` (integer) and `type` (`COMPULSORY` \| `ELECTIVE`) for filtering. | No — public endpoint |
 | `GET` | `/api/modules/{id}` | Return a single module by its ID. Returns `404 Not Found` if the module does not exist. | No — public endpoint |
+| `GET` | `/api/modules/{id}/pdf` | Stream the official module description PDF from `docs/knowledge/`. Returns `404 Not Found` if no PDF exists for the module title. | No — public endpoint |
+| `POST` | `/api/modules/{id}/pdf` | Upload or replace the official description PDF for a module. The file is saved to `docs/knowledge/{title}.pdf` and immediately indexed into the RAG knowledge base. Returns `200 OK` on success. | Yes — `ADMIN` role only |
+| `POST` | `/api/modules/{id}/pdf/from-upload/{uploadId}` | Promote a previously uploaded RAG temp file to the module's official description PDF. Copies the file from `docs/knowledge/.temp/{uploadId}.pdf` to `docs/knowledge/{title}.pdf` and immediately indexes it. Returns `200 OK` on success; `404 Not Found` if the temp file does not exist. | Yes — `ADMIN` role only |
 | `POST` | `/api/modules` | Create a new module. Returns `201 Created` on success; `403 Forbidden` if the caller does not hold the `ADMIN` role. | Yes — `ADMIN` role only |
 | `PUT` | `/api/modules/{id}` | Replace all fields of an existing module. Returns `404 Not Found` if the module does not exist; `403 Forbidden` if the caller is not an admin. | Yes — `ADMIN` role only |
 | `DELETE` | `/api/modules/{id}` | Delete a module by ID. Returns `204 No Content` on success; `404 Not Found` if the module does not exist; `403 Forbidden` if the caller is not an admin. | Yes — `ADMIN` role only |
@@ -823,8 +826,8 @@ update, and account deletion — are handled exclusively through the
 
 | Method | Endpoint | Purpose | Authentication Required |
 |--------|----------|---------|------------------------|
-| `POST` | `/api/chat` | Submit a question to the AI study assistant. If a `userId` is provided in the request body, the top three most relevant document chunks from that student's uploads — and their connected calendar events — are included as context. Returns a `ChatResponse` containing the answer and the number of RAG chunks used. | Yes — any authenticated user |
-| `POST` | `/api/chat/stream` | Submit a question and receive the response as a Server-Sent Events (SSE) stream, delivered chunk by chunk. Applies the same RAG and calendar context logic as the non-streaming endpoint. | Yes — any authenticated user |
+| `POST` | `/api/chat` | Submit a question to the AI study assistant. Knowledge base chunks (from `docs/knowledge/`) are always included as context for all users. If a `userId` is provided, the top five most relevant chunks from that student's uploads and the knowledge base combined — plus their connected calendar events — are added as context. Returns a `ChatResponse` containing the answer and the number of RAG chunks used. | No — public endpoint |
+| `POST` | `/api/chat/stream` | Submit a question and receive the response as a Server-Sent Events (SSE) stream, delivered chunk by chunk. Applies the same RAG and calendar context logic as the non-streaming endpoint, including knowledge base retrieval for all roles. | No — public endpoint |
 | `POST` | `/api/rag/upload` | Upload a PDF or DOCX file (up to 20 MB). The server extracts the full text, splits it into overlapping chunks, generates an embedding for each chunk via the Anthropic API, and persists them as `DocumentChunk` records. Returns `201 Created` with the upload ID, chunk count, and extracted study suggestions. Returns `400 Bad Request` for unsupported file types. | Yes — `STUDENT` or `ADMIN` |
 | `GET` | `/api/rag/uploads` | Return a list of all documents uploaded by the authenticated user. Embedding data is not included in the response. | Yes — `STUDENT` or `ADMIN` |
 | `DELETE` | `/api/rag/uploads/{id}` | Delete an uploaded document and all its associated chunks. Returns `204 No Content` on success; `403 Forbidden` if the upload belongs to a different student; `404 Not Found` if the upload does not exist. | Yes — `STUDENT` or `ADMIN` |
@@ -894,7 +897,7 @@ controller layer:
 - `@Parameter` — describes path variables and query parameters
 
 All seven controllers are annotated in this manner, resulting in a
-fully navigable Swagger UI that covers all 27 endpoints. The UI also
+fully navigable Swagger UI that covers all 30 endpoints. The UI also
 serves as a lightweight manual testing interface during development.
 
 ## 8. Business Logic
@@ -928,7 +931,7 @@ location where business rules are enforced.
 | Service | Responsibility |
 |---------|----------------|
 | `UserService` | Student registration (BR-09: hardcodes `STUDENT` role); credential loading for Spring Security; profile update with admin email lock (BR-04) and password verification (BR-05); account deletion; unique email enforcement (BR-10) |
-| `ModuleService` | CRUD operations for the BIT module catalogue; filtering by semester and module type; admin-scoped write operations |
+| `ModuleService` | CRUD operations for the BIT module catalogue; filtering by semester and module type with results returned alphabetically by title; admin-scoped write operations |
 | `StudentModuleService` | Semester plan management; enforces the two-elective limit (BR-01) and duplicate-module constraint (BR-02) before persisting; cascades note deletion on module removal (BR-06) |
 | `NoteService` | Upsert-based note management (BR-03): creates a new note or updates the existing one for a given student–module pair; note retrieval and deletion |
 | `CalendarService` | Registration and deletion of ICS calendar connections with ownership enforcement (BR-07); live fetching and parsing of ICS feeds via ical4j; overlap detection across all connected calendars |
@@ -966,7 +969,7 @@ Access to each endpoint group is governed by Spring Security
 |----------------|--------------|---------|
 | `GET /api/modules`, `GET /api/modules/{id}` | No | Public |
 | `POST /api/auth/register` | No | Public |
-| `POST /api/chat` | Yes | Any authenticated user |
+| `POST /api/chat`, `POST /api/chat/stream` | No | Public |
 | `/swagger-ui.html`, `/swagger-ui/**`, `/api-docs/**` | No | Public (development) |
 | `/h2-console/**` | No | Public (development) |
 | `POST /api/modules` | Yes | `ADMIN` only |
@@ -981,10 +984,7 @@ Access to each endpoint group is governed by Spring Security
 | `GET /api/rag/uploads` | Yes | `STUDENT` or `ADMIN` |
 | `DELETE /api/rag/uploads/{id}` | Yes | `STUDENT` or `ADMIN` |
 | `GET /api/auth/me`, `PUT /api/auth/me` | Yes | Any authenticated user |
-| `POST /api/chat/stream` | Yes | Any authenticated user |
 | Any other `/api/**` | Yes | Any authenticated user (fallback) |
-
-Note: Both `POST /api/chat` and `POST /api/chat/stream` require authentication. Unauthenticated callers receive `401 Unauthorized`.
 
 ### 9.3 Password Storage
 
@@ -1047,9 +1047,9 @@ application state is discarded (`AuthContext.jsx:49–54`).
 
 ### 10.1 Feature Overview
 
-The BIT Study Assistant is a conversational AI assistant embedded as a floating panel in the bottom-right corner of every authenticated page. It is powered by Anthropic Claude (`claude-haiku-4-5-20251001`) and responds exclusively to questions related to FHNW, the BIT programme, the semester planner application, uploaded documents, module notes, and the student calendar. Off-topic queries are declined with a standardised message. Responses are streamed to the client via Server-Sent Events, and chat history is persisted in `sessionStorage` for the duration of the browser session.
+The BIT Study Assistant is a conversational AI assistant embedded as a floating panel in the bottom-right corner of every page. It is powered by Anthropic Claude (`claude-haiku-4-5-20251001`) and responds exclusively to questions related to FHNW, the BIT programme, the semester planner application, uploaded documents, module notes, and the student calendar. Off-topic queries are declined with a standardised message. Responses are streamed to the client via Server-Sent Events, and chat history is persisted in `sessionStorage` for the duration of the browser session.
 
-The assistant is role-aware. Students receive personalised assistance grounded in their own uploaded documents, module notes, and connected calendar events. Admins receive assistance scoped to the module catalog and shared system knowledge. This role separation is enforced through distinct system prompt contexts injected at request time.
+The assistant is role-aware and operates in three distinct modes. Unauthenticated visitors receive general assistance covering FHNW and BIT programme information, and can ask how to register or log in, but have no access to personal data. Students receive personalised assistance grounded in their own uploaded documents, module notes, and connected calendar events. Admins receive assistance scoped to the module catalog and shared system knowledge. This role separation is enforced through distinct system prompt contexts (`PUBLIC_CONTEXT`, `STUDENT_CONTEXT`, `ADMIN_CONTEXT`) injected at request time.
 
 Document upload is a central capability. Students may upload PDF or DOCX files; the system extracts text, splits it into chunks, generates pseudo-embeddings, and indexes the content for retrieval. After upload, the assistant analyses the document and surfaces a pre-populated note draft that the student can review and save directly to a module in their semester plan. Admins uploading module documents are instead presented with a module match workflow: the system attempts to match the document to an existing module in the catalog and proposes targeted field updates, or pre-fills a new module creation form if no match is found.
 
@@ -1115,7 +1115,8 @@ The RAG pipeline covers two distinct phases: an **ingestion phase** that process
            ▼
 ┌───────────────────────────────────────────────────────┐
 │  Candidate Retrieval                                  │
-│  Load all DocumentChunk rows belonging to the user    │
+│  Always: knowledge base chunks (student = null)       │
+│  + user's own upload chunks (if userId provided)      │
 │  Deserialise embeddingJson → float[64] per chunk      │
 └──────────┬────────────────────────────────────────────┘
            │
@@ -1124,15 +1125,15 @@ The RAG pipeline covers two distinct phases: an **ingestion phase** that process
 │  Cosine Similarity Ranking                            │
 │  score(q, c) = (q · c) / (‖q‖ × ‖c‖)                │
 │  Computed in Java for every candidate chunk           │
-│  Top-K = 3 chunks selected by descending score        │
+│  Top-K = 5 chunks selected by descending score        │
 └──────────┬────────────────────────────────────────────┘
            │
            ▼
 ┌───────────────────────────────────────────────────────┐
 │  Prompt Construction  (ChatService.buildSystemPrompt) │
 │  Base system prompt                                   │
-│  + Role context (STUDENT_CONTEXT or ADMIN_CONTEXT)    │
-│  + [CONTEXT] … top-3 chunk texts … [/CONTEXT]         │
+│  + Role context (PUBLIC_CONTEXT, STUDENT_CONTEXT, or ADMIN_CONTEXT) │
+│  + [CONTEXT] … top-5 chunk texts … [/CONTEXT]         │
 │  + [CALENDAR] … upcoming events … [/CALENDAR]         │
 │  + Current date header                                │
 └──────────┬────────────────────────────────────────────┘
@@ -1153,9 +1154,11 @@ The RAG pipeline covers two distinct phases: an **ingestion phase** that process
 
 **Chunking strategy.** A sliding-window splitter divides each document into 400-word chunks with a 50-word overlap. The overlap ensures that information spanning a chunk boundary is represented in at least one complete chunk rather than being split across two partial contexts.
 
-**Shared knowledge seeding.** `KnowledgeSeeder` processes PDF and DOCX files from the `docs/knowledge/` directory at application startup and stores chunks with `student = null`, distinguishing them from per-user uploads. The `docs/knowledge/` directory contains only a `.gitkeep` placeholder in the current repository state; shared content can be added by placing files there before deployment.
+**Shared knowledge seeding.** `KnowledgeSeeder` processes PDF and DOCX files from the `docs/knowledge/` directory at application startup and stores chunks with `student = null`, distinguishing them from per-user uploads. The `docs/knowledge/` directory currently contains 8 official BIT module description PDFs, giving the assistant accurate module knowledge from first startup.
 
-**Context window budget.** With top-K set to 3 and `max_tokens` at 1024, the system limits the amount of retrieved context injected per request. Three chunk texts — each up to 400 words — are concatenated into the `[CONTEXT]` block alongside the role-specific system prompt and any calendar events, keeping the total request size well within the model's context capacity while prioritising the most semantically similar passages.
+**Knowledge base retrieval.** The retrieval pool always includes knowledge base chunks (`student = null`) for every request, regardless of whether the user is authenticated. For authenticated users, their own upload chunks are merged into the candidate pool before ranking. This means public visitors and unauthenticated chatbot interactions can still receive contextually grounded answers about the 8 seeded BIT module descriptions.
+
+**Context window budget.** With top-K set to 5 and `max_tokens` at 1024, the system limits the amount of retrieved context injected per request. Five chunk texts — each up to 400 words — are concatenated into the `[CONTEXT]` block alongside the role-specific system prompt and any calendar events, keeping the total request size well within the model's context capacity while prioritising the most semantically similar passages.
 
 ### 10.3 Document Upload Workflow — Student
 
@@ -1193,13 +1196,11 @@ The admin document upload workflow shares the same extraction and indexing pipel
 
 4. **Module matching.** Immediately after upload, the frontend derives a candidate title from the uploaded filename by stripping the file extension and replacing hyphens and underscores with spaces. This derived title — not the AI-extracted module title — is submitted to `GET /api/rag/match-module?title={derivedTitle}`. The backend tokenises the title into words longer than two characters and counts how many of those words appear in each module title in the catalog. The module with the highest count is returned as the best match; a score of zero indicates no match.
 
-5. **Match-found path.** If the match score is greater than zero, the admin panel displays the matched module name alongside a filtered table of extracted fields (assessment style, grading information, and deadlines). The admin reviews the extracted data and, if appropriate, clicks **Apply Updates**.
+5. **Match-found path.** If the match score is two or greater, the admin panel displays a confirmation that the module already exists in the catalog, showing the matched module title and confirming that the PDF has been saved. The admin may navigate directly to the module page via the **View Module** button or dismiss the panel to return to the chat interface.
 
-6. **Apply Updates.** On confirmation, the frontend appends the extracted fields as a formatted text block (`--- Extracted Info ---` followed by the field values) to the matched module's existing description field, and submits the result via `PUT /api/modules/{id}`. Individual structured fields on the module entity — such as credits, lecturer, or module type — are not automatically updated; the extracted information is preserved as appended text within the description.
+6. **No-match path.** If the match score is below two, the admin panel switches to a module creation form pre-filled with data derived from the extraction: the extracted module title, short description, credits, lecturer name, and lecturer email. The campus field is hardcoded to `"Brugg-Windisch"`, the semester defaults to `1`, and the module type defaults to `"COMPULSORY"`. The admin may edit all fields before submission.
 
-7. **No-match path.** If the match score is zero, the admin panel switches to a module creation form pre-filled with data derived from the extraction: the extracted module title, short description, credits, lecturer name, and lecturer email. The campus field is hardcoded to `"Brugg-Windisch"`, the semester defaults to `1`, and the module type defaults to `"COMPULSORY"`. The admin may edit all fields before submission.
-
-8. **Create Module.** The admin reviews the pre-filled form and submits it via `POST /api/modules`, creating a new module record in the catalog.
+7. **Create Module.** The admin reviews the pre-filled form and submits it via `POST /api/modules`, creating a new module record in the catalog. On success, a confirmation appears pinned to the panel footer with a **View Module** button that navigates directly to the new module's detail page. The uploaded PDF is simultaneously promoted as the module's official description and indexed into the RAG knowledge base.
 
 ### 10.5 Knowledge Base Seeding
 
@@ -1209,13 +1210,15 @@ On startup, the seeder scans the `docs/knowledge/` directory relative to the wor
 
 The seeding process is idempotent. Before processing each file, the seeder queries the `document_upload` table for an existing record where `student` is `null` and the filename matches. If such a record is found, the file is skipped. This ensures that restarting the application does not duplicate knowledge base entries. Individual file failures are caught and logged, allowing the seeder to continue processing remaining files without aborting the startup sequence.
 
-In the current repository state, the `docs/knowledge/` directory contains only a `.gitkeep` placeholder; no shared knowledge documents are bundled with the project. Shared domain content — such as general FHNW programme guides or module catalog overviews — can be introduced by placing PDF or DOCX files in this directory before application startup.
+The `docs/knowledge/` directory currently contains 8 official BIT module description PDFs bundled with the project. These are processed automatically on first startup. Additional shared content can be introduced by placing further PDF or DOCX files in this directory before application startup.
+
+**Live indexing.** `KnowledgeSeeder` also exposes a public `indexIfNeeded(Path)` method called by `ModuleController` whenever an admin saves a PDF to `docs/knowledge/` at runtime — either via the module detail page upload (`POST /api/modules/{id}/pdf`) or via the ChatBot admin flow (`POST /api/modules/{id}/pdf/from-upload/{uploadId}`). The indexing runs in a background thread so the HTTP response is not delayed. This ensures that a PDF uploaded during the session is immediately available to the assistant without requiring an application restart.
 
 ### 10.6 ChatBot UI & Capabilities
 
 #### Placement and Availability
 
-The BIT Study Assistant is rendered as a circular toggle button (56 × 56 px) fixed to the bottom-right corner of every authenticated page. It is mounted outside the application's route tree, ensuring it is present regardless of which page the user is viewing. Clicking the button opens a panel (400 px wide on desktop, full-width on mobile, 500 px tall) that can be dismissed by clicking the button again.
+The BIT Study Assistant is rendered as a circular toggle button (56 × 56 px) fixed to the bottom-right corner of every page, including public pages. It is mounted outside the application's route tree, ensuring it is present regardless of which page the user is viewing. Clicking the button opens a panel (400 px wide on desktop, full-width on mobile, 500 px tall) that can be dismissed by clicking the button again.
 
 #### Conversation Interface
 
@@ -1237,8 +1240,8 @@ If the selected module already has an existing note, the extracted content is ap
 
 After an admin uploads a document, the panel switches to a module-matching view. The application searches the module catalog for the best matching module and presents one of two outcomes:
 
-- **Match found:** The panel displays the matched module name alongside a table of extracted fields (assessment style, grading information, and deadlines). An **Apply Updates** button appends the extracted information to the module's existing description. The admin may dismiss the panel without applying updates.
-- **No match found:** The panel presents a **Create New Module** form pre-filled with extracted data including the module title, description, credits, lecturer name, and email. The campus defaults to `Brugg-Windisch`, the semester to `1`, and the module type to `COMPULSORY`. All fields are editable before submission.
+- **Match found:** The panel displays a confirmation that the module is already in the catalog, shows the matched module title, and confirms that the PDF has been saved and indexed. The admin can navigate to the module's detail page via **View Module →** or dismiss the panel and continue using the chat interface.
+- **No match found:** The panel presents a **Create New Module** form pre-filled with extracted data including the module title, description, credits, lecturer name, and email. The campus defaults to `Brugg-Windisch`, the semester to `1`, and the module type to `COMPULSORY`. All fields are editable before submission. On success, a confirmation with a **View Module →** link is pinned to the panel footer; clicking it navigates directly to the newly created module's detail page.
 
 #### Document Management
 
@@ -1256,7 +1259,7 @@ The BIT Semester Planner integrates with a single external AI provider: the Anth
 
 **Pseudo-embedding generation** is handled by `RagService`. Rather than calling a dedicated embedding API, the service reuses the same Messages endpoint with a specialised system prompt instructing the model to respond with exactly 64 floating-point values between -1 and 1 that semantically represent the input text. The response text is parsed as a JSON array and stored as a serialised string. This approach eliminates the need for a separate embedding provider but has inherent limitations: the model is not optimised for embedding generation, the 64-dimensional representation has considerably lower capacity than purpose-built embedding models, and the model may occasionally format its response in a way that requires additional parsing steps before the array can be extracted. These constraints mean that the semantic similarity scores produced by cosine comparison are less precise than those achievable with a dedicated embedding service.
 
-**API key configuration.** Both `RagService` and `ChatService` read the Anthropic API key from the `anthropic.api.key` application property. If the key is absent or not configured, AI-dependent functionality such as chat generation and document processing will fail at runtime. The key must be supplied as an environment variable or application property before the application is started; see the deployment section for configuration instructions.
+**API key configuration.** Both `RagService` and `ChatService` read the Anthropic API key from the `anthropic.api.key` application property, which is set directly in `application.properties`. No environment variable or external secret configuration is required.
 
 ---
 
@@ -1314,25 +1317,7 @@ With calendar context present, the assistant can answer queries such as "Do I ha
 
 When running on GitHub Codespaces, all runtime dependencies are provisioned automatically by the devcontainer configuration. For local development, Java 21 and Node.js 20 must be installed independently.
 
-#### Environment Variables
-
-| Variable | Required | Description |
-|---|---|---|
-| `ANTHROPIC_API_KEY` | **Yes** | API key for the Anthropic Messages API. Required for chat response generation, SSE streaming, and pseudo-embedding generation during document processing. Without this key, all AI-dependent functionality will fail at runtime. |
-
-Spring Boot reads the key via the `anthropic.api.key` application property. Because Spring Boot's relaxed binding maps `ANTHROPIC_API_KEY` (uppercase, underscore-delimited) to `anthropic.api.key` (lowercase, dot-delimited), the environment variable name is the correct format for both Codespaces secrets and local shell configuration.
-
-> **Note:** `frontend/.env` contains a `VITE_API_URL` entry pointing to a specific Codespace URL. This value is not referenced by any frontend source code and has no effect on the application. It can be ignored.
-
-#### Configuring ANTHROPIC_API_KEY as a Codespaces Secret
-
-1. Navigate to the GitHub repository page.
-2. Click **Settings** → **Secrets and variables** → **Codespaces**.
-3. Click **New repository secret**.
-4. Set **Name** to `ANTHROPIC_API_KEY` and **Value** to your Anthropic API key.
-5. Click **Add secret**.
-
-The secret will be available as an environment variable in all subsequently created Codespaces for this repository.
+> **Note:** `frontend/.env` contains a `VITE_API_URL` entry with an empty value. This variable is not referenced by any frontend source code and has no effect on the application. It can be ignored.
 
 ### 12.2 Running on GitHub Codespaces
 
@@ -1342,15 +1327,13 @@ GitHub Codespaces provides a fully pre-configured development environment. The d
 
 1. **Open the repository** on GitHub. Fork or clone it to your own GitHub account if you do not already have write access.
 
-2. **Configure the API key secret** before creating a Codespace. Follow the steps in [§12.1](#121-prerequisites--environment-variables) to add `ANTHROPIC_API_KEY` as a Codespaces secret for this repository. The secret should be configured before creating the Codespace to ensure it is available during the initial startup sequence.
+2. **Create a Codespace.** Click **Code** → **Codespaces** → **Create codespace on main**. GitHub will build the devcontainer using the `mcr.microsoft.com/devcontainers/java:21` image with Node.js 20 installed, then run the `postCreateCommand` to resolve Maven dependencies and install frontend packages.
 
-3. **Create a Codespace.** Click **Code** → **Codespaces** → **Create codespace on main**. GitHub will build the devcontainer using the `mcr.microsoft.com/devcontainers/java:21` image with Node.js 20 installed, then run the `postCreateCommand` to resolve Maven dependencies and install frontend packages.
+3. **Wait for both services to start.** On every Codespace start, the `postStartCommand` launches two parallel processes: the backend starts immediately via `./mvnw spring-boot:run -DskipTests`, with output written to `/tmp/backend.log`; the frontend start is delayed by approximately 30 seconds to allow the backend to initialise fully, then launches via `npm run dev`, with output written to `/tmp/frontend.log`. Allow approximately 60 seconds from Codespace launch for both services to become available.
 
-4. **Wait for both services to start.** On every Codespace start, the `postStartCommand` launches two parallel processes: the backend starts immediately via `./mvnw spring-boot:run -DskipTests`, with output written to `/tmp/backend.log`; the frontend start is delayed by approximately 40 seconds to allow the backend to initialise fully, then launches via `npm run dev`, with output written to `/tmp/frontend.log`. Allow approximately 60 seconds from Codespace launch for both services to become available.
+4. **Set port visibility.** In the **Ports** tab, verify that ports **8080** (Backend API) and **5173** (Frontend) are listed. If either port shows as **Private**, change its visibility to **Public**. This step is required for the Vite proxy and cross-origin requests to function correctly.
 
-5. **Set port visibility.** In the **Ports** tab, verify that ports **8080** (Backend API) and **5173** (Frontend) are listed. If either port shows as **Private**, change its visibility to **Public**. This step is required for the Vite proxy and cross-origin requests to function correctly.
-
-6. **Open the application.** Click the forwarded URL for port **5173** in the Ports tab, or wait for the browser to open automatically. The application will load at the login page.
+5. **Open the application.** Click the forwarded URL for port **5173** in the Ports tab, or wait for the browser to open automatically. The application will load at the login page.
 
 ### 12.3 Manual Start Commands
 
@@ -1401,27 +1384,31 @@ The following sequence demonstrates all major application features using the see
 
 1. **Open the application.** Navigate to the frontend URL (port 5173). Log in using the demo student account: email `student@fhnw.ch`, password `student123`.
 
-2. **Browse the module catalog.** Open the Module Catalog page. Observe the 8 available BIT modules: 4 COMPULSORY (Internet Technology, Software Engineering, Project Management, Web Development) and 4 ELECTIVE (Business Intelligence, Data Science, Machine Learning, Digital Transformation).
+2. **Browse the module catalog.** Open the Module Catalog page. Observe the 8 available BIT modules: 5 COMPULSORY (Business Intelligence, Internet Technology, Logistics and Supply Chain Management, Statistics and Probability, Topics in Business Information Technology) and 3 ELECTIVE (Algorithms and Data Structures, Quantum Disruption, Social Engineering with Africa). Modules are listed alphabetically.
 
-3. **Add a compulsory module.** Click **Add to Planner** on **Internet Technology**. Confirm it appears in the Semester Planner.
+3. **View the official module description.** Click **View Details** on any module (e.g. **Internet Technology**). On the module detail page, click **Official Description** to open the PDF viewer overlay. The page dims and the official FHNW module description PDF opens in a floating panel. Close it with the X button, the Escape key, or clicking outside the panel.
 
-4. **Add the first elective module.** Return to the catalog. Click **Add to Planner** on **Data Science**. The planner now contains one elective module.
+4. **Add a compulsory module.** From the catalog, click **Add to Planner** on **Internet Technology**. Confirm it appears in the Semester Planner.
 
-5. **Add the second elective module.** Click **Add to Planner** on **Business Intelligence**. The planner now contains two elective modules — the maximum permitted.
+5. **Add the first elective module.** Return to the catalog. Click **Add to Planner** on **Algorithms and Data Structures**. The planner now contains one elective module.
 
-6. **Trigger the elective cap rule (BR-01).** Attempt to add **Machine Learning** to the planner. Observe the error response: `You have reached the maximum of 2 elective modules for your semester plan.`
+6. **Add the second elective module.** Click **Add to Planner** on **Quantum Disruption**. The planner now contains two elective modules — the maximum permitted.
 
-7. **Create a module note.** On the Student Dashboard, locate **Internet Technology** in the planner. Click the note icon to open the inline note editor. Enter a note and save it.
+7. **Trigger the elective cap rule (BR-01).** Attempt to add **Social Engineering with Africa** to the planner. Observe the error response: `You have reached the maximum of 2 elective modules for your semester plan.`
 
-8. **Open the full-page notes editor.** Click the expand icon on the same module to navigate to the dedicated notes page for that module. Edit and save the note from the full-page view.
+8. **Create a module note.** On the Student Dashboard, locate **Internet Technology** in the planner. Click the note icon to open the inline note editor. Enter a note and save it.
 
-9. **Connect a calendar.** On the dashboard, open the calendar section and click **Add Calendar**. Paste a publicly accessible ICS feed URL (e.g. an Outlook or Google Calendar export). Confirm that events appear in the weekly grid view.
+9. **Open the full-page notes editor.** Click the expand icon on the same module to navigate to the dedicated notes page for that module. Edit and save the note from the full-page view.
 
-10. **Query the ChatBot with calendar context.** Open the ChatBot panel (bottom-right corner). Ask: *"Do I have anything scheduled this week?"* The assistant incorporates the connected calendar events into its response.
+10. **Connect a calendar.** On the dashboard, open the calendar section and click **Add Calendar**. Paste a publicly accessible ICS feed URL (e.g. an Outlook or Google Calendar export). Confirm that events appear in the weekly grid view.
 
-11. **Upload a document as a student.** Click the file upload button in the ChatBot. Select a PDF or DOCX lecture file. After processing, the note-save panel appears with extracted study-relevant content pre-filled. Select **Internet Technology** from the module dropdown and click **Save** to append the extracted content to the existing note.
+11. **Query the ChatBot with calendar context.** Open the ChatBot panel (bottom-right corner). Ask: *"Do I have anything scheduled this week?"* The assistant incorporates the connected calendar events into its response.
 
-12. **Switch to the admin account.** Log out. Log in as `admin@fhnw.ch` with password `admin123`. Open the ChatBot and upload a module description PDF. Observe the module match panel — if the filename matches an existing module title, the extracted fields are displayed. Click **Apply Updates** to append the extracted information to the matched module's description.
+12. **Upload a document as a student.** Click the file upload button in the ChatBot. Select a PDF or DOCX lecture file. After processing, the note-save panel appears with extracted study-relevant content pre-filled. Select **Internet Technology** from the module dropdown and click **Save** to append the extracted content to the existing note.
 
-13. **Explore the API documentation.** Navigate to `/swagger-ui.html`. Review all 27 documented REST endpoints across the Auth, Modules, Planner, Notes, Calendars, Chat, and Document RAG groups.
+13. **Switch to the admin account.** Log out. Log in as `admin@fhnw.ch` with password `admin123`. Open the ChatBot and upload an official module description PDF (e.g. one of the 8 bundled PDFs from `docs/knowledge/`). If the filename matches an existing module, the panel confirms the module is already in the catalog and the PDF has been saved, with a **View Module →** link. If no match is found, the panel pre-fills a Create New Module form with extracted data; after clicking **Create Module**, a success confirmation with a **View Module →** button appears at the bottom of the panel.
+
+14. **Ask the assistant about any module.** With the admin account, ask the ChatBot: *"Give me detailed information from the official description of Algorithms and Data Structures."* The assistant retrieves content from the indexed knowledge base and responds with accurate module information — no upload required.
+
+15. **Explore the API documentation.** Navigate to `/swagger-ui.html`. Review all 30 documented REST endpoints across the Auth, Modules, Planner, Notes, Calendars, Chat, and Document RAG groups.
 

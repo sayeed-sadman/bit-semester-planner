@@ -9,7 +9,8 @@ import java.util.List;
 
 @Repository
 public interface ModuleRepository extends JpaRepository<Module, Long> {
-    List<Module> findBySemester(Integer semester);
-    List<Module> findByModuleType(ModuleType moduleType);
-    List<Module> findBySemesterAndModuleType(Integer semester, ModuleType moduleType);
+    List<Module> findAllByOrderByTitleAsc();
+    List<Module> findBySemesterOrderByTitleAsc(Integer semester);
+    List<Module> findByModuleTypeOrderByTitleAsc(ModuleType moduleType);
+    List<Module> findBySemesterAndModuleTypeOrderByTitleAsc(Integer semester, ModuleType moduleType);
 }

@@ -18,7 +18,7 @@ public class ModuleService {
     }
 
     public List<Module> getAllModules() {
-        return moduleRepository.findAll();
+        return moduleRepository.findAllByOrderByTitleAsc();
     }
 
     public Module getModuleById(Long id) {
@@ -28,13 +28,13 @@ public class ModuleService {
 
     public List<Module> getModulesByFilter(Integer semester, ModuleType moduleType) {
         if (semester != null && moduleType != null) {
-            return moduleRepository.findBySemesterAndModuleType(semester, moduleType);
+            return moduleRepository.findBySemesterAndModuleTypeOrderByTitleAsc(semester, moduleType);
         } else if (semester != null) {
-            return moduleRepository.findBySemester(semester);
+            return moduleRepository.findBySemesterOrderByTitleAsc(semester);
         } else if (moduleType != null) {
-            return moduleRepository.findByModuleType(moduleType);
+            return moduleRepository.findByModuleTypeOrderByTitleAsc(moduleType);
         }
-        return moduleRepository.findAll();
+        return moduleRepository.findAllByOrderByTitleAsc();
     }
 
     public Module createModule(Module module) {

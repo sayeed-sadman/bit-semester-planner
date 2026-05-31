@@ -201,6 +201,7 @@ export function useChatBot() {
             matchScore: matchData.matchScore,
             suggestions: data.suggestions,
             fileName: file.name,
+            uploadId: data.uploadId,
           });
         } else {
           setModuleMatchResult({ matched: false, module: null, matchScore: 0, suggestions: data.suggestions, fileName: file.name });
@@ -233,5 +234,12 @@ export function useChatBot() {
     sessionStorage.removeItem("chatMessages");
   };
 
-  return { messages, inputValue, setInputValue, sendMessage, uploadFile, deleteFile, clearMessages, isLoading, uploadedFiles, moduleMatchResult, setModuleMatchResult };
+  const addAssistantMessage = (text) => {
+    setMessages((prev) => [
+      ...prev,
+      { id: Date.now(), role: "assistant", text },
+    ]);
+  };
+
+  return { messages, inputValue, setInputValue, sendMessage, uploadFile, deleteFile, clearMessages, addAssistantMessage, isLoading, uploadedFiles, moduleMatchResult, setModuleMatchResult };
 }

@@ -1,16 +1,26 @@
 package ch.fhnw.bitsemesterplanner.controller;
 
 import ch.fhnw.bitsemesterplanner.business.service.ModuleService;
+import ch.fhnw.bitsemesterplanner.config.KnowledgeSeeder;
 import ch.fhnw.bitsemesterplanner.data.domain.Module;
 import ch.fhnw.bitsemesterplanner.data.domain.ModuleType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 @RestController
@@ -19,9 +29,11 @@ import java.util.List;
 public class ModuleController {
 
     private final ModuleService moduleService;
+    private final KnowledgeSeeder knowledgeSeeder;
 
-    public ModuleController(ModuleService moduleService) {
+    public ModuleController(ModuleService moduleService, KnowledgeSeeder knowledgeSeeder) {
         this.moduleService = moduleService;
+        this.knowledgeSeeder = knowledgeSeeder;
     }
 
     @GetMapping
@@ -59,6 +71,63 @@ public class ModuleController {
             @Parameter(description = "Module ID") @PathVariable Long id,
             @RequestBody Module module) {
         return ResponseEntity.ok(moduleService.updateModule(id, module));
+    }
+
+    @GetMapping("/{id}/pdf")
+    @Operation(summary = "Stream the official module description PDF from docs/knowledge/")
+    @ApiResponse(responseCode = "200", description = "PDF returned")
+    @ApiResponse(responseCode = "404", description = "PDF not found for this module")
+    public ResponseEntity<Resource> getModulePdf(
+            @Parameter(description = "Module ID") @PathVariable Long id) {
+        Module module = moduleService.getModuleById(id);
+        Path pdfPath = Paths.get("docs/knowledge", module.getTitle() + ".pdf");
+        if (!Files.exists(pdfPath)) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + module.getTitle() + ".pdf\"")
+                .body(new FileSystemResource(pdfPath));
+    }
+
+    @PostMapping("/{id}/pdf")
+    @Operation(summary = "Upload or replace the official PDF for a module (ADMIN only)")
+    @ApiResponse(responseCode = "200", description = "PDF saved")
+    @ApiResponse(responseCode = "404", description = "Module not found")
+    public ResponseEntity<Void> uploadModulePdf(
+            @Parameter(description = "Module ID") @PathVariable Long id,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            Module module = moduleService.getModuleById(id);
+            Path dest = Paths.get("docs/knowledge", module.getTitle() + ".pdf");
+            Files.createDirectories(dest.getParent());
+            file.transferTo(dest.toFile());
+            new Thread(() -> knowledgeSeeder.indexIfNeeded(dest)).start();
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/{id}/pdf/from-upload/{uploadId}")
+    @Operation(summary = "Link an already-uploaded RAG file as this module's official PDF (ADMIN only)")
+    @ApiResponse(responseCode = "200", description = "PDF linked")
+    @ApiResponse(responseCode = "404", description = "Module or temp file not found")
+    public ResponseEntity<Void> assignUploadAsPdf(
+            @Parameter(description = "Module ID") @PathVariable Long id,
+            @Parameter(description = "Upload ID from RAG upload") @PathVariable Long uploadId) {
+        try {
+            Module module = moduleService.getModuleById(id);
+            Path temp = Paths.get("docs/knowledge/.temp", uploadId + ".pdf");
+            if (!Files.exists(temp)) return ResponseEntity.notFound().build();
+            Path dest = Paths.get("docs/knowledge", module.getTitle() + ".pdf");
+            Files.createDirectories(dest.getParent());
+            Files.copy(temp, dest, StandardCopyOption.REPLACE_EXISTING);
+            new Thread(() -> knowledgeSeeder.indexIfNeeded(dest)).start();
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @DeleteMapping("/{id}")

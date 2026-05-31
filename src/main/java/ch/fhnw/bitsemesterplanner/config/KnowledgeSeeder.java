@@ -35,6 +35,43 @@ public class KnowledgeSeeder {
         this.ragService = ragService;
     }
 
+    public void indexIfNeeded(java.nio.file.Path pdfPath) {
+        String fileName = pdfPath.getFileName().toString();
+        List<DocumentUpload> existing = documentUploadRepository.findAll();
+        boolean alreadySeeded = existing.stream()
+                .anyMatch(u -> u.getStudent() == null && fileName.equals(u.getFileName()));
+        if (alreadySeeded) return;
+        try {
+            byte[] bytes = java.nio.file.Files.readAllBytes(pdfPath);
+            String rawText;
+            try (org.apache.pdfbox.pdmodel.PDDocument doc = org.apache.pdfbox.Loader.loadPDF(bytes)) {
+                rawText = new org.apache.pdfbox.text.PDFTextStripper().getText(doc);
+            }
+            if (rawText == null || rawText.isBlank()) return;
+
+            DocumentUpload upload = new DocumentUpload();
+            upload.setStudent(null);
+            upload.setFileName(fileName);
+            upload.setFileType("PDF");
+            upload.setRawText(rawText);
+            upload = documentUploadRepository.save(upload);
+
+            List<String> chunks = ragService.chunkText(rawText);
+            for (int i = 0; i < chunks.size(); i++) {
+                float[] embedding = ragService.generateEmbedding(chunks.get(i));
+                DocumentChunk chunk = new DocumentChunk();
+                chunk.setDocumentUpload(upload);
+                chunk.setChunkIndex(i);
+                chunk.setChunkText(chunks.get(i));
+                chunk.setEmbeddingJson(ragService.embeddingToJson(embedding));
+                documentChunkRepository.save(chunk);
+            }
+            System.out.println("[KnowledgeSeeder] Live-indexed: " + fileName + " (" + chunks.size() + " chunks)");
+        } catch (Exception e) {
+            System.err.println("[KnowledgeSeeder] Live-index failed for " + fileName + ": " + e.getMessage());
+        }
+    }
+
     @PostConstruct
     public void seed() {
         Path knowledgeDir = Paths.get("docs/knowledge");

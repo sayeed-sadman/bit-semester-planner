@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import CalendarEvent from "./CalendarEvent";
 
 const HOURS       = Array.from({ length: 24 }, (_, i) => i); // 00 – 23
@@ -116,7 +116,11 @@ export default function WeeklyCalendar({
   const today     = new Date();
   const [now, setNow] = useState(new Date());
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const scrollRef = useRef(null);
+
+  const openEvent = useCallback((ev) => setSelectedEvent(ev), []);
+  const closeEvent = useCallback(() => setSelectedEvent(null), []);
 
   // Keep the current-time line accurate
   useEffect(() => {
@@ -264,7 +268,7 @@ export default function WeeklyCalendar({
                       const hex = evColor(ev);
                       if (isAllDay(ev)) {
                         return (
-                          <div key={ev.id} className="rounded-lg px-3 py-2" style={{ backgroundColor: hex + "22" }}>
+                          <div key={ev.id} onClick={() => openEvent(ev)} className="rounded-lg px-3 py-2 cursor-pointer hover:opacity-80 transition-opacity" style={{ backgroundColor: hex + "22" }}>
                             <p className="text-xs font-medium text-dark leading-snug">{ev.title}</p>
                             <p className="text-[11px] mt-0.5" style={{ color: hex }}>{ev.calendarName}</p>
                           </div>
@@ -273,7 +277,7 @@ export default function WeeklyCalendar({
                       const start = parseDate(ev.start);
                       const timeStr = start.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
                       return (
-                        <div key={ev.id} className="flex items-start gap-2.5 py-1">
+                        <div key={ev.id} onClick={() => openEvent(ev)} className="flex items-start gap-2.5 py-1 cursor-pointer hover:opacity-70 transition-opacity">
                           <div className="w-2 h-2 rounded-full mt-1 flex-shrink-0" style={{ backgroundColor: hex }} />
                           <span className="text-[11px] font-mono text-dark-muted w-9 flex-shrink-0 pt-px">{timeStr}</span>
                           <div>
@@ -340,8 +344,8 @@ export default function WeeklyCalendar({
                     {dayAllDay.map((ev) => (
                       <div
                         key={ev.id}
-                        title={ev.title}
-                        className="text-[9px] font-semibold truncate rounded-sm px-1 py-px text-white"
+                        onClick={() => openEvent(ev)}
+                        className="text-[9px] font-semibold truncate rounded-sm px-1 py-px text-white cursor-pointer hover:opacity-80 transition-opacity"
                         style={{ backgroundColor: evColor(ev) }}
                       >
                         {ev.title}
@@ -352,8 +356,8 @@ export default function WeeklyCalendar({
                     {dayTimed.slice(0, 3).map((ev) => (
                       <div
                         key={ev.id}
-                        title={ev.title}
-                        className="text-[9px] font-medium truncate rounded-sm px-1 py-px"
+                        onClick={() => openEvent(ev)}
+                        className="text-[9px] font-medium truncate rounded-sm px-1 py-px cursor-pointer hover:opacity-80 transition-opacity"
                         style={{
                           borderLeft:      `2px solid ${evColor(ev)}`,
                           color:           evColor(ev),
@@ -425,8 +429,8 @@ export default function WeeklyCalendar({
                       {dayAllDay.map((ev) => (
                         <div
                           key={ev.id}
-                          title={`${ev.title}\n${ev.calendarName}`}
-                          className="text-[9px] font-semibold truncate rounded-sm px-1 py-px text-white w-full"
+                          onClick={() => openEvent(ev)}
+                          className="text-[9px] font-semibold truncate rounded-sm px-1 py-px text-white w-full cursor-pointer hover:opacity-80 transition-opacity"
                           style={{ backgroundColor: evColor(ev) }}
                         >
                           {ev.title}
@@ -499,6 +503,7 @@ export default function WeeklyCalendar({
                             key={ev.id}
                             event={ev}
                             color={evColor(ev)}
+                            onClick={() => openEvent(ev)}
                             style={{
                               top:    ev.top,
                               height: ev.height,
@@ -518,6 +523,71 @@ export default function WeeklyCalendar({
           </div>
         </div>
       )}
+
+      {/* ── Event detail modal ── */}
+      {selectedEvent && (() => {
+        const ev = selectedEvent;
+        const hex = evColor(ev);
+        const allDay = isAllDay(ev);
+        const start = parseDate(ev.start);
+        const end   = parseDate(ev.end);
+        const dateStr = start.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+        const startTime = start.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+        const endTime   = end.toLocaleTimeString("en-GB",   { hour: "2-digit", minute: "2-digit" });
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={closeEvent}>
+            {/* Backdrop */}
+            <div className="absolute inset-0 bg-black/40" />
+            {/* Card */}
+            <div
+              className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Colour bar */}
+              <div className="h-1.5 w-full" style={{ backgroundColor: hex }} />
+              <div className="p-5">
+                {/* Close */}
+                <button
+                  onClick={closeEvent}
+                  className="absolute top-3 right-3 text-dark-muted hover:text-dark transition-colors text-lg leading-none"
+                  aria-label="Close"
+                >
+                  ×
+                </button>
+
+                {/* Title */}
+                <h3 className="text-base font-semibold text-dark pr-6 leading-snug mb-4">{ev.title}</h3>
+
+                <div className="flex flex-col gap-2.5 text-sm">
+                  {/* Date */}
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-dark-muted w-16 flex-shrink-0 text-xs pt-px">Date</span>
+                    <span className="text-dark text-xs">{dateStr}</span>
+                  </div>
+                  {/* Time */}
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-dark-muted w-16 flex-shrink-0 text-xs pt-px">Time</span>
+                    <span className="text-dark text-xs">
+                      {allDay ? "All day" : `${startTime} – ${endTime}`}
+                    </span>
+                  </div>
+                  {/* Calendar */}
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-dark-muted w-16 flex-shrink-0 text-xs pt-px">Calendar</span>
+                    <span className="text-xs font-medium" style={{ color: hex }}>{ev.calendarName}</span>
+                  </div>
+                  {/* Overlap warning */}
+                  {ev.isOverlapping && (
+                    <div className="mt-1 rounded-lg px-3 py-2 text-xs" style={{ background: "#FEF3E1", border: "1px solid #F5C460", color: "#AA6D0D" }}>
+                      This event overlaps with another event in your calendar.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
     </div>
   );

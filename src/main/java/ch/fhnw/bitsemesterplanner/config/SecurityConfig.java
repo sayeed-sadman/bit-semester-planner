@@ -36,10 +36,10 @@ public class SecurityConfig {
                 .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/api-docs", "/api-docs/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 // Admin-only module management
-                .requestMatchers(HttpMethod.POST, "/api/modules").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/modules", "/api/modules/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/modules/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/modules/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/chat").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/chat", "/api/chat/stream").permitAll()
                 // Student-only endpoints
                 .requestMatchers("/api/planner/**").hasRole("STUDENT")
                 .requestMatchers("/api/notes/**").hasRole("STUDENT")

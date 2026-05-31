@@ -96,6 +96,7 @@ export default function ChatBot({ onSuggestNote }) {
   const [adminFormLecturer, setAdminFormLecturer] = useState("");
   const [adminFormLecturerEmail, setAdminFormLecturerEmail] = useState("");
   const [adminModuleStatus, setAdminModuleStatus] = useState(null); // null | "saving" | "saved" | "error"
+  const [createdModuleId, setCreatedModuleId] = useState(null);
 
   // Documents panel state
   const [docsExpanded, setDocsExpanded] = useState(false);
@@ -105,10 +106,10 @@ export default function ChatBot({ onSuggestNote }) {
   // Responsive breakpoint
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-  const { isStudent, isAdmin } = useAuth();
+  const { isStudent, isAdmin, isAuthenticated } = useAuth();
   const canUpload = isStudent || isAdmin;
 
-  const { messages, inputValue, setInputValue, sendMessage, uploadFile, deleteFile, clearMessages, isLoading, uploadedFiles, moduleMatchResult, setModuleMatchResult } = useChatBot();
+  const { messages, inputValue, setInputValue, sendMessage, uploadFile, deleteFile, clearMessages, addAssistantMessage, isLoading, uploadedFiles, moduleMatchResult, setModuleMatchResult } = useChatBot();
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -116,6 +117,11 @@ export default function ChatBot({ onSuggestNote }) {
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
+
+  // Collapse docs panel when no files remain
+  useEffect(() => {
+    if (uploadedFiles.length === 0) setDocsExpanded(false);
+  }, [uploadedFiles.length]);
 
   const isDesktop = windowWidth >= 768;
 
@@ -137,7 +143,7 @@ export default function ChatBot({ onSuggestNote }) {
         .replace(/\.[^.]+$/, "")
         .replace(/[-_]/g, " ");
       setAdminFormTitle(get("Module Title") || titleFromFile);
-      setAdminFormDescription(get("Short Description").substring(0, 500));
+      setAdminFormDescription(get("Short Description"));
       setAdminFormCredits(get("Credits"));
       setAdminFormSemester("1");
       setAdminFormModuleType("COMPULSORY");
@@ -167,7 +173,8 @@ export default function ChatBot({ onSuggestNote }) {
     }
   }, []);
 
-  const handleAddToNotes = async () => {
+  const handleAddToNotes = async (text, fileNameHint = null) => {
+    const noteContent = text ?? suggestedText;
     setNoteStatus(null);
     setExistingNoteWarning(false);
     setShowNotePanel(true);
@@ -181,7 +188,27 @@ export default function ChatBot({ onSuggestNote }) {
         const data = await res.json();
         setModules(data);
         if (data.length > 0) {
-          moduleId = String(data[0].module.moduleID);
+          // Try to auto-select by matching filename words against module titles
+          if (fileNameHint) {
+            const words = fileNameHint
+              .replace(/\.[^.]+$/, "")
+              .toLowerCase()
+              .split(/[\s\-_.,()]+/)
+              .filter((w) => w.length > 3);
+            let bestScore = 0;
+            let bestMatch = null;
+            for (const entry of data) {
+              const titleLower = entry.module.title.toLowerCase();
+              const score = words.filter((w) => titleLower.includes(w)).length;
+              if (score > bestScore) {
+                bestScore = score;
+                bestMatch = entry;
+              }
+            }
+            if (bestMatch && bestScore > 0) {
+              moduleId = String(bestMatch.module.moduleID);
+            }
+          }
           setSelectedModuleId(moduleId);
         }
       }
@@ -195,19 +222,19 @@ export default function ChatBot({ onSuggestNote }) {
             const existingContent = noteData.content || "";
             const today = new Date().toLocaleDateString();
             const separator = `\n\n---\nAdded from upload on ${today}\n---\n`;
-            setNoteText(existingContent + separator + (suggestedText || ""));
+            setNoteText(existingContent + separator + (noteContent || ""));
             setExistingNoteWarning(true);
           } else {
-            setNoteText(suggestedText || "");
+            setNoteText(noteContent || "");
           }
         } catch {
-          setNoteText(suggestedText || "");
+          setNoteText(noteContent || "");
         }
       } else {
-        setNoteText(suggestedText || "");
+        setNoteText(noteContent || "");
       }
     } catch {
-      setNoteText(suggestedText || "");
+      setNoteText(noteContent || "");
     } finally {
       setLoadingModules(false);
     }
@@ -261,6 +288,14 @@ export default function ChatBot({ onSuggestNote }) {
         body: JSON.stringify(updatedModule),
       });
       if (res.ok) {
+        if (moduleMatchResult.uploadId) {
+          try {
+            await fetch(`/api/modules/${mod.moduleID}/pdf/from-upload/${moduleMatchResult.uploadId}`, {
+              method: "POST",
+              headers: getAuthHeaders(),
+            });
+          } catch { /* non-critical */ }
+        }
         setAdminModuleStatus("saved");
         setTimeout(() => { setModuleMatchResult(null); setAdminModuleStatus(null); }, 2000);
       } else {
@@ -291,8 +326,17 @@ export default function ChatBot({ onSuggestNote }) {
         body: JSON.stringify(newModule),
       });
       if (res.ok) {
+        const created = await res.json();
+        if (moduleMatchResult?.uploadId && created?.moduleID) {
+          try {
+            await fetch(`/api/modules/${created.moduleID}/pdf/from-upload/${moduleMatchResult.uploadId}`, {
+              method: "POST",
+              headers: getAuthHeaders(),
+            });
+          } catch { /* non-critical */ }
+        }
+        setCreatedModuleId(created?.moduleID ?? null);
         setAdminModuleStatus("saved");
-        setTimeout(() => { setModuleMatchResult(null); setAdminModuleStatus(null); }, 2000);
       } else {
         setAdminModuleStatus("error");
       }
@@ -302,8 +346,14 @@ export default function ChatBot({ onSuggestNote }) {
   };
 
   const handleDismissAdminPanel = () => {
+    if (moduleMatchResult?.matched && moduleMatchResult?.module) {
+      addAssistantMessage(
+        `${moduleMatchResult.module.title} is already in the module catalog. Your document has been uploaded and indexed. Feel free to ask me any questions about it.`
+      );
+    }
     setModuleMatchResult(null);
     setAdminModuleStatus(null);
+    setCreatedModuleId(null);
   };
 
   // ── Chat helpers ─────────────────────────────────────────────────────────────
@@ -321,6 +371,7 @@ export default function ChatBot({ onSuggestNote }) {
 
   const handleUpload = async () => {
     if (!selectedFile) return;
+    const fileName = selectedFile.name;
     setUploadStatus("uploading");
     setSuggestedText(null);
     setModuleMatchResult(null);
@@ -328,9 +379,15 @@ export default function ChatBot({ onSuggestNote }) {
       const result = await uploadFile(selectedFile);
       setUploadStatus("done");
       setSelectedFile(null);
-      // STUDENT flow only — admins get moduleMatchResult set in useChatBot
+      setTimeout(() => setUploadStatus(null), 3000);
+      // STUDENT flow — open note panel immediately with pre-filled content
       if (result.userRole !== "ADMIN" && result.suggestions?.suggestedNoteText) {
         setSuggestedText(result.suggestions.suggestedNoteText);
+        handleAddToNotes(result.suggestions.suggestedNoteText, fileName);
+      } else if (result.userRole !== "ADMIN") {
+        addAssistantMessage(
+          "Your document has been uploaded and indexed. No exam or assessment info was found in it, so there is nothing to save as a note. Feel free to ask me any questions about the document."
+        );
       }
     } catch {
       setUploadStatus("error");
@@ -436,6 +493,11 @@ export default function ChatBot({ onSuggestNote }) {
             {activePanel === "note" && (
               <div className="flex-1 flex flex-col overflow-hidden">
                 <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+                  {suggestedText && (
+                    <div className="px-3 py-2 rounded-input text-xs" style={{ background: "#FEF3E1", border: "1px solid #F5C460", color: "#AA6D0D" }}>
+                      Study info was found in your document. Review and save it as a note.
+                    </div>
+                  )}
                   {loadingModules ? (
                     <p className="text-sm text-dark-muted">Loading your modules…</p>
                   ) : modules.length === 0 ? (
@@ -450,6 +512,7 @@ export default function ChatBot({ onSuggestNote }) {
                         onChange={(e) => setSelectedModuleId(e.target.value)}
                         className={inputCls}
                       >
+                        <option value="">Select a module...</option>
                         {modules.map((entry) => (
                           <option key={entry.module.moduleID} value={String(entry.module.moduleID)}>
                             {entry.module.title}
@@ -498,56 +561,24 @@ export default function ChatBot({ onSuggestNote }) {
             {activePanel === "admin" && moduleMatchResult?.matched && (
               <div className="flex-1 flex flex-col overflow-hidden">
                 <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
-                  <div>
-                    <p className="text-sm font-semibold text-dark">We found a matching module:</p>
-                    <p className="text-sm text-primary">{moduleMatchResult.module.title}</p>
+                  <div className="p-3 rounded-input bg-blue-50 border border-blue-200">
+                    <p className="text-xs font-semibold text-blue-700 mb-0.5">Module already in catalog</p>
+                    <p className="text-sm font-medium text-primary">{moduleMatchResult.module.title}</p>
+                    <p className="text-xs text-blue-600 mt-1">
+                      Your document has been uploaded and indexed. Dismiss to ask me questions about it.
+                    </p>
                   </div>
-                  <p className="text-xs text-dark-muted">Suggested updates based on the uploaded document:</p>
-                  {moduleMatchResult.suggestions?.detectedFacts?.length > 0 ? (
-                    <table className="w-full text-xs border-collapse">
-                      <thead>
-                        <tr className="bg-surface-section">
-                          <th className="text-left px-2 py-1.5 border border-surface-border font-medium text-dark-secondary">Field</th>
-                          <th className="text-left px-2 py-1.5 border border-surface-border font-medium text-dark-secondary">Extracted Value</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {moduleMatchResult.suggestions.detectedFacts
-                          .filter((f) =>
-                            f.startsWith("Exam Style:") ||
-                            f.startsWith("Grading:") ||
-                            f.startsWith("Deadlines:")
-                          )
-                          .map((fact, i) => {
-                            const colonIdx = fact.indexOf(": ");
-                            const field = fact.substring(0, colonIdx);
-                            const value = fact.substring(colonIdx + 2);
-                            return (
-                              <tr key={i}>
-                                <td className="px-2 py-1.5 border border-surface-border text-dark-secondary">{field}</td>
-                                <td className="px-2 py-1.5 border border-surface-border text-dark">{value}</td>
-                              </tr>
-                            );
-                          })}
-                      </tbody>
-                    </table>
-                  ) : (
-                    <p className="text-xs text-dark-muted">No specific updates extracted.</p>
-                  )}
-                  {adminModuleStatus === "saved" && <p className="text-xs font-medium text-success">Module updated successfully!</p>}
-                  {adminModuleStatus === "error" && <p className="text-xs font-medium text-danger">Update failed. Please try again.</p>}
                 </div>
                 <div className="px-4 py-3 border-t border-surface-divider flex gap-2 flex-shrink-0">
                   <button onClick={handleDismissAdminPanel} className="flex-1 px-3 py-2 text-sm border border-surface-border rounded-input text-dark-muted hover:border-dark-muted hover:text-dark transition-colors">
                     Dismiss
                   </button>
-                  <button
-                    onClick={handleApplyUpdates}
-                    disabled={adminModuleStatus === "saving" || adminModuleStatus === "saved"}
-                    className="flex-1 px-3 py-2 bg-primary text-white text-sm font-semibold rounded-input hover:bg-primary-dark transition-colors disabled:opacity-50"
+                  <a
+                    href={`/admin/modules/${moduleMatchResult.module.moduleID}`}
+                    className="flex-1 px-3 py-2 bg-primary text-white text-sm font-semibold rounded-input hover:bg-primary-dark transition-colors text-center"
                   >
-                    {adminModuleStatus === "saving" ? "Applying…" : "Apply Updates"}
-                  </button>
+                    View Module →
+                  </a>
                 </div>
               </div>
             )}
@@ -601,20 +632,38 @@ export default function ChatBot({ onSuggestNote }) {
                     <input type="email" value={adminFormLecturerEmail} onChange={(e) => setAdminFormLecturerEmail(e.target.value)} placeholder="e.g. lecturer@fhnw.ch" className={inputCls} />
                   </div>
 
-                  {adminModuleStatus === "saved" && <p className="text-xs font-medium text-success">Module created successfully! Check the module catalog.</p>}
                   {adminModuleStatus === "error" && <p className="text-xs font-medium text-danger">Create failed. Please try again.</p>}
                 </div>
-                <div className="px-4 py-3 border-t border-surface-divider flex gap-2 flex-shrink-0">
-                  <button onClick={handleDismissAdminPanel} className="flex-1 px-3 py-2 text-sm border border-surface-border rounded-input text-dark-muted hover:border-dark-muted hover:text-dark transition-colors">
-                    Dismiss
-                  </button>
-                  <button
-                    onClick={handleCreateModule}
-                    disabled={!adminFormTitle || !adminFormCredits || adminModuleStatus === "saving" || adminModuleStatus === "saved"}
-                    className="flex-1 px-3 py-2 bg-primary text-white text-sm font-semibold rounded-input hover:bg-primary-dark transition-colors disabled:opacity-50"
-                  >
-                    {adminModuleStatus === "saving" ? "Creating…" : "Create Module"}
-                  </button>
+                <div className="px-4 py-3 border-t border-surface-divider flex-shrink-0">
+                  {adminModuleStatus === "saved" && createdModuleId ? (
+                    <div className="flex flex-col gap-2 p-3 rounded-input bg-green-50 border border-green-200">
+                      <p className="text-xs font-semibold text-success">Module created successfully!</p>
+                      <div className="flex gap-2">
+                        <button onClick={handleDismissAdminPanel} className="flex-1 px-3 py-1.5 text-xs border border-surface-border rounded-input text-dark-muted hover:text-dark transition-colors">
+                          Dismiss
+                        </button>
+                        <a
+                          href={`/admin/modules/${createdModuleId}?created=true`}
+                          className="flex-1 text-xs font-semibold text-white bg-primary hover:bg-primary-dark px-3 py-1.5 rounded-input transition-colors text-center"
+                        >
+                          View Module →
+                        </a>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <button onClick={handleDismissAdminPanel} className="flex-1 px-3 py-2 text-sm border border-surface-border rounded-input text-dark-muted hover:border-dark-muted hover:text-dark transition-colors">
+                        Dismiss
+                      </button>
+                      <button
+                        onClick={handleCreateModule}
+                        disabled={!adminFormTitle || !adminFormCredits || adminModuleStatus === "saving"}
+                        className="flex-1 px-3 py-2 bg-primary text-white text-sm font-semibold rounded-input hover:bg-primary-dark transition-colors disabled:opacity-50"
+                      >
+                        {adminModuleStatus === "saving" ? "Creating…" : "Create Module"}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -626,7 +675,9 @@ export default function ChatBot({ onSuggestNote }) {
                 <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-2">
                   {messages.length === 0 && (
                     <p className="text-center text-dark-muted text-sm mt-6 leading-relaxed">
-                      Ask me anything about your modules or uploaded documents!
+                      {isAuthenticated
+                        ? "Ask me anything about your modules or uploaded documents!"
+                        : "Ask me anything about FHNW or the BIT programme. Log in for personalised assistance."}
                     </p>
                   )}
 
@@ -664,22 +715,6 @@ export default function ChatBot({ onSuggestNote }) {
                   <div ref={messagesEndRef} />
                 </div>
 
-                {/* Student suggestion banner */}
-                {suggestedText && (
-                  <div
-                    className="mx-3 mb-2 px-3 py-2 rounded-input text-xs flex items-center justify-between gap-2 flex-shrink-0"
-                    style={{ background: "#FEF3E1", border: "1px solid #F5C460", color: "#AA6D0D" }}
-                  >
-                    <span className="leading-snug">We found study info in this document.</span>
-                    <button
-                      onClick={handleAddToNotes}
-                      className="font-semibold underline hover:no-underline flex-shrink-0 whitespace-nowrap"
-                    >
-                      View & Save to Notes
-                    </button>
-                  </div>
-                )}
-
                 {/* Input row */}
                 <div className="px-3 py-2 border-t border-surface-divider flex gap-2 flex-shrink-0">
                   <input
@@ -707,7 +742,7 @@ export default function ChatBot({ onSuggestNote }) {
                       Upload a document (PDF or DOCX)
                     </p>
                     <div className="flex gap-2">
-                      <label className="flex-1 cursor-pointer">
+                      <label className="flex-1 min-w-0 cursor-pointer">
                         <input
                           type="file"
                           accept=".pdf,.docx,.doc"

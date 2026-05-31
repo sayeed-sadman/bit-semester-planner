@@ -7,7 +7,9 @@ import ch.fhnw.bitsemesterplanner.business.service.rag.RagService;
 import ch.fhnw.bitsemesterplanner.controller.dto.ChatRequest;
 import ch.fhnw.bitsemesterplanner.controller.dto.ChatResponse;
 import ch.fhnw.bitsemesterplanner.data.domain.DocumentChunk;
+import ch.fhnw.bitsemesterplanner.data.domain.Note;
 import ch.fhnw.bitsemesterplanner.data.repository.DocumentChunkRepository;
+import ch.fhnw.bitsemesterplanner.data.repository.NoteRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,22 +37,25 @@ public class ChatController {
     private final RagService ragService;
     private final DocumentChunkRepository documentChunkRepository;
     private final CalendarService calendarService;
+    private final NoteRepository noteRepository;
 
     public ChatController(ChatService chatService,
                           RagService ragService,
                           DocumentChunkRepository documentChunkRepository,
-                          CalendarService calendarService) {
+                          CalendarService calendarService,
+                          NoteRepository noteRepository) {
         this.chatService = chatService;
         this.ragService = ragService;
         this.documentChunkRepository = documentChunkRepository;
         this.calendarService = calendarService;
+        this.noteRepository = noteRepository;
     }
 
     @PostMapping
     @Operation(summary = "Ask a question; optionally scoped to a student's uploaded documents")
     @ApiResponse(responseCode = "200", description = "Answer returned")
     public ResponseEntity<ChatResponse> chat(@RequestBody ChatRequest req, Authentication authentication) {
-        String userRole = "STUDENT";
+        String userRole = "PUBLIC";
         if (authentication != null && authentication.isAuthenticated()) {
             userRole = authentication.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
@@ -62,31 +67,41 @@ public class ChatController {
         List<DocumentChunk> topChunks = List.of();
         List<String> calendarEvents = List.of();
 
-        if (req.userId() != null) {
-            List<DocumentChunk> allChunks = documentChunkRepository
-                    .findByDocumentUpload_Student_UserID(req.userId());
-            topChunks = ragService.retrieveTopChunks(req.question(), allChunks, 3);
+        List<DocumentChunk> candidateChunks = new ArrayList<>(
+                documentChunkRepository.findByDocumentUploadStudentIsNull());
 
+        String notesContext = "";
+        if (req.userId() != null) {
+            candidateChunks.addAll(documentChunkRepository
+                    .findByDocumentUpload_Student_UserID(req.userId()));
             try {
+                java.time.LocalDate today = java.time.LocalDate.now();
                 List<CalendarEventDTO> events = calendarService.fetchAllEvents(req.userId());
                 List<String> eventStrings = new ArrayList<>(events.size());
                 for (CalendarEventDTO e : events) {
-                    eventStrings.add(String.format(
-                        "EVENT: %s | Date: %s | Time: %s - %s | Calendar: %s",
-                        e.getTitle(),
-                        e.getStartDateTime().format(DATE_FMT),
-                        e.getStartDateTime().format(TIME_FMT),
-                        e.getEndDateTime().format(TIME_FMT),
-                        e.getCalendarName()
-                    ));
+                    if (!e.getStartDateTime().toLocalDate().isBefore(today)) {
+                        eventStrings.add(String.format(
+                            "EVENT: %s | Date: %s | Time: %s - %s | Calendar: %s",
+                            e.getTitle(),
+                            e.getStartDateTime().format(DATE_FMT),
+                            e.getStartDateTime().format(TIME_FMT),
+                            e.getEndDateTime().format(TIME_FMT),
+                            e.getCalendarName()
+                        ));
+                    }
                 }
                 calendarEvents = eventStrings;
             } catch (Exception ignored) {
                 // calendar fetch failure must not break chat
             }
+            notesContext = buildNotesContext(req.userId());
         }
 
-        String answer = chatService.chat(req.question(), topChunks, "", calendarEvents, userRole);
+        if (!candidateChunks.isEmpty()) {
+            topChunks = ragService.retrieveTopChunks(req.question(), candidateChunks, 5);
+        }
+
+        String answer = chatService.chat(req.question(), topChunks, notesContext, calendarEvents, userRole);
         return ResponseEntity.ok(new ChatResponse(answer, topChunks.size()));
     }
 
@@ -95,7 +110,7 @@ public class ChatController {
     @ApiResponse(responseCode = "200", description = "SSE stream of text chunks")
     public SseEmitter streamChat(@RequestBody ChatRequest req, Authentication authentication) {
         try {
-            String userRole = "STUDENT";
+            String userRole = "PUBLIC";
             if (authentication != null && authentication.isAuthenticated()) {
                 userRole = authentication.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
@@ -107,38 +122,49 @@ public class ChatController {
             List<DocumentChunk> topChunks = List.of();
             List<String> calendarEvents = List.of();
 
-            if (req.userId() != null) {
-                List<DocumentChunk> allChunks = documentChunkRepository
-                        .findByDocumentUpload_Student_UserID(req.userId());
-                topChunks = ragService.retrieveTopChunks(req.question(), allChunks, 3);
+            List<DocumentChunk> candidateChunks = new ArrayList<>(
+                    documentChunkRepository.findByDocumentUploadStudentIsNull());
 
+            String notesContext = "";
+            if (req.userId() != null) {
+                candidateChunks.addAll(documentChunkRepository
+                        .findByDocumentUpload_Student_UserID(req.userId()));
                 try {
+                    java.time.LocalDate today = java.time.LocalDate.now();
                     List<CalendarEventDTO> events = calendarService.fetchAllEvents(req.userId());
                     List<String> eventStrings = new ArrayList<>(events.size());
                     for (CalendarEventDTO e : events) {
-                        eventStrings.add(String.format(
-                            "EVENT: %s | Date: %s | Time: %s - %s | Calendar: %s",
-                            e.getTitle(),
-                            e.getStartDateTime().format(DATE_FMT),
-                            e.getStartDateTime().format(TIME_FMT),
-                            e.getEndDateTime().format(TIME_FMT),
-                            e.getCalendarName()
-                        ));
+                        if (!e.getStartDateTime().toLocalDate().isBefore(today)) {
+                            eventStrings.add(String.format(
+                                "EVENT: %s | Date: %s | Time: %s - %s | Calendar: %s",
+                                e.getTitle(),
+                                e.getStartDateTime().format(DATE_FMT),
+                                e.getStartDateTime().format(TIME_FMT),
+                                e.getEndDateTime().format(TIME_FMT),
+                                e.getCalendarName()
+                            ));
+                        }
                     }
                     calendarEvents = eventStrings;
                 } catch (Exception ignored) {
                     // calendar fetch failure must not break chat
                 }
+                notesContext = buildNotesContext(req.userId());
+            }
+
+            if (!candidateChunks.isEmpty()) {
+                topChunks = ragService.retrieveTopChunks(req.question(), candidateChunks, 5);
             }
 
             SseEmitter emitter = new SseEmitter(120_000L);
             final List<DocumentChunk> finalTopChunks = topChunks;
             final List<String> finalCalendarEvents = calendarEvents;
             final String finalUserRole = userRole;
+            final String finalNotesContext = notesContext;
 
             new Thread(() -> {
                 try (Stream<String> chunks = chatService.streamChat(
-                        req.question(), finalTopChunks, "", finalCalendarEvents, finalUserRole)) {
+                        req.question(), finalTopChunks, finalNotesContext, finalCalendarEvents, finalUserRole)) {
                     chunks.forEach(chunk -> {
                         try {
                             emitter.send(SseEmitter.event().data(chunk.replace("\n", "\\n")));
@@ -161,6 +187,22 @@ public class ChatController {
             System.err.println("STREAM ERROR: " + e.getMessage());
             e.printStackTrace(System.err);
             throw e;
+        }
+    }
+
+    private String buildNotesContext(Long userId) {
+        try {
+            List<Note> notes = noteRepository.findByStudentUserID(userId);
+            if (notes.isEmpty()) return "";
+            StringBuilder sb = new StringBuilder("[NOTES]\n");
+            for (Note note : notes) {
+                sb.append("Module: ").append(note.getModule().getTitle()).append("\n");
+                sb.append(note.getContent()).append("\n\n");
+            }
+            sb.append("[/NOTES]");
+            return sb.toString();
+        } catch (Exception e) {
+            return "";
         }
     }
 }

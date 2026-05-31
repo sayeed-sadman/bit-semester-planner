@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams, useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import { getById } from "../services/moduleService";
 import { addModule, removeModule, getStatus } from "../services/plannerService";
 import Badge from "../components/common/Badge";
+import PdfViewerModal from "../components/common/PdfViewerModal";
 
 const FIELDS = [
   { key: "title",         label: "Module Name" },
@@ -15,13 +17,13 @@ const FIELDS = [
   { key: "description",   label: "Description" },
 ];
 
-function ReadOnlyField({ label, value, isBadge }) {
+function ReadOnlyField({ label, value, isBadge, preWrap }) {
   return (
     <div className="bg-white border border-surface-border rounded-card px-4 py-4">
       <span className="text-xs font-medium text-dark-muted uppercase tracking-wide block mb-2">
         {label}
       </span>
-      <span className="text-sm text-dark-secondary">
+      <span className={`text-sm text-dark-secondary${preWrap ? " whitespace-pre-wrap" : ""}`}>
         {isBadge ? <Badge type={value} /> : (value || "—")}
       </span>
     </div>
@@ -32,29 +34,31 @@ export default function StudentModuleDetailPage() {
   const { id } = useParams();
   const [params] = useSearchParams();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
   const [module, setModule] = useState(null);
   const [inPlanner, setInPlanner] = useState(false);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPdf, setShowPdf] = useState(false);
 
   const fromPlanner = params.get("from") === "planner";
   const backTo = fromPlanner ? "/dashboard" : "/modules";
   const backLabel = fromPlanner ? "Back to My Planner" : "Back to Catalog";
 
   useEffect(() => {
-    Promise.all([
-      getById(id),
-      getStatus(id).catch(() => ({ inPlanner: false })),
-    ])
+    const fetches = isAuthenticated
+      ? Promise.all([getById(id), getStatus(id).catch(() => ({ inPlanner: false }))])
+      : getById(id).then((mod) => [mod, { inPlanner: false }]);
+    fetches
       .then(([mod, status]) => {
         setModule(mod);
         setInPlanner(status?.inPlanner ?? false);
       })
       .catch(() => setError("Module not found or server unavailable."))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, isAuthenticated]);
 
   const handleAdd = async () => {
     setActionLoading(true);
@@ -92,8 +96,21 @@ export default function StudentModuleDetailPage() {
       </Link>
 
       <div className="relative flex items-center justify-center mb-6">
+        <button
+          onClick={() => setShowPdf(true)}
+          className="absolute left-0 px-4 py-2 bg-primary text-white text-sm font-semibold rounded-button hover:bg-primary-dark transition-colors"
+        >
+          Official Description
+        </button>
         <h1 className="text-2xl font-bold text-dark">Module Detail</h1>
-        {inPlanner ? (
+        {!isAuthenticated ? (
+          <Link
+            to="/login"
+            className="absolute right-0 px-4 py-2 bg-primary text-white text-sm font-semibold rounded-button hover:bg-primary-dark transition-colors"
+          >
+            Login to add
+          </Link>
+        ) : inPlanner ? (
           <button
             onClick={handleRemove}
             disabled={actionLoading}
@@ -119,9 +136,18 @@ export default function StudentModuleDetailPage() {
             label={label}
             value={module[key] ?? ""}
             isBadge={key === "moduleType"}
+            preWrap={key === "description"}
           />
         ))}
       </div>
+
+      {showPdf && module && (
+        <PdfViewerModal
+          pdfUrl={`/api/modules/${module.moduleID}/pdf`}
+          title={`${module.title} — Official Description`}
+          onClose={() => setShowPdf(false)}
+        />
+      )}
     </div>
   );
 }

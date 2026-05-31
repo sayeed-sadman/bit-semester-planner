@@ -4,6 +4,7 @@ import ch.fhnw.bitsemesterplanner.business.exception.BusinessRuleException;
 import ch.fhnw.bitsemesterplanner.business.exception.EntityNotFoundException;
 import ch.fhnw.bitsemesterplanner.business.service.ModuleService;
 import ch.fhnw.bitsemesterplanner.business.service.UserService;
+import ch.fhnw.bitsemesterplanner.business.service.rag.ChatService;
 import ch.fhnw.bitsemesterplanner.business.service.rag.ExtractionService;
 import ch.fhnw.bitsemesterplanner.business.service.rag.ExtractionSuggestion;
 import ch.fhnw.bitsemesterplanner.business.service.rag.RagService;
@@ -29,6 +30,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -40,6 +45,7 @@ public class DocumentController {
     private final DocumentChunkRepository documentChunkRepository;
     private final RagService ragService;
     private final ExtractionService extractionService;
+    private final ChatService chatService;
     private final UserService userService;
     private final ModuleService moduleService;
 
@@ -47,12 +53,14 @@ public class DocumentController {
                                DocumentChunkRepository documentChunkRepository,
                                RagService ragService,
                                ExtractionService extractionService,
+                               ChatService chatService,
                                UserService userService,
                                ModuleService moduleService) {
         this.documentUploadRepository = documentUploadRepository;
         this.documentChunkRepository = documentChunkRepository;
         this.ragService = ragService;
         this.extractionService = extractionService;
+        this.chatService = chatService;
         this.userService = userService;
         this.moduleService = moduleService;
     }
@@ -82,19 +90,58 @@ public class DocumentController {
         upload.setRawText(rawText);
         upload = documentUploadRepository.save(upload);
 
+        List<DocumentChunk> savedChunks = new ArrayList<>();
         List<String> chunks = ragService.chunkText(rawText);
+        final int EMBED_LIMIT = 40;
         for (int i = 0; i < chunks.size(); i++) {
-            float[] embedding = ragService.generateEmbedding(chunks.get(i));
+            float[] embedding = i < EMBED_LIMIT
+                    ? ragService.generateEmbedding(chunks.get(i))
+                    : new float[64];
             DocumentChunk chunk = new DocumentChunk();
             chunk.setDocumentUpload(upload);
             chunk.setChunkIndex(i);
             chunk.setChunkText(chunks.get(i));
             chunk.setEmbeddingJson(ragService.embeddingToJson(embedding));
-            documentChunkRepository.save(chunk);
+            savedChunks.add(documentChunkRepository.save(chunk));
+        }
+
+        // For admin PDF uploads save raw bytes to temp so they can later be linked to a module
+        if (student.getRole() == Role.ADMIN && fileName.toLowerCase().endsWith(".pdf")) {
+            try {
+                Path tempDir = Paths.get("docs/knowledge/.temp");
+                Files.createDirectories(tempDir);
+                Files.write(tempDir.resolve(upload.getId() + ".pdf"), file.getBytes());
+            } catch (Exception ignored) {}
         }
 
         ExtractionSuggestion suggestions = extractionService.extractModuleInfo(rawText);
         String userRole = student.getRole().name();
+
+        // Student: use RAG retrieval then Claude to generate the study note
+        if (student.getRole() == Role.STUDENT) {
+            List<DocumentChunk> topChunks = ragService.retrieveTopChunks(
+                    "bonus points deadlines exam group work assessments", savedChunks, 5);
+            String aiSummary = chatService.generateFromChunks(topChunks, ChatService.NOTE_SUMMARY_PROMPT);
+            if (aiSummary != null && !aiSummary.isBlank() && !aiSummary.trim().equals("NO_STUDY_INFO_FOUND")) {
+                suggestions = new ExtractionSuggestion(suggestions.getDetectedFacts(), aiSummary);
+            } else {
+                suggestions = new ExtractionSuggestion(suggestions.getDetectedFacts(), null);
+            }
+        }
+
+        // Admin: use RAG retrieval then Claude to extract the module description
+        if (student.getRole() == Role.ADMIN) {
+            List<DocumentChunk> topChunks = ragService.retrieveTopChunks(
+                    "module description overview learning objectives content", savedChunks, 5);
+            String aiDescription = chatService.generateFromChunks(topChunks, ChatService.MODULE_DESC_PROMPT);
+            if (aiDescription != null && !aiDescription.isBlank()) {
+                List<String> updatedFacts = new ArrayList<>(suggestions.getDetectedFacts());
+                updatedFacts.removeIf(f -> f.startsWith("Short Description:"));
+                updatedFacts.add("Short Description: " + aiDescription);
+                suggestions = new ExtractionSuggestion(updatedFacts, suggestions.getSuggestedNoteText());
+            }
+        }
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new DocumentUploadResponse(upload.getId(), fileName, chunks.size(), suggestions, userRole));
     }
@@ -159,7 +206,7 @@ public class DocumentController {
             }
         }
 
-        boolean matched = bestScore > 0;
+        boolean matched = bestScore >= 2;
         return ResponseEntity.ok(new ModuleMatchResponse(matched, matched ? bestMatch : null, bestScore));
     }
 

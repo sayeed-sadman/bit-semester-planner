@@ -16,7 +16,7 @@ export default function AdminCatalogPage() {
   useEffect(() => {
     setLoading(true);
     getAll()
-      .then((data) => setModules([...data].sort((a, b) => a.semester - b.semester)))
+      .then((data) => setModules([...data].sort((a, b) => a.title.localeCompare(b.title))))
       .catch(() => setError("Unable to connect to the server. Please try again later."))
       .finally(() => setLoading(false));
   }, []);
