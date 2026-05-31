@@ -6,11 +6,17 @@
       "version": "20"
     }
   },
-  "postCreateCommand": "cd /workspaces/bit-semester-planner && chmod +x mvnw start.sh 2>/dev/null || true && bash mvnw dependency:resolve -q && cd frontend && npm install",
-  "postStartCommand": "bash /workspaces/bit-semester-planner/start.sh",
+  "postCreateCommand": "cd /workspaces/bit-semester-planner && chmod +x mvnw 2>/dev/null || true && ./mvnw dependency:resolve -q && cd frontend && npm install",
   "forwardPorts": [8080, 5173],
   "portsAttributes": {
     "8080": { "label": "Backend API", "onAutoForward": "notify" },
     "5173": { "label": "Frontend", "onAutoForward": "openBrowser" }
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "task.allowAutomaticTasks": "on"
+      }
+    }
   }
 }
