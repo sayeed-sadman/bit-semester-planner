@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Start frontend in background after 30s delay
-nohup bash -c "sleep 30 && cd /workspaces/bit-semester-planner/frontend && npm run dev" > /tmp/frontend.log 2>&1 &
+# Start backend in background
+nohup bash -c "cd /workspaces/bit-semester-planner && ./mvnw spring-boot:run -DskipTests" > /tmp/backend.log 2>&1 &
 
-# Run backend in foreground — logs visible in terminal
-cd /workspaces/bit-semester-planner && ./mvnw spring-boot:run -DskipTests
+# Start frontend in background after 10s delay
+nohup bash -c "sleep 10 && cd /workspaces/bit-semester-planner/frontend && npm run dev" > /tmp/frontend.log 2>&1 &
