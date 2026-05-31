@@ -1312,7 +1312,7 @@ When running on GitHub Codespaces, all runtime dependencies are provisioned auto
 
 ### 12.2 Running on GitHub Codespaces
 
-GitHub Codespaces provides a fully pre-configured development environment. The devcontainer automatically installs all dependencies and starts both services on every Codespace launch.
+GitHub Codespaces provides a fully pre-configured development environment. The devcontainer automatically installs all dependencies on first creation, and VSCode task automation starts both services on every Codespace launch.
 
 **Steps:**
 
@@ -1320,15 +1320,13 @@ GitHub Codespaces provides a fully pre-configured development environment. The d
 
 2. **Create a Codespace.** Click **Code** → **Codespaces** → **Create codespace on main**. GitHub will build the devcontainer using the `mcr.microsoft.com/devcontainers/java:21` image with Node.js 20 installed, then run the `postCreateCommand` to resolve Maven dependencies and install frontend packages.
 
-3. **Wait for both services to start.** On every Codespace start, `start.sh` is executed by `postStartCommand`. It creates a `tmux` session named `bitsemesterplanner` with two windows: **Backend** starts `./mvnw spring-boot:run -DskipTests` immediately, and **Frontend** starts `npm run dev` after a 30-second delay. The terminal automatically attaches to the tmux session so both logs are visible live. Switch between windows with `Ctrl+B` then `0` (Backend) or `1` (Frontend). Allow approximately 60 seconds from Codespace launch for both services to become available.
+3. **Wait for both services to start.** On every Codespace launch, two VSCode tasks start automatically via `runOn: folderOpen`. The **Start Backend** task runs `./mvnw spring-boot:run -DskipTests` in a dedicated terminal panel. Once port 8080 becomes available, the **Start Frontend** task runs `npm run dev` in a second dedicated terminal panel. Both panels are visible in the VSCode terminal area. Allow approximately 60–90 seconds from Codespace launch for the backend to compile and both services to become available.
 
-4. **Set port visibility.** In the **Ports** tab, verify that ports **8080** (Backend API) and **5173** (Frontend) are listed. If either port shows as **Private**, change its visibility to **Public**. This step is required for the forwarded URLs to be accessible in the browser.
-
-5. **Open the application.** Click the forwarded URL for port **5173** in the Ports tab, or wait for the browser to open automatically. The application will load at the landing page. Click **Login** to sign in or **Create account** to register.
+4. **Open the application.** Click the forwarded URL for port **5173** in the Ports tab, or wait for the browser to open automatically. The application will load at the landing page. Click **Login** to sign in or **Create account** to register.
 
 ### 12.3 Manual Start Commands
 
-If the services do not start automatically, or when running the application outside of GitHub Codespaces, both the backend and frontend can be started manually. The backend must be started first and allowed to initialise before the frontend is launched.
+After restarting an existing Codespace, or when running the application outside of GitHub Codespaces, both services must be started manually. The automatic task startup only applies on first Codespace creation. The backend must be started first and allowed to initialise before the frontend is launched.
 
 **Backend** (run from the repository root):
 
@@ -1336,13 +1334,13 @@ If the services do not start automatically, or when running the application outs
 ./mvnw spring-boot:run -DskipTests
 ```
 
-**Frontend** (run from the repository root):
+**Frontend** (open a new terminal once the backend is ready, then run from the repository root):
 
 ```bash
 cd frontend && npm run dev
 ```
 
-Once both services are running, the application is accessible at the URLs listed in [§12.4](#124-application-urls).
+Once both services are running, open the **Ports** tab in VSCode and click the forwarded URL for port **5173** to open the application in the browser.
 
 ### 12.4 Application URLs
 
