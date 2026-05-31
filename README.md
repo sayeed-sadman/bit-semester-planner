@@ -44,8 +44,8 @@ and Arts Northwestern Switzerland.
   - [7.2 Authentication Endpoints](#72-authentication-endpoints)
   - [7.3 Module Endpoints](#73-module-endpoints)
   - [7.4 Semester Planner Endpoints](#74-semester-planner-endpoints)
-  - [7.5 Notes & Calendar Endpoints](#75-notes--calendar-endpoints)
-  - [7.6 User Management Endpoints](#76-user-management-endpoints)
+  - [7.5 Notes Endpoints](#75-notes-endpoints)
+  - [7.6 Calendar Endpoints](#76-calendar-endpoints)
   - [7.7 Chat & RAG Endpoints](#77-chat--rag-endpoints)
   - [7.8 Error Response Format](#78-error-response-format)
   - [7.9 OpenAPI / Swagger](#79-openapi--swagger)
@@ -93,7 +93,7 @@ and Arts Northwestern Switzerland.
 ## Links
 - **Video Presentation:** *to be added*
 - **Web Application:** Runs on GitHub Codespaces — see [Section 12](#12-deployment) for instructions
-- **OpenAPI Documentation:** Available at `/swagger-ui.html` on the running backend — see [Section 7.9](#79-openapi--swagger)
+- **OpenAPI Documentation:** `https://{codespace-name}-8080.app.github.dev/swagger-ui.html` — replace `{codespace-name}` with your Codespace name, visible in the browser address bar
 
 ---
 
@@ -155,8 +155,8 @@ integration, and profile management.
 
 Use cases shared by both roles include login, profile editing, and
 read access to the module catalogue. The diagram covers user stories
-US-01 through US-28. The AI Study Assistant and document upload
-functionality (US-29 through US-35) were introduced during development
+US-01 through US-29. The AI Study Assistant and document upload
+functionality (US-31 through US-38) were introduced during development
 and are not reflected in this diagram.
 
 ### 2.2 User Stories
@@ -193,38 +193,41 @@ and are not reflected in this diagram.
 | US-16 | Student | As a student, I want to open a module detail page so that I can view the official module information. |
 | US-17 | Student | As a student, I want to add a module to my semester planner so that I can organize my semester plan. |
 | US-18 | Student | As a student, I want to remove a module from my semester planner so that I can update my plan if my course selection changes. |
+| US-19 | Public | As an unauthenticated visitor, I want to browse the module catalog and view module details without logging in so that I can explore available BIT modules before deciding to register. |
 
 #### Semester Planner
 
 | # | Role | User Story |
 |---|------|------------|
-| US-19 | Student | As a student, I want to see my selected modules in a structured semester planner so that I can keep track of my planned courses. |
-| US-20 | Student | As a student, I want to view key module details such as title, lecturer, and contact information in the planner so that I can quickly understand each planned module. |
-| US-21 | Student | As a student, I want to open the full details of a planned module so that I can access the complete official module information when needed. |
-| US-22 | Student | As a student, I want to add personal notes to a module so that I can store important information such as exam rules, bonus points, assignment reminders, and preparation tips. |
-| US-23 | Student | As a student, I want to edit or remove my notes so that I can keep my personal module information up to date. |
-| US-24 | Student | As a student, I want my notes to remain linked to the corresponding module so that I can easily retrieve them later. |
+| US-20 | Student | As a student, I want to see my selected modules in a structured semester planner so that I can keep track of my planned courses. |
+| US-21 | Student | As a student, I want to view key module details such as title, lecturer, and contact information in the planner so that I can quickly understand each planned module. |
+| US-22 | Student | As a student, I want to open the full details of a planned module so that I can access the complete official module information when needed. |
+| US-23 | Student | As a student, I want to add personal notes to a module so that I can store important information such as exam rules, bonus points, assignment reminders, and preparation tips. |
+| US-24 | Student | As a student, I want to edit or remove my notes so that I can keep my personal module information up to date. |
+| US-25 | Student | As a student, I want my notes to remain linked to the corresponding module so that I can easily retrieve them later. |
 
 #### Calendar Overview
 
 | # | Role | User Story |
 |---|------|------------|
-| US-25 | Student | As a student, I want to connect one or more ICS-compatible calendars via a URL so that I can access my existing events inside the application. |
-| US-26 | Student | As a student, I want the application to display events from all connected calendars in one weekly view so that I have a consolidated overview of my commitments. |
-| US-27 | Student | As a student, I want to see overlapping events across my connected calendars so that I can detect conflicts and plan my time better. |
-| US-28 | Student | As a student, I want the calendar view to be read-only so that event creation, updates, and deletions remain managed in my external calendar applications. |
+| US-26 | Student | As a student, I want to connect one or more ICS-compatible calendars via a URL so that I can access my existing events inside the application. |
+| US-27 | Student | As a student, I want the application to display events from all connected calendars in one weekly view so that I have a consolidated overview of my commitments. |
+| US-28 | Student | As a student, I want to see overlapping events across my connected calendars so that I can detect conflicts and plan my time better. |
+| US-29 | Student | As a student, I want the calendar view to be read-only so that event creation, updates, and deletions remain managed in my external calendar applications. |
+| US-30 | Student | As a student, I want to click on a calendar event to see its full details in a popup so that I can view the event title, date, time, and calendar name without leaving the dashboard. |
 
 #### Study Assistant & Document Upload
 
 | # | Role | User Story |
 |---|------|------------|
-| US-29 | Both | As a student or admin, I want to upload a PDF or DOCX so that the AI can analyse its content. |
-| US-30 | Student | As a student, I want the AI to extract exam dates, deadlines, and grading from my upload so that I can quickly capture key information from lecture documents. |
-| US-31 | Student | As a student, I want to save the extracted information directly to my module notes so that I do not have to copy it manually. |
-| US-32 | Admin | As an admin, I want the system to match an uploaded PDF to an existing module so that I can update the module catalogue with accurate information. |
-| US-33 | Both | As a student or admin, I want to ask the AI study assistant questions about my modules and receive streamed answers so that I get immediate, contextual responses. |
-| US-34 | Student | As a student, I want the chatbot to be aware of my calendar events when answering scheduling questions so that its responses reflect my actual commitments. |
-| US-35 | Public | As an unauthenticated visitor, I want to ask the AI study assistant general questions about FHNW and the BIT programme so that I can learn about the programme before registering. |
+| US-31 | Both | As a student or admin, I want to upload a PDF or DOCX so that the AI can analyse its content. |
+| US-32 | Student | As a student, I want the AI to extract exam dates, deadlines, and grading from my upload so that I can quickly capture key information from lecture documents. |
+| US-33 | Student | As a student, I want to save the extracted information directly to my module notes so that I do not have to copy it manually. |
+| US-34 | Admin | As an admin, I want the system to match an uploaded PDF to an existing module so that I can update the module catalogue with accurate information. |
+| US-35 | Both | As a student or admin, I want to ask the AI study assistant questions about my modules and receive streamed answers so that I get immediate, contextual responses. |
+| US-36 | Student | As a student, I want the chatbot to be aware of my calendar events when answering scheduling questions so that its responses reflect my actual commitments. |
+| US-37 | Public | As an unauthenticated visitor, I want to ask the AI study assistant general questions about FHNW and the BIT programme so that I can learn about the programme before registering. |
+| US-38 | Student | As a student, I want the AI assistant to reference my saved module notes when answering questions so that I can ask about note content even after deleting the uploaded document. |
 
 ### 2.3 Business Rules
 
@@ -784,9 +787,7 @@ user's profile on sign-in.
 | `DELETE` | `/api/planner/{moduleId}` | Remove a module from the student's plan. Returns `204 No Content` on success; `404 Not Found` if the module is not in the plan. | Yes — `STUDENT` role only |
 | `GET` | `/api/planner/{moduleId}/status` | Check whether a specific module is already in the student's plan. Returns a JSON object `{ "inPlanner": true/false }`. | Yes — `STUDENT` role only |
 
-### 7.5 Notes & Calendar Endpoints
-
-**Notes Endpoints**
+### 7.5 Notes Endpoints
 
 Each student may hold at most one note per module. The `POST` endpoint
 behaves as an upsert: it creates the note if none exists, or replaces
@@ -799,7 +800,7 @@ student; no student can read or modify another student's notes.
 | `POST` | `/api/notes/{moduleId}` | Create or replace the student's note for the specified module (upsert). Returns `200 OK` with the saved note. | Yes — `STUDENT` role only |
 | `DELETE` | `/api/notes/{moduleId}` | Delete the student's note for the specified module. Returns `204 No Content` on success; `404 Not Found` if no note exists. | Yes — `STUDENT` role only |
 
-**Calendar Endpoints**
+### 7.6 Calendar Endpoints
 
 Calendar connections store an ICS feed URL and a display name. Event
 data is fetched live from the external ICS source on each request and
@@ -813,14 +814,6 @@ connected calendars and includes overlap detection.
 | `DELETE` | `/api/calendars/{id}` | Remove a calendar connection by ID. Returns `204 No Content` on success; `404 Not Found` if the calendar does not belong to the student. | Yes — `STUDENT` role only |
 | `GET` | `/api/calendars/{id}/events` | Fetch and return all events from a single connected calendar. The ICS feed is fetched live and no server-side date filter is applied; date-range filtering is performed by the frontend. Events are read-only and sourced directly from the ICS feed. | Yes — `STUDENT` role only |
 | `GET` | `/api/calendars/events/all` | Fetch and merge events from all connected calendars. Returns events with overlap flags where scheduling conflicts are detected. | Yes — `STUDENT` role only |
-
-### 7.6 User Management Endpoints
-
-No additional user-management endpoints exist beyond those documented in
-[Section 7.2 Authentication Endpoints](#72-authentication-endpoints).
-All user-related operations — registration, profile retrieval, profile
-update, and account deletion — are handled exclusively through the
-`/api/auth` routes.
 
 ### 7.7 Chat & RAG Endpoints
 
@@ -1309,15 +1302,13 @@ With calendar context present, the assistant can answer queries such as "Do I ha
 
 | Requirement | Version | Notes |
 |---|---|---|
-| Java | 21 | Provided by the devcontainer image (`mcr.microsoft.com/devcontainers/java:21`) |
+| Java | 17 or higher | Project targets Java 17. The devcontainer uses `mcr.microsoft.com/devcontainers/java:21`, which is fully compatible. |
 | Node.js | 20 | Installed via devcontainer feature |
 | Maven | Wrapper included | Run via `./mvnw`; no separate installation required |
 | npm | Bundled with Node.js | Dependencies pre-installed by `postCreateCommand` |
 | GitHub account | — | Required for GitHub Codespaces |
 
 When running on GitHub Codespaces, all runtime dependencies are provisioned automatically by the devcontainer configuration. For local development, Java 21 and Node.js 20 must be installed independently.
-
-> **Note:** `frontend/.env` contains a `VITE_API_URL` entry with an empty value. This variable is not referenced by any frontend source code and has no effect on the application. It can be ignored.
 
 ### 12.2 Running on GitHub Codespaces
 
@@ -1329,11 +1320,11 @@ GitHub Codespaces provides a fully pre-configured development environment. The d
 
 2. **Create a Codespace.** Click **Code** → **Codespaces** → **Create codespace on main**. GitHub will build the devcontainer using the `mcr.microsoft.com/devcontainers/java:21` image with Node.js 20 installed, then run the `postCreateCommand` to resolve Maven dependencies and install frontend packages.
 
-3. **Wait for both services to start.** On every Codespace start, the `postStartCommand` launches two parallel processes: the backend starts immediately via `./mvnw spring-boot:run -DskipTests`, with output written to `/tmp/backend.log`; the frontend start is delayed by approximately 30 seconds to allow the backend to initialise fully, then launches via `npm run dev`, with output written to `/tmp/frontend.log`. Allow approximately 60 seconds from Codespace launch for both services to become available.
+3. **Wait for both services to start.** On every Codespace start, `start.sh` is executed by `postStartCommand`. It creates a `tmux` session named `bitsemesterplanner` with two windows: **Backend** starts `./mvnw spring-boot:run -DskipTests` immediately, and **Frontend** starts `npm run dev` after a 30-second delay. The terminal automatically attaches to the tmux session so both logs are visible live. Switch between windows with `Ctrl+B` then `0` (Backend) or `1` (Frontend). Allow approximately 60 seconds from Codespace launch for both services to become available.
 
-4. **Set port visibility.** In the **Ports** tab, verify that ports **8080** (Backend API) and **5173** (Frontend) are listed. If either port shows as **Private**, change its visibility to **Public**. This step is required for the Vite proxy and cross-origin requests to function correctly.
+4. **Set port visibility.** In the **Ports** tab, verify that ports **8080** (Backend API) and **5173** (Frontend) are listed. If either port shows as **Private**, change its visibility to **Public**. This step is required for the forwarded URLs to be accessible in the browser.
 
-5. **Open the application.** Click the forwarded URL for port **5173** in the Ports tab, or wait for the browser to open automatically. The application will load at the login page.
+5. **Open the application.** Click the forwarded URL for port **5173** in the Ports tab, or wait for the browser to open automatically. The application will load at the landing page. Click **Login** to sign in or **Create account** to register.
 
 ### 12.3 Manual Start Commands
 
@@ -1348,8 +1339,7 @@ If the services do not start automatically, or when running the application outs
 **Frontend** (run from the repository root):
 
 ```bash
-cd frontend
-npm run dev
+cd frontend && npm run dev
 ```
 
 Once both services are running, the application is accessible at the URLs listed in [§12.4](#124-application-urls).
@@ -1382,17 +1372,17 @@ The following accounts are seeded automatically at application startup by `DataI
 
 The following sequence demonstrates all major application features using the seeded demo accounts. Steps are designed to be executed in order on a running Codespaces instance.
 
-1. **Open the application.** Navigate to the frontend URL (port 5173). Log in using the demo student account: email `student@fhnw.ch`, password `student123`.
+1. **Open the application.** Navigate to the frontend URL (port 5173). The application loads at the landing page. Explore the page to see the feature overview, then click **Login** and sign in using the demo student account: email `student@fhnw.ch`, password `student123`.
 
-2. **Browse the module catalog.** Open the Module Catalog page. Observe the 8 available BIT modules: 5 COMPULSORY (Business Intelligence, Internet Technology, Logistics and Supply Chain Management, Statistics and Probability, Topics in Business Information Technology) and 3 ELECTIVE (Algorithms and Data Structures, Quantum Disruption, Social Engineering with Africa). Modules are listed alphabetically.
+2. **Browse the module catalog as a visitor.** Before logging in, navigate to `/modules`. The catalog is publicly accessible without an account. Observe the 8 available BIT modules: 5 COMPULSORY (Business Intelligence, Internet Technology, Logistics and Supply Chain Management, Statistics and Probability, Topics in Business Information Technology) and 3 ELECTIVE (Algorithms and Data Structures, Quantum Disruption, Social Engineering with Africa). Modules are listed alphabetically. A **Login to add** button is shown in place of the Add button for unauthenticated visitors.
 
-3. **View the official module description.** Click **View Details** on any module (e.g. **Internet Technology**). On the module detail page, click **Official Description** to open the PDF viewer overlay. The page dims and the official FHNW module description PDF opens in a floating panel. Close it with the X button, the Escape key, or clicking outside the panel.
+3. **View the official module description.** Click **View Detail** on any module (e.g. **Internet Technology**). On the module detail page, click **Official Description** to open the PDF viewer overlay. The page dims and the official FHNW module description PDF opens in a floating panel. Close it with the X button, the Escape key, or clicking outside the panel.
 
-4. **Add a compulsory module.** From the catalog, click **Add to Planner** on **Internet Technology**. Confirm it appears in the Semester Planner.
+4. **Add a compulsory module.** Log in as the demo student. From the catalog, click **Add** on **Internet Technology**. Confirm it appears in the Semester Planner.
 
-5. **Add the first elective module.** Return to the catalog. Click **Add to Planner** on **Algorithms and Data Structures**. The planner now contains one elective module.
+5. **Add the first elective module.** Return to the catalog. Click **Add** on **Algorithms and Data Structures**. The planner now contains one elective module.
 
-6. **Add the second elective module.** Click **Add to Planner** on **Quantum Disruption**. The planner now contains two elective modules — the maximum permitted.
+6. **Add the second elective module.** Click **Add** on **Quantum Disruption**. The planner now contains two elective modules — the maximum permitted.
 
 7. **Trigger the elective cap rule (BR-01).** Attempt to add **Social Engineering with Africa** to the planner. Observe the error response: `You have reached the maximum of 2 elective modules for your semester plan.`
 
@@ -1400,15 +1390,19 @@ The following sequence demonstrates all major application features using the see
 
 9. **Open the full-page notes editor.** Click the expand icon on the same module to navigate to the dedicated notes page for that module. Edit and save the note from the full-page view.
 
-10. **Connect a calendar.** On the dashboard, open the calendar section and click **Add Calendar**. Paste a publicly accessible ICS feed URL (e.g. an Outlook or Google Calendar export). Confirm that events appear in the weekly grid view.
+10. **Connect a calendar.** On the dashboard, open the calendar section and click **Add Calendar**. Paste a publicly accessible ICS feed URL (e.g. an Outlook or Google Calendar export). Confirm that events appear in the calendar view.
 
-11. **Query the ChatBot with calendar context.** Open the ChatBot panel (bottom-right corner). Ask: *"Do I have anything scheduled this week?"* The assistant incorporates the connected calendar events into its response.
+11. **Inspect a calendar event.** Click on any event in the calendar. A popup appears showing the full event title, date, time range, and calendar name. If the event overlaps with another, an overlap warning is displayed. Click outside the popup or the X to close it.
 
-12. **Upload a document as a student.** Click the file upload button in the ChatBot. Select a PDF or DOCX lecture file. After processing, the note-save panel appears with extracted study-relevant content pre-filled. Select **Internet Technology** from the module dropdown and click **Save** to append the extracted content to the existing note.
+12. **Query the ChatBot with calendar context.** Open the ChatBot panel (bottom-right corner). Ask: *"Do I have anything scheduled this week?"* The assistant incorporates the connected calendar events into its response, referencing only upcoming events.
 
-13. **Switch to the admin account.** Log out. Log in as `admin@fhnw.ch` with password `admin123`. Open the ChatBot and upload an official module description PDF (e.g. one of the 8 bundled PDFs from `docs/knowledge/`). If the filename matches an existing module, the panel confirms the module is already in the catalog and the PDF has been saved, with a **View Module →** link. If no match is found, the panel pre-fills a Create New Module form with extracted data; after clicking **Create Module**, a success confirmation with a **View Module →** button appears at the bottom of the panel.
+13. **Upload a document as a student.** Click the file upload button in the ChatBot. Select a PDF or DOCX file containing exam info, bonus points, or deadlines. If the document contains study-relevant information, the note-save panel opens automatically with the content pre-filled and the most likely module pre-selected based on the filename. Review the note, confirm the module selection, and click **Save**. If the document contains no study-relevant information (e.g. a lecture theory slide), the panel does not open; instead the assistant sends a message in the chat confirming the document was indexed and inviting questions.
 
-14. **Ask the assistant about any module.** With the admin account, ask the ChatBot: *"Give me detailed information from the official description of Algorithms and Data Structures."* The assistant retrieves content from the indexed knowledge base and responds with accurate module information — no upload required.
+14. **Ask the assistant about saved notes.** After saving the note, delete the uploaded document from the My Documents panel. Then ask the ChatBot: *"What bonus points are available for Internet Technology?"* The assistant answers using the saved note content, demonstrating that note context persists independently of the uploaded document.
 
-15. **Explore the API documentation.** Navigate to `/swagger-ui.html`. Review all 30 documented REST endpoints across the Auth, Modules, Planner, Notes, Calendars, Chat, and Document RAG groups.
+15. **Switch to the admin account.** Log out. Log in as `admin@fhnw.ch` with password `admin123`. Open the ChatBot and upload an official module description PDF (e.g. one of the 8 bundled PDFs from `docs/knowledge/`). If the filename matches an existing module, the panel confirms the module is already in the catalog and that the document has been uploaded and indexed, with a **View Module →** link. Dismiss the panel — the assistant sends a message in chat confirming the module and inviting questions. If no match is found, the panel pre-fills a Create New Module form with extracted data; after clicking **Create Module**, a success confirmation with a **View Module →** button appears at the bottom of the panel.
+
+16. **Ask the assistant about any module.** With the admin account, ask the ChatBot: *"Give me detailed information from the official description of Algorithms and Data Structures."* The assistant retrieves content from the indexed knowledge base and responds with accurate module information — no upload required.
+
+17. **Explore the API documentation.** Navigate to `/swagger-ui.html`. Review all 30 documented REST endpoints across the Auth, Modules, Planner, Notes, Calendars, Chat, and Document RAG groups.
 

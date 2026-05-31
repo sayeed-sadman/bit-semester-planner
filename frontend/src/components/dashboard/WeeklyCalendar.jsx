@@ -277,11 +277,21 @@ export default function WeeklyCalendar({
                       const start = parseDate(ev.start);
                       const timeStr = start.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
                       return (
-                        <div key={ev.id} onClick={() => openEvent(ev)} className="flex items-start gap-2.5 py-1 cursor-pointer hover:opacity-70 transition-opacity">
+                        <div
+                          key={ev.id}
+                          onClick={() => openEvent(ev)}
+                          className="flex items-start gap-2.5 py-1 cursor-pointer hover:opacity-70 transition-opacity rounded px-1.5"
+                          style={ev.isOverlapping ? { borderLeft: "3px solid #F59E0B", backgroundColor: "#FFFBEB" } : undefined}
+                        >
                           <div className="w-2 h-2 rounded-full mt-1 flex-shrink-0" style={{ backgroundColor: hex }} />
                           <span className="text-[11px] font-mono text-dark-muted w-9 flex-shrink-0 pt-px">{timeStr}</span>
-                          <div>
-                            <p className="text-xs font-semibold text-dark leading-snug">{ev.title}</p>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1">
+                              <p className="text-xs font-semibold text-dark leading-snug">{ev.title}</p>
+                              {ev.isOverlapping && (
+                                <span className="text-[9px] font-bold text-amber-600 bg-amber-100 px-1 py-px rounded flex-shrink-0">overlap</span>
+                              )}
+                            </div>
                             <p className="text-[11px] text-dark-muted mt-0.5">{ev.calendarName}</p>
                           </div>
                         </div>
@@ -359,9 +369,9 @@ export default function WeeklyCalendar({
                         onClick={() => openEvent(ev)}
                         className="text-[9px] font-medium truncate rounded-sm px-1 py-px cursor-pointer hover:opacity-80 transition-opacity"
                         style={{
-                          borderLeft:      `2px solid ${evColor(ev)}`,
-                          color:           evColor(ev),
-                          backgroundColor: evColor(ev) + "22",
+                          borderLeft:      ev.isOverlapping ? "2px solid #F59E0B" : `2px solid ${evColor(ev)}`,
+                          color:           ev.isOverlapping ? "#B45309" : evColor(ev),
+                          backgroundColor: ev.isOverlapping ? "#FFFBEB" : evColor(ev) + "22",
                         }}
                       >
                         {ev.title}

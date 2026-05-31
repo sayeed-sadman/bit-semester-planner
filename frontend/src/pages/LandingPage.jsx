@@ -221,11 +221,25 @@ export default function LandingPage() {
                         <p className="text-[8px] font-medium text-dark truncate">Corpus Christi</p>
                         <p className="text-[7px] text-primary">FHNW — All day</p>
                       </div>
-                      <div className="flex items-start gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-primary mt-0.5 flex-shrink-0" />
+                      {/* Overlapping events */}
+                      <div className="flex items-start gap-1 rounded px-1 py-0.5" style={{ borderLeft: "2px solid #F59E0B", backgroundColor: "#FFFBEB" }}>
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-0.5 flex-shrink-0" />
                         <div>
-                          <p className="text-[8px] font-semibold text-dark truncate">Elective Social Eng.</p>
-                          <p className="text-[7px] text-dark-muted">18:00 – 21:00</p>
+                          <div className="flex items-center gap-0.5">
+                            <p className="text-[8px] font-semibold truncate" style={{ color: "#B45309" }}>Elective Social Eng.</p>
+                            <span className="text-[6px] font-bold bg-amber-200 text-amber-700 px-0.5 rounded flex-shrink-0">!</span>
+                          </div>
+                          <p className="text-[7px] text-amber-600">18:00 – 21:00 · FHNW</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-1 rounded px-1 py-0.5" style={{ borderLeft: "2px solid #F59E0B", backgroundColor: "#FFFBEB" }}>
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-400 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <div className="flex items-center gap-0.5">
+                            <p className="text-[8px] font-semibold truncate" style={{ color: "#B45309" }}>Test Event 2</p>
+                            <span className="text-[6px] font-bold bg-amber-200 text-amber-700 px-0.5 rounded flex-shrink-0">!</span>
+                          </div>
+                          <p className="text-[7px] text-amber-600">18:00 – 19:00 · Google</p>
                         </div>
                       </div>
                       <p className="text-[7px] font-semibold uppercase tracking-wide text-dark-muted mt-0.5">Tue, 16 Jun 2026</p>

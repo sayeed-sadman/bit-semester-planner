@@ -1,24 +1,27 @@
 #!/bin/bash
-LOG=/tmp/lifecycle.log
 
-echo "$(date) start.sh: invoked" >> "$LOG"
-
-# Backend: only start if not already launching or running
-if ! pgrep -f "spring-boot:run" > /dev/null 2>&1; then
-    echo "$(date) start.sh: launching backend" >> "$LOG"
-    nohup bash -c "cd /workspaces/bit-semester-planner && ./mvnw spring-boot:run -DskipTests >> /tmp/backend.log 2>&1" > /dev/null 2>&1 &
-    echo "$(date) start.sh: backend launcher PID $!" >> "$LOG"
-else
-    echo "$(date) start.sh: backend already running, skipping" >> "$LOG"
+# Ensure tmux is available
+if ! command -v tmux &> /dev/null; then
+    echo "tmux not found, falling back to background processes"
+    nohup bash -c "cd /workspaces/bit-semester-planner && ./mvnw spring-boot:run -DskipTests > /tmp/backend.log 2>&1" > /dev/null 2>&1 &
+    nohup bash -c "sleep 30 && cd /workspaces/bit-semester-planner/frontend && npm run dev > /tmp/frontend.log 2>&1" > /dev/null 2>&1 &
+    exit 0
 fi
 
-# Frontend: only start if neither vite nor a pending npm run dev is running
-if ! pgrep -f "vite" > /dev/null 2>&1 && ! pgrep -f "npm run dev" > /dev/null 2>&1; then
-    echo "$(date) start.sh: scheduling frontend (30s delay)" >> "$LOG"
-    nohup bash -c "sleep 30 && cd /workspaces/bit-semester-planner/frontend && npm run dev >> /tmp/frontend.log 2>&1" > /dev/null 2>&1 &
-    echo "$(date) start.sh: frontend scheduler PID $!" >> "$LOG"
-else
-    echo "$(date) start.sh: frontend already running or pending, skipping" >> "$LOG"
-fi
+# Kill any existing session to start fresh
+tmux kill-session -t bitsemesterplanner 2>/dev/null
 
-echo "$(date) start.sh: done" >> "$LOG"
+# Create a new tmux session with the backend pane
+tmux new-session -d -s bitsemesterplanner -n Backend -x 220 -y 50
+
+# Start the backend in the Backend window
+tmux send-keys -t bitsemesterplanner:Backend \
+    "cd /workspaces/bit-semester-planner && ./mvnw spring-boot:run -DskipTests" Enter
+
+# Create a second window for the frontend (starts after 30s delay)
+tmux new-window -t bitsemesterplanner -n Frontend
+tmux send-keys -t bitsemesterplanner:Frontend \
+    "sleep 30 && cd /workspaces/bit-semester-planner/frontend && npm run dev" Enter
+
+# Attach the terminal to the Backend window by default
+tmux select-window -t bitsemesterplanner:Backend

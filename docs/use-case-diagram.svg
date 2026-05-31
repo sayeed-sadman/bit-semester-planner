@@ -1,11 +1,11 @@
-<svg width="680" height="1693" viewBox="0 0 680 1693" role="img" xmlns="http://www.w3.org/2000/svg" style="background:white; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+<svg width="720" height="1737" viewBox="0 0 720 1737" role="img" xmlns="http://www.w3.org/2000/svg" style="background:white; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
   <title>BIT Semester Planner — Use Case Diagram</title>
 
-  <rect x="140" y="20" width="400" height="1603" rx="16" fill="none" stroke="#1f1e1d" stroke-opacity="0.3" stroke-width="0.5" stroke-dasharray="6 4"/>
+  <rect x="140" y="20" width="400" height="1647" rx="16" fill="none" stroke="#1f1e1d" stroke-opacity="0.3" stroke-width="0.5" stroke-dasharray="6 4"/>
   <text x="340" y="44" text-anchor="middle" fill="#3d3d3a" font-size="12">BIT Semester Planner System</text>
 
   <!-- LEGEND -->
-  <rect x="544" y="19" width="142" height="72" rx="4" fill="white" opacity="0.92"/>
+  <rect x="544" y="19" width="160" height="72" rx="4" fill="white" opacity="0.95"/>
   <rect x="548" y="22" width="12" height="12" rx="2" fill="#d6e4f6" stroke="#4682d5" stroke-opacity="1" stroke-width="0.5"/>
   <text x="565" y="32" fill="#3d3d3a" font-size="10">Student use case</text>
   <rect x="548" y="44" width="12" height="12" rx="2" fill="#f6eedf" stroke="#805c1f" stroke-opacity="1" stroke-width="0.5"/>
@@ -18,7 +18,7 @@
   <text x="340" y="435" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">Module Catalog</text>
   <text x="340" y="825" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">Semester Planner</text>
   <text x="340" y="1083" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">Calendar Overview</text>
-  <text x="340" y="1297" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">Study Assistant &amp; Document Upload</text>
+  <text x="340" y="1341" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">Study Assistant &amp; Document Upload</text>
 
   <ellipse cx="340" cy="121" rx="108" ry="18" fill="#f5f4ed" stroke="#1f1e1d" stroke-opacity="0.3" stroke-width="0.5"/>
   <text x="340" y="118" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">View landing page</text>
@@ -40,7 +40,7 @@
   <text x="340" y="390" text-anchor="middle" fill="#888" font-size="9.5">US-07</text>
   <ellipse cx="340" cy="461" rx="108" ry="18" fill="#f5f4ed" stroke="#1f1e1d" stroke-opacity="0.3" stroke-width="0.5"/>
   <text x="340" y="458" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Browse modules</text>
-  <text x="340" y="472" text-anchor="middle" fill="#888" font-size="9.5">US-08, US-14</text>
+  <text x="340" y="472" text-anchor="middle" fill="#888" font-size="9.5">US-08, US-14, US-19</text>
   <ellipse cx="340" cy="505" rx="108" ry="18" fill="#f5f4ed" stroke="#1f1e1d" stroke-opacity="0.3" stroke-width="0.5"/>
   <text x="340" y="502" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Filter modules</text>
   <text x="340" y="516" text-anchor="middle" fill="#888" font-size="9.5">US-09, US-15</text>
@@ -64,123 +64,127 @@
   <text x="340" y="780" text-anchor="middle" fill="#888" font-size="9.5">US-13</text>
   <ellipse cx="340" cy="851" rx="108" ry="18" fill="#d6e4f6" stroke="#4682d5" stroke-opacity="1" stroke-width="0.5"/>
   <text x="340" y="848" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">View planned modules</text>
-  <text x="340" y="862" text-anchor="middle" fill="#888" font-size="9.5">US-19, US-20</text>
+  <text x="340" y="862" text-anchor="middle" fill="#888" font-size="9.5">US-20, US-21</text>
   <ellipse cx="340" cy="895" rx="108" ry="18" fill="#d6e4f6" stroke="#4682d5" stroke-opacity="1" stroke-width="0.5"/>
   <text x="340" y="892" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Open full module details</text>
-  <text x="340" y="906" text-anchor="middle" fill="#888" font-size="9.5">US-21</text>
+  <text x="340" y="906" text-anchor="middle" fill="#888" font-size="9.5">US-22</text>
   <ellipse cx="340" cy="939" rx="108" ry="18" fill="#d6e4f6" stroke="#4682d5" stroke-opacity="1" stroke-width="0.5"/>
   <text x="340" y="936" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Add note to module</text>
-  <text x="340" y="950" text-anchor="middle" fill="#888" font-size="9.5">US-22</text>
+  <text x="340" y="950" text-anchor="middle" fill="#888" font-size="9.5">US-23</text>
   <ellipse cx="340" cy="983" rx="108" ry="18" fill="#d6e4f6" stroke="#4682d5" stroke-opacity="1" stroke-width="0.5"/>
   <text x="340" y="980" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Edit / Remove note</text>
-  <text x="340" y="994" text-anchor="middle" fill="#888" font-size="9.5">US-23</text>
+  <text x="340" y="994" text-anchor="middle" fill="#888" font-size="9.5">US-24</text>
   <ellipse cx="340" cy="1027" rx="108" ry="18" fill="#d6e4f6" stroke="#4682d5" stroke-opacity="1" stroke-width="0.5"/>
   <text x="340" y="1024" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Notes linked to module</text>
-  <text x="340" y="1038" text-anchor="middle" fill="#888" font-size="9.5">US-24</text>
+  <text x="340" y="1038" text-anchor="middle" fill="#888" font-size="9.5">US-25</text>
   <ellipse cx="340" cy="1109" rx="108" ry="18" fill="#d6e4f6" stroke="#4682d5" stroke-opacity="1" stroke-width="0.5"/>
   <text x="340" y="1106" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Connect ICS calendar</text>
-  <text x="340" y="1120" text-anchor="middle" fill="#888" font-size="9.5">US-25</text>
+  <text x="340" y="1120" text-anchor="middle" fill="#888" font-size="9.5">US-26</text>
   <ellipse cx="340" cy="1153" rx="108" ry="18" fill="#d6e4f6" stroke="#4682d5" stroke-opacity="1" stroke-width="0.5"/>
   <text x="340" y="1150" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">View weekly events</text>
-  <text x="340" y="1164" text-anchor="middle" fill="#888" font-size="9.5">US-26</text>
+  <text x="340" y="1164" text-anchor="middle" fill="#888" font-size="9.5">US-27</text>
   <ellipse cx="340" cy="1197" rx="108" ry="18" fill="#d6e4f6" stroke="#4682d5" stroke-opacity="1" stroke-width="0.5"/>
   <text x="340" y="1194" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Detect event conflicts</text>
-  <text x="340" y="1208" text-anchor="middle" fill="#888" font-size="9.5">US-27</text>
+  <text x="340" y="1208" text-anchor="middle" fill="#888" font-size="9.5">US-28</text>
   <ellipse cx="340" cy="1241" rx="108" ry="18" fill="#d6e4f6" stroke="#4682d5" stroke-opacity="1" stroke-width="0.5"/>
   <text x="340" y="1238" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Read-only calendar</text>
-  <text x="340" y="1252" text-anchor="middle" fill="#888" font-size="9.5">US-28</text>
-  <ellipse cx="340" cy="1323" rx="108" ry="18" fill="#f5f4ed" stroke="#1f1e1d" stroke-opacity="0.3" stroke-width="0.5"/>
-  <text x="340" y="1320" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Ask AI about FHNW / BIT</text>
-  <text x="340" y="1334" text-anchor="middle" fill="#888" font-size="9.5">US-35</text>
+  <text x="340" y="1252" text-anchor="middle" fill="#888" font-size="9.5">US-29</text>
+  <ellipse cx="340" cy="1285" rx="108" ry="18" fill="#d6e4f6" stroke="#4682d5" stroke-opacity="1" stroke-width="0.5"/>
+  <text x="340" y="1282" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">View event details popup</text>
+  <text x="340" y="1296" text-anchor="middle" fill="#888" font-size="9.5">US-30</text>
   <ellipse cx="340" cy="1367" rx="108" ry="18" fill="#f5f4ed" stroke="#1f1e1d" stroke-opacity="0.3" stroke-width="0.5"/>
   <text x="340" y="1364" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Upload PDF / DOCX</text>
-  <text x="340" y="1378" text-anchor="middle" fill="#888" font-size="9.5">US-29</text>
+  <text x="340" y="1378" text-anchor="middle" fill="#888" font-size="9.5">US-31</text>
   <ellipse cx="340" cy="1411" rx="108" ry="18" fill="#d6e4f6" stroke="#4682d5" stroke-opacity="1" stroke-width="0.5"/>
   <text x="340" y="1408" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">AI extract key info</text>
-  <text x="340" y="1422" text-anchor="middle" fill="#888" font-size="9.5">US-30</text>
+  <text x="340" y="1422" text-anchor="middle" fill="#888" font-size="9.5">US-32</text>
   <ellipse cx="340" cy="1455" rx="108" ry="18" fill="#d6e4f6" stroke="#4682d5" stroke-opacity="1" stroke-width="0.5"/>
   <text x="340" y="1452" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Save extracted info to notes</text>
-  <text x="340" y="1466" text-anchor="middle" fill="#888" font-size="9.5">US-31</text>
+  <text x="340" y="1466" text-anchor="middle" fill="#888" font-size="9.5">US-33</text>
   <ellipse cx="340" cy="1499" rx="108" ry="18" fill="#f6eedf" stroke="#805c1f" stroke-opacity="1" stroke-width="0.5"/>
   <text x="340" y="1496" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Match PDF to module</text>
-  <text x="340" y="1510" text-anchor="middle" fill="#888" font-size="9.5">US-32</text>
+  <text x="340" y="1510" text-anchor="middle" fill="#888" font-size="9.5">US-34</text>
   <ellipse cx="340" cy="1543" rx="108" ry="18" fill="#f5f4ed" stroke="#1f1e1d" stroke-opacity="0.3" stroke-width="0.5"/>
   <text x="340" y="1540" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">Ask AI study assistant</text>
-  <text x="340" y="1554" text-anchor="middle" fill="#888" font-size="9.5">US-33</text>
+  <text x="340" y="1554" text-anchor="middle" fill="#888" font-size="9.5">US-35, US-37</text>
   <ellipse cx="340" cy="1587" rx="108" ry="18" fill="#d6e4f6" stroke="#4682d5" stroke-opacity="1" stroke-width="0.5"/>
   <text x="340" y="1584" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">AI uses calendar context</text>
-  <text x="340" y="1598" text-anchor="middle" fill="#888" font-size="9.5">US-34</text>
+  <text x="340" y="1598" text-anchor="middle" fill="#888" font-size="9.5">US-36</text>
+  <ellipse cx="340" cy="1631" rx="108" ry="18" fill="#d6e4f6" stroke="#4682d5" stroke-opacity="1" stroke-width="0.5"/>
+  <text x="340" y="1628" text-anchor="middle" fill="#3d3d3a" font-size="11.5" font-weight="500">AI references saved notes</text>
+  <text x="340" y="1642" text-anchor="middle" fill="#888" font-size="9.5">US-38</text>
 
+  <!-- ACTORS -->
   <circle cx="48" cy="165" r="14" fill="none" stroke="#1f1e1d" stroke-opacity="0.4" stroke-width="1"/>
   <line x1="48" y1="179" x2="48" y2="211" stroke="#1f1e1d" stroke-opacity="0.4" stroke-width="1"/>
   <line x1="28" y1="189" x2="68" y2="189" stroke="#1f1e1d" stroke-opacity="0.4" stroke-width="1"/>
   <line x1="48" y1="211" x2="32" y2="231" stroke="#1f1e1d" stroke-opacity="0.4" stroke-width="1"/>
   <line x1="48" y1="211" x2="64" y2="231" stroke="#1f1e1d" stroke-opacity="0.4" stroke-width="1"/>
   <text x="48" y="248" text-anchor="middle" fill="#3d3d3a" font-size="11">Public user</text>
-
-  <circle cx="48" cy="920" r="14" fill="none" stroke="#4682d5" stroke-opacity="1" stroke-width="1"/>
-  <line x1="48" y1="934" x2="48" y2="966" stroke="#4682d5" stroke-opacity="1" stroke-width="1"/>
-  <line x1="28" y1="944" x2="68" y2="944" stroke="#4682d5" stroke-opacity="1" stroke-width="1"/>
-  <line x1="48" y1="966" x2="32" y2="986" stroke="#4682d5" stroke-opacity="1" stroke-width="1"/>
-  <line x1="48" y1="966" x2="64" y2="986" stroke="#4682d5" stroke-opacity="1" stroke-width="1"/>
-  <text x="48" y="1003" text-anchor="middle" fill="#3d3d3a" font-size="11">Student</text>
-
-  <circle cx="632" cy="725" r="14" fill="none" stroke="#805c1f" stroke-opacity="1" stroke-width="1"/>
-  <line x1="632" y1="739" x2="632" y2="771" stroke="#805c1f" stroke-opacity="1" stroke-width="1"/>
-  <line x1="612" y1="749" x2="652" y2="749" stroke="#805c1f" stroke-opacity="1" stroke-width="1"/>
-  <line x1="632" y1="771" x2="616" y2="791" stroke="#805c1f" stroke-opacity="1" stroke-width="1"/>
-  <line x1="632" y1="771" x2="648" y2="791" stroke="#805c1f" stroke-opacity="1" stroke-width="1"/>
-  <text x="632" y="808" text-anchor="middle" fill="#3d3d3a" font-size="11">Admin</text>
+  <circle cx="48" cy="900" r="14" fill="none" stroke="#4682d5" stroke-opacity="1" stroke-width="1"/>
+  <line x1="48" y1="914" x2="48" y2="946" stroke="#4682d5" stroke-opacity="1" stroke-width="1"/>
+  <line x1="28" y1="924" x2="68" y2="924" stroke="#4682d5" stroke-opacity="1" stroke-width="1"/>
+  <line x1="48" y1="946" x2="32" y2="966" stroke="#4682d5" stroke-opacity="1" stroke-width="1"/>
+  <line x1="48" y1="946" x2="64" y2="966" stroke="#4682d5" stroke-opacity="1" stroke-width="1"/>
+  <text x="48" y="983" text-anchor="middle" fill="#3d3d3a" font-size="11">Student</text>
+  <circle cx="660" cy="680" r="14" fill="none" stroke="#805c1f" stroke-opacity="1" stroke-width="1"/>
+  <line x1="660" y1="694" x2="660" y2="726" stroke="#805c1f" stroke-opacity="1" stroke-width="1"/>
+  <line x1="640" y1="704" x2="680" y2="704" stroke="#805c1f" stroke-opacity="1" stroke-width="1"/>
+  <line x1="660" y1="726" x2="644" y2="746" stroke="#805c1f" stroke-opacity="1" stroke-width="1"/>
+  <line x1="660" y1="726" x2="676" y2="746" stroke="#805c1f" stroke-opacity="1" stroke-width="1"/>
+  <text x="660" y="763" text-anchor="middle" fill="#3d3d3a" font-size="11">Admin</text>
 
   <!-- CONNECTIONS: Public User -->
   <line x1="62" y1="165" x2="232" y2="121" stroke="#1f1e1d" stroke-opacity="0.2" stroke-width="0.5"/>
   <line x1="62" y1="168" x2="232" y2="165" stroke="#1f1e1d" stroke-opacity="0.2" stroke-width="0.5"/>
   <line x1="62" y1="171" x2="232" y2="209" stroke="#1f1e1d" stroke-opacity="0.2" stroke-width="0.5"/>
-  <line x1="62" y1="174" x2="232" y2="1323" stroke="#1f1e1d" stroke-opacity="0.2" stroke-width="0.5"/>
+  <line x1="62" y1="174" x2="232" y2="461" stroke="#1f1e1d" stroke-opacity="0.2" stroke-width="0.5"/>
+  <line x1="62" y1="177" x2="232" y2="549" stroke="#1f1e1d" stroke-opacity="0.2" stroke-width="0.5"/>
+  <line x1="62" y1="180" x2="232" y2="1543" stroke="#1f1e1d" stroke-opacity="0.2" stroke-width="0.5"/>
 
   <!-- CONNECTIONS: Student -->
-  <line x1="62" y1="920" x2="232" y2="121" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="923" x2="232" y2="165" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="926" x2="232" y2="209" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="929" x2="232" y2="291" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="932" x2="232" y2="335" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="935" x2="232" y2="379" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="938" x2="232" y2="461" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="941" x2="232" y2="505" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="944" x2="232" y2="549" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="947" x2="232" y2="593" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="950" x2="232" y2="637" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="953" x2="232" y2="851" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="956" x2="232" y2="895" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="959" x2="232" y2="939" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="962" x2="232" y2="983" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="965" x2="232" y2="1027" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="968" x2="232" y2="1109" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="971" x2="232" y2="1153" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="974" x2="232" y2="1197" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="977" x2="232" y2="1241" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="980" x2="232" y2="1323" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="983" x2="232" y2="1367" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="986" x2="232" y2="1411" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="989" x2="232" y2="1455" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="992" x2="232" y2="1543" stroke="#4682d5" stroke-width="0.5"/>
-  <line x1="62" y1="995" x2="232" y2="1587" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="900" x2="232" y2="121" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="903" x2="232" y2="165" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="906" x2="232" y2="209" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="909" x2="232" y2="291" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="912" x2="232" y2="335" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="915" x2="232" y2="379" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="918" x2="232" y2="461" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="921" x2="232" y2="505" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="924" x2="232" y2="549" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="927" x2="232" y2="593" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="930" x2="232" y2="637" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="933" x2="232" y2="851" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="936" x2="232" y2="895" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="939" x2="232" y2="939" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="942" x2="232" y2="983" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="945" x2="232" y2="1027" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="948" x2="232" y2="1109" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="951" x2="232" y2="1153" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="954" x2="232" y2="1197" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="957" x2="232" y2="1241" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="960" x2="232" y2="1285" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="963" x2="232" y2="1367" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="966" x2="232" y2="1411" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="969" x2="232" y2="1455" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="972" x2="232" y2="1543" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="975" x2="232" y2="1587" stroke="#4682d5" stroke-width="0.5"/>
+  <line x1="62" y1="978" x2="232" y2="1631" stroke="#4682d5" stroke-width="0.5"/>
 
   <!-- CONNECTIONS: Admin -->
-  <line x1="618" y1="725" x2="448" y2="121" stroke="#805c1f" stroke-width="0.5"/>
-  <line x1="618" y1="728" x2="448" y2="165" stroke="#805c1f" stroke-width="0.5"/>
-  <line x1="618" y1="731" x2="448" y2="291" stroke="#805c1f" stroke-width="0.5"/>
-  <line x1="618" y1="734" x2="448" y2="335" stroke="#805c1f" stroke-width="0.5"/>
-  <line x1="618" y1="737" x2="448" y2="379" stroke="#805c1f" stroke-width="0.5"/>
-  <line x1="618" y1="740" x2="448" y2="461" stroke="#805c1f" stroke-width="0.5"/>
-  <line x1="618" y1="743" x2="448" y2="505" stroke="#805c1f" stroke-width="0.5"/>
-  <line x1="618" y1="746" x2="448" y2="549" stroke="#805c1f" stroke-width="0.5"/>
-  <line x1="618" y1="749" x2="448" y2="681" stroke="#805c1f" stroke-width="0.5"/>
-  <line x1="618" y1="752" x2="448" y2="725" stroke="#805c1f" stroke-width="0.5"/>
-  <line x1="618" y1="755" x2="448" y2="769" stroke="#805c1f" stroke-width="0.5"/>
-  <line x1="618" y1="758" x2="448" y2="1323" stroke="#805c1f" stroke-width="0.5"/>
-  <line x1="618" y1="761" x2="448" y2="1367" stroke="#805c1f" stroke-width="0.5"/>
-  <line x1="618" y1="764" x2="448" y2="1499" stroke="#805c1f" stroke-width="0.5"/>
-  <line x1="618" y1="767" x2="448" y2="1543" stroke="#805c1f" stroke-width="0.5"/>
+  <line x1="640" y1="680" x2="448" y2="121" stroke="#805c1f" stroke-width="0.5"/>
+  <line x1="640" y1="683" x2="448" y2="165" stroke="#805c1f" stroke-width="0.5"/>
+  <line x1="640" y1="686" x2="448" y2="291" stroke="#805c1f" stroke-width="0.5"/>
+  <line x1="640" y1="689" x2="448" y2="335" stroke="#805c1f" stroke-width="0.5"/>
+  <line x1="640" y1="692" x2="448" y2="379" stroke="#805c1f" stroke-width="0.5"/>
+  <line x1="640" y1="695" x2="448" y2="461" stroke="#805c1f" stroke-width="0.5"/>
+  <line x1="640" y1="698" x2="448" y2="505" stroke="#805c1f" stroke-width="0.5"/>
+  <line x1="640" y1="701" x2="448" y2="549" stroke="#805c1f" stroke-width="0.5"/>
+  <line x1="640" y1="704" x2="448" y2="681" stroke="#805c1f" stroke-width="0.5"/>
+  <line x1="640" y1="707" x2="448" y2="725" stroke="#805c1f" stroke-width="0.5"/>
+  <line x1="640" y1="710" x2="448" y2="769" stroke="#805c1f" stroke-width="0.5"/>
+  <line x1="640" y1="713" x2="448" y2="1367" stroke="#805c1f" stroke-width="0.5"/>
+  <line x1="640" y1="716" x2="448" y2="1499" stroke="#805c1f" stroke-width="0.5"/>
+  <line x1="640" y1="719" x2="448" y2="1543" stroke="#805c1f" stroke-width="0.5"/>
 
 </svg>

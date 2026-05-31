@@ -1,5 +1,6 @@
 package ch.fhnw.bitsemesterplanner.business.service;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -12,5 +13,6 @@ public class CalendarEventDTO {
     private LocalDateTime startDateTime;
     private LocalDateTime endDateTime;
     private String calendarName;
+    @JsonProperty("isOverlapping")
     private boolean isOverlapping;
 }
