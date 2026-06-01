@@ -20,13 +20,13 @@ function getAuthHeaders() {
 
 const FIELD_LABELS = {
   title: "Module Name",
+  description: "Description",
   moduleType: "Module Type",
   credits: "Credits (ECTS)",
   campus: "Campus",
   semester: "Semester",
   lecturerName: "Lecturer",
   lecturerEmail: "Lecturer Email",
-  description: "Description",
 };
 
 function SavedToast({ visible }) {

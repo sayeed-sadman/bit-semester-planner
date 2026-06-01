@@ -8,13 +8,13 @@ import PdfViewerModal from "../components/common/PdfViewerModal";
 
 const FIELDS = [
   { key: "title",         label: "Module Name" },
+  { key: "description",   label: "Description" },
   { key: "moduleType",    label: "Module Type" },
   { key: "credits",       label: "Credits (ECTS)" },
   { key: "campus",        label: "Campus" },
   { key: "semester",      label: "Semester" },
   { key: "lecturerName",  label: "Lecturer" },
   { key: "lecturerEmail", label: "Lecturer Email" },
-  { key: "description",   label: "Description" },
 ];
 
 function ReadOnlyField({ label, value, isBadge, preWrap }) {
