@@ -142,6 +142,8 @@ export default function AdminModuleDetailPage() {
   const [showPdf, setShowPdf] = useState(false);
   const [replacePdfFile, setReplacePdfFile] = useState(null);
   const [pdfUploadStatus, setPdfUploadStatus] = useState(null);
+  const [pdfExists, setPdfExists] = useState(false);
+  const [pdfDeleteStatus, setPdfDeleteStatus] = useState(null);
   const toastTimerRef = useRef(null);
 
   useEffect(() => {
@@ -149,6 +151,12 @@ export default function AdminModuleDetailPage() {
       .then(setModule)
       .catch(() => setError("Module not found or server unavailable."))
       .finally(() => setLoading(false));
+  }, [id]);
+
+  useEffect(() => {
+    fetch(`/api/modules/${id}/pdf`, { method: "HEAD", headers: getAuthHeaders() })
+      .then(res => setPdfExists(res.ok))
+      .catch(() => setPdfExists(false));
   }, [id]);
 
   useEffect(() => {
@@ -267,6 +275,28 @@ export default function AdminModuleDetailPage() {
           </button>
           {pdfUploadStatus === "done" && <span className="text-xs text-success font-medium">PDF updated successfully.</span>}
           {pdfUploadStatus === "error" && <span className="text-xs text-danger font-medium">Upload failed. Please try again.</span>}
+          {pdfExists && (
+            <button
+              onClick={async () => {
+                setPdfDeleteStatus("deleting");
+                try {
+                  const res = await fetch(`/api/modules/${id}/pdf`, { method: "DELETE", headers: getAuthHeaders() });
+                  if (res.ok || res.status === 204) {
+                    setPdfExists(false);
+                    setPdfDeleteStatus("done");
+                  } else {
+                    setPdfDeleteStatus("error");
+                  }
+                } catch { setPdfDeleteStatus("error"); }
+              }}
+              disabled={pdfDeleteStatus === "deleting"}
+              className="px-3 py-2 bg-danger text-white text-sm font-medium rounded-input hover:bg-red-700 transition-colors disabled:opacity-50"
+            >
+              {pdfDeleteStatus === "deleting" ? "Removing…" : "Remove PDF"}
+            </button>
+          )}
+          {pdfDeleteStatus === "done" && <span className="text-xs text-success font-medium">PDF removed.</span>}
+          {pdfDeleteStatus === "error" && <span className="text-xs text-danger font-medium">Could not remove PDF.</span>}
         </div>
       </div>
 

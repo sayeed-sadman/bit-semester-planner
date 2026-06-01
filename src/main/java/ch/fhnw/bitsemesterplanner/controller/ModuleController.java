@@ -130,6 +130,22 @@ public class ModuleController {
         }
     }
 
+    @DeleteMapping("/{id}/pdf")
+    @Operation(summary = "Delete the official PDF for a module (ADMIN only)")
+    @ApiResponse(responseCode = "204", description = "PDF deleted")
+    @ApiResponse(responseCode = "404", description = "PDF not found")
+    public ResponseEntity<Void> deleteModulePdf(
+            @Parameter(description = "Module ID") @PathVariable Long id) {
+        Module module = moduleService.getModuleById(id);
+        Path pdfPath = Paths.get("docs/knowledge", module.getTitle() + ".pdf");
+        try {
+            if (!Files.deleteIfExists(pdfPath)) return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a module (ADMIN only)")
     @ApiResponse(responseCode = "204", description = "Module deleted")
