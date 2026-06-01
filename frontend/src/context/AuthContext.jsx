@@ -46,7 +46,19 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    if (user?.role === "ADMIN") {
+      const stored = localStorage.getItem(AUTH_STORAGE_KEY);
+      if (stored) {
+        try {
+          const { email, password } = JSON.parse(atob(stored));
+          await fetch("/api/rag/uploads/unlinked", {
+            method: "DELETE",
+            headers: { Authorization: "Basic " + btoa(`${email}:${password}`) },
+          });
+        } catch { /* non-critical — proceed with logout */ }
+      }
+    }
     clearAuthCredentials();
     localStorage.removeItem(AUTH_STORAGE_KEY);
     setUser(null);

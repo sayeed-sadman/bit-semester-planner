@@ -93,6 +93,7 @@ export default function ChatBot({ onSuggestNote }) {
   const [adminFormCredits, setAdminFormCredits] = useState("");
   const [adminFormSemester, setAdminFormSemester] = useState("1");
   const [adminFormModuleType, setAdminFormModuleType] = useState("COMPULSORY");
+  const [adminFormCampus, setAdminFormCampus] = useState("Basel");
   const [adminFormLecturer, setAdminFormLecturer] = useState("");
   const [adminFormLecturerEmail, setAdminFormLecturerEmail] = useState("");
   const [adminModuleStatus, setAdminModuleStatus] = useState(null); // null | "saving" | "saved" | "error"
@@ -164,6 +165,7 @@ export default function ChatBot({ onSuggestNote }) {
       setAdminFormCredits(get("Credits"));
       setAdminFormSemester("1");
       setAdminFormModuleType("COMPULSORY");
+      setAdminFormCampus("Basel");
       setAdminFormLecturer(get("Lecturer"));
       setAdminFormLecturerEmail(get("Lecturer Email"));
       setAdminModuleStatus(null);
@@ -333,7 +335,7 @@ export default function ChatBot({ onSuggestNote }) {
       lecturerName: adminFormLecturer || "TBD",
       lecturerEmail: adminFormLecturerEmail || "tbd@fhnw.ch",
       semester: parseInt(adminFormSemester),
-      campus: "Brugg-Windisch",
+      campus: adminFormCampus,
       moduleType: adminFormModuleType,
     };
     try {
@@ -631,12 +633,23 @@ export default function ChatBot({ onSuggestNote }) {
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs font-medium text-dark-muted">Module Type</label>
-                    <select value={adminFormModuleType} onChange={(e) => setAdminFormModuleType(e.target.value)} className={inputCls}>
-                      <option value="COMPULSORY">COMPULSORY</option>
-                      <option value="ELECTIVE">ELECTIVE</option>
-                    </select>
+                  <div className="flex gap-2">
+                    <div className="flex flex-col gap-1 flex-1">
+                      <label className="text-xs font-medium text-dark-muted">Campus</label>
+                      <select value={adminFormCampus} onChange={(e) => setAdminFormCampus(e.target.value)} className={inputCls}>
+                        <option value="Basel">Basel</option>
+                        <option value="Brugg-Windisch">Brugg-Windisch</option>
+                        <option value="Olten">Olten</option>
+                        <option value="Muttenz">Muttenz</option>
+                      </select>
+                    </div>
+                    <div className="flex flex-col gap-1 flex-1">
+                      <label className="text-xs font-medium text-dark-muted">Module Type</label>
+                      <select value={adminFormModuleType} onChange={(e) => setAdminFormModuleType(e.target.value)} className={inputCls}>
+                        <option value="COMPULSORY">COMPULSORY</option>
+                        <option value="ELECTIVE">ELECTIVE</option>
+                      </select>
+                    </div>
                   </div>
 
                   <div className="flex flex-col gap-1">
@@ -787,7 +800,7 @@ export default function ChatBot({ onSuggestNote }) {
                     {uploadStatus === "error" && (
                       <p className="text-xs text-danger font-medium">Upload failed. Please try again.</p>
                     )}
-                    {uploadedFiles.length > 0 ? (
+                    {isStudent && (uploadedFiles.length > 0 ? (
                       <button
                         onClick={() => setDocsExpanded((p) => !p)}
                         className="text-xs text-primary/70 hover:text-primary transition-colors text-left"
@@ -799,15 +812,15 @@ export default function ChatBot({ onSuggestNote }) {
                       </button>
                     ) : (
                       <p className="text-xs text-dark-subtle">No documents uploaded yet</p>
-                    )}
+                    ))}
                   </div>
                 )}
               </>
             )}
           </div>
 
-          {/* Documents panel — no header; visible only when docsExpanded */}
-          {canUpload && docsExpanded && (
+          {/* Documents panel — students only */}
+          {isStudent && docsExpanded && (
             <div
               className="bg-white rounded-modal overflow-hidden flex-shrink-0"
               style={{

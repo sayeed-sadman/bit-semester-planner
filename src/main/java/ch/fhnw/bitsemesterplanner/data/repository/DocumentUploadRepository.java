@@ -10,4 +10,5 @@ import java.util.List;
 public interface DocumentUploadRepository extends JpaRepository<DocumentUpload, Long> {
     List<DocumentUpload> findByStudentUserID(Long studentId);
     List<DocumentUpload> findByModuleModuleID(Long moduleId);
+    List<DocumentUpload> findByStudentUserIDAndModuleIsNull(Long studentId);
 }

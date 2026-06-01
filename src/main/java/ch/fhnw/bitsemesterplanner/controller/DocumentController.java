@@ -181,6 +181,20 @@ public class DocumentController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/uploads/unlinked")
+    @Operation(summary = "Delete all unlinked uploads (no module) for the current user — called on logout")
+    @ApiResponse(responseCode = "204", description = "Unlinked uploads deleted")
+    public ResponseEntity<Void> deleteUnlinkedUploads(Authentication auth) {
+        User user = userService.getCurrentUser(auth);
+        documentUploadRepository.findByStudentUserIDAndModuleIsNull(user.getUserID()).forEach(upload -> {
+            documentChunkRepository.deleteAll(documentChunkRepository.findByDocumentUploadId(upload.getId()));
+            documentUploadRepository.delete(upload);
+            Path tempFile = Paths.get("docs/knowledge/.temp", upload.getId() + ".pdf");
+            try { Files.deleteIfExists(tempFile); } catch (Exception ignored) {}
+        });
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/match-module")
     @Operation(summary = "Find best-matching module for an extracted document title (ADMIN only)")
     @ApiResponse(responseCode = "200", description = "Match result returned")
