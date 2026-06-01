@@ -565,7 +565,7 @@ Access to each endpoint group is governed by Spring Security rules enforced in `
 2. Wait for the container to build. The backend and frontend start automatically.
 3. When prompted, click **Open in Browser** for port `5173` to access the frontend.
 
-The required Anthropic API key for the AI assistant is pre-configured as a repository secret and is automatically available on GitHub Codespaces for contributors.
+The required Anthropic API key for the AI assistant is pre-configured as a repository secret and is automatically available on GitHub Codespaces for contributors. Non-contributors who fork the repository can add their own `ANTHROPIC_API_KEY` as a Codespaces secret in their GitHub account settings and it will be injected automatically into their Codespace.
 
 **Manual Start Commands (if auto-start fails or after restarting a Codespace)**
 
@@ -589,7 +589,7 @@ Once the frontend starts, open port `5173` in the browser. In the Ports panel, f
 | Node.js 20 | Install from [nodejs.org](https://nodejs.org), pick the v20 LTS installer |
 | Git | Install from [git-scm.com](https://git-scm.com/downloads), includes Git Bash on Windows |
 | Maven | Wrapper included (`./mvnw`), no separate install needed |
-| Anthropic API Key | Optional. Without it the app runs normally: basic module info extraction from uploaded documents (PDF and DOCX) still works, but AI-powered chat responses, RAG-based retrieval, and AI-enhanced description generation will not. Set as the `ANTHROPIC_API_KEY` environment variable (see step 2 below) |
+| Anthropic API Key | Set as the `ANTHROPIC_API_KEY` environment variable (see step 2 below) |
 
 > All commands below should be run in **Git Bash** (Windows), or any terminal on Mac/Linux.
 
@@ -604,7 +604,9 @@ cd bit-semester-planner
 
 **2. Set the Anthropic API key (optional)**
 
-This step is only needed if you want the AI chat feature to work. In your terminal, set the environment variable before starting the backend:
+This step is only needed if you want the AI chat feature to work. Without it the app runs normally: basic module info extraction from uploaded documents (PDF and DOCX) still works, but AI-powered chat responses, RAG-based retrieval, and AI-enhanced description generation will not.
+
+The variable only needs to be set in the terminal session where you run the backend. Without it, the app starts normally but the AI chat will return an error when used. In your terminal, set the environment variable before starting the backend:
 
 **Git Bash / Mac / Linux:**
 ```bash
@@ -620,8 +622,6 @@ set ANTHROPIC_API_KEY=your-api-key-here
 ```powershell
 $env:ANTHROPIC_API_KEY="your-api-key-here"
 ```
-
-> The variable only needs to be set in the terminal session where you run the backend. Without it, the app starts normally but the AI chat will return an error when used.
 
 **3. Start the backend** (Git Bash, Terminal 1)
 
