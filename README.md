@@ -396,7 +396,7 @@ All endpoints follow these principles consistently:
 | `GET` | `/api/rag/uploads` | List all uploaded documents |
 | `GET` | `/api/rag/uploads/{id}/file` | View or download the original uploaded file (Student only) |
 | `DELETE` | `/api/rag/uploads/{id}` | Delete an uploaded document and its file and chunks |
-| `DELETE` | `/api/rag/uploads/unlinked` | Delete all unlinked temp uploads for the current user — called on logout |
+| `DELETE` | `/api/rag/uploads/unlinked` | Delete all unlinked temp uploads for the current user (called on logout) |
 | `GET` | `/api/rag/match-module` | Find the best matching module for a document title (Admin only) |
 
 **OpenAPI Documentation**
@@ -586,13 +586,13 @@ $env:ANTHROPIC_API_KEY="your-api-key-here"
 
 > The variable only needs to be set in the terminal session where you run the backend. Without it, the app starts normally but the AI chat will return an error when used.
 
-**3. Start the backend** (Git Bash — Terminal 1)
+**3. Start the backend** (Git Bash, Terminal 1)
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-**4. Start the frontend** (Git Bash — Terminal 2, once backend is ready)
+**4. Start the frontend** (Git Bash, Terminal 2, once backend is ready)
 
 ```bash
 cd frontend && npm install && npm run dev
@@ -706,8 +706,8 @@ Students and admins can upload PDF or DOCX files for AI-assisted analysis. Stude
 
 **Ingestion:** uploaded files are extracted (Apache PDFBox for PDF, Apache POI for DOCX) and split into 400-word chunks with a 50-word overlap. The ingestion behaviour then differs by role:
 
-- **Student uploads:** chunks are embedded and written to `DocumentChunk` immediately on upload, making the content available for RAG retrieval straight away. A 64-float pseudo-embedding is generated via the Anthropic API for the first 40 chunks (~14,000 words); chunks beyond that limit receive a zero-filled embedding and are stored as raw text only — sufficient for all typical module documents.
-- **Admin uploads:** chunks are computed in memory at upload time only to power the AI description suggestion, but are not persisted to the database. Chunks are written to `DocumentChunk` — following the same 40-chunk embedding limit — only when the admin links the upload to a module. If the admin dismisses or logs out without linking, no chunks are ever stored.
+- **Student uploads:** chunks are embedded and written to `DocumentChunk` immediately on upload, making the content available for RAG retrieval straight away. A 64-float pseudo-embedding is generated via the Anthropic API for the first 40 chunks (~14,000 words); chunks beyond that limit receive a zero-filled embedding and are stored as raw text only (sufficient for all typical module documents).
+- **Admin uploads:** chunks are computed in memory at upload time only to power the AI description suggestion, but are not persisted to the database. Chunks are written to `DocumentChunk` (following the same 40-chunk embedding limit) only when the admin links the upload to a module. If the admin dismisses or logs out without linking, no chunks are ever stored.
 
 **Retrieval:** on each chat request, the query is embedded using the same process. Cosine similarity is computed against all relevant chunks, and the top 5 are injected into the system prompt as context before the model generates a response.
 
