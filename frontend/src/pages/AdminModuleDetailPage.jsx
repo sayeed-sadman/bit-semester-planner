@@ -244,9 +244,15 @@ export default function AdminModuleDetailPage() {
       </div>
 
       <div className="mt-3 bg-white border border-surface-border rounded-card px-4 py-4">
-        <span className="text-xs font-medium text-dark-muted uppercase tracking-wide block mb-2">
-          Upload / Replace Official Description PDF
-        </span>
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-medium text-dark-muted uppercase tracking-wide">
+            Upload / Replace Official Description PDF
+          </span>
+          {pdfExists
+            ? <span className="text-xs font-medium text-success">PDF on file</span>
+            : <span className="text-xs font-medium text-dark-muted">No PDF uploaded</span>
+          }
+        </div>
         <div className="flex items-center gap-3 flex-wrap">
           <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 border border-surface-border rounded-input text-sm text-dark-muted hover:border-primary hover:text-primary transition-colors">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
@@ -265,7 +271,7 @@ export default function AdminModuleDetailPage() {
               try {
                 const res = await fetch(`/api/modules/${id}/pdf`, { method: "POST", headers: getAuthHeaders(), body: formData });
                 setPdfUploadStatus(res.ok ? "done" : "error");
-                if (res.ok) setReplacePdfFile(null);
+                if (res.ok) { setReplacePdfFile(null); setPdfExists(true); }
               } catch { setPdfUploadStatus("error"); }
             }}
             disabled={!replacePdfFile || pdfUploadStatus === "uploading"}
@@ -292,7 +298,7 @@ export default function AdminModuleDetailPage() {
               disabled={pdfDeleteStatus === "deleting"}
               className="px-3 py-2 bg-danger text-white text-sm font-medium rounded-input hover:bg-red-700 transition-colors disabled:opacity-50"
             >
-              {pdfDeleteStatus === "deleting" ? "Removing…" : "Remove PDF"}
+              {pdfDeleteStatus === "deleting" ? "Removing…" : "Remove"}
             </button>
           )}
           {pdfDeleteStatus === "done" && <span className="text-xs text-success font-medium">PDF removed.</span>}
