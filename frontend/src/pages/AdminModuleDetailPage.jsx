@@ -249,14 +249,27 @@ export default function AdminModuleDetailPage() {
         </span>
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-2">
-            <label className={`cursor-pointer inline-flex items-center gap-2 px-3 py-2 border border-surface-border rounded-input text-sm transition-colors ${pdfExists ? "opacity-40 pointer-events-none text-dark-muted" : "text-dark-muted hover:border-primary hover:text-primary"}`}>
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                <path d="M3 2h7l3 3v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round"/>
-                <path d="M10 2v3h3" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round"/>
-              </svg>
-              {replacePdfFile ? replacePdfFile.name : "Choose PDF…"}
-              <input type="file" accept=".pdf" className="hidden" disabled={pdfExists} onChange={(e) => { setReplacePdfFile(e.target.files[0] || null); setPdfUploadStatus(null); }} />
-            </label>
+            <div className="relative">
+              <label className={`cursor-pointer inline-flex items-center gap-2 px-3 py-2 border border-surface-border rounded-input text-sm transition-colors ${pdfExists ? "opacity-40 pointer-events-none text-dark-muted" : "text-dark-muted hover:border-primary hover:text-primary"} ${replacePdfFile ? "pr-7" : ""}`}>
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                  <path d="M3 2h7l3 3v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round"/>
+                  <path d="M10 2v3h3" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round"/>
+                </svg>
+                {replacePdfFile ? replacePdfFile.name : "Choose PDF…"}
+                <input type="file" accept=".pdf" className="hidden" disabled={pdfExists} onChange={(e) => { setReplacePdfFile(e.target.files[0] || null); setPdfUploadStatus(null); }} />
+              </label>
+              {replacePdfFile && !pdfExists && (
+                <button
+                  onClick={() => { setReplacePdfFile(null); setPdfUploadStatus(null); }}
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 text-dark-muted hover:text-dark transition-colors"
+                  aria-label="Clear selected file"
+                >
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                </button>
+              )}
+            </div>
             <button
               onClick={async () => {
                 if (!replacePdfFile) return;
