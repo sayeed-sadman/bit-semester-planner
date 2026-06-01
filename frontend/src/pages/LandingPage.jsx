@@ -54,7 +54,7 @@ const FEATURES = [
   {
     Icon: IconNote,
     title: "Personal Notes",
-    description: "Write and edit one note per module — inline on the dashboard or in a full-page editor. Notes stay linked to your modules.",
+    description: "Write and edit one note per module. Edit inline on the dashboard or open the full-page editor. Notes stay linked to your modules.",
   },
   {
     Icon: IconCalendar,
@@ -64,7 +64,7 @@ const FEATURES = [
   {
     Icon: IconChat,
     title: "AI Study Assistant",
-    description: "A RAG-powered chatbot available on every page. Ask questions about your modules, notes, deadlines, and calendar — answers streamed in real time.",
+    description: "Ask questions about your modules, notes, deadlines, and schedule. Available on every page, answers in real time.",
     highlight: true,
   },
   {
@@ -130,7 +130,7 @@ export default function LandingPage() {
             </h1>
 
             <p className="text-dark-muted text-lg mb-8 max-w-lg leading-relaxed">
-              Browse modules, build your semester plan, connect your calendar, and let a RAG-powered assistant answer questions about your studies — all in one place.
+              Browse modules, build your semester plan, connect your calendar, and get answers from a RAG-powered AI study assistant. All in one place.
             </p>
 
             <div className="flex flex-wrap gap-3">
@@ -318,7 +318,7 @@ export default function LandingPage() {
                 Ask questions. Get answers.<br />Grounded in your own documents.
               </h2>
               <p className="text-white/80 text-sm leading-relaxed mb-4">
-                The chatbot is not a generic AI — it uses Retrieval-Augmented Generation (RAG) to search through official BIT module descriptions, your uploaded lecture slides, your personal notes, and your connected calendar before answering. Every response is based on evidence, not guesswork.
+                Before answering, the assistant searches through official BIT module descriptions, your uploaded documents, your personal notes, and your calendar. You get answers based on your actual content, not generic responses.
               </p>
               <ul className="text-white/80 text-sm space-y-1.5">
                 {[

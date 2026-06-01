@@ -380,7 +380,7 @@ public class ExtractionService {
         for (String campus : CAMPUS_NAMES) {
             if (text.contains(campus)) return campus;
         }
-        return NO_INFO;
+        return "Basel";
     }
 
     // ── Shared utilities ───────────────────────────────────────────────────────
