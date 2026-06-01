@@ -345,9 +345,9 @@ export default function LandingPage() {
       <section className="bg-white border-t border-surface-border py-16 px-6">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-2xl font-bold text-dark text-center mb-10">Get started in 4 steps</h2>
-          <div className="flex flex-col lg:flex-row items-stretch gap-3">
+          <div className="flex flex-col lg:flex-row items-stretch">
             {STEPS.map((s, i) => (
-              <div key={s.num} className="flex lg:flex-row items-center gap-3 flex-1">
+              <div key={s.num} className="flex lg:flex-row items-center flex-1">
                 <div className="flex-1 rounded-card border border-surface-border bg-surface-section p-6 flex flex-col h-full">
                   <div className="w-9 h-9 rounded-full bg-primary-light text-primary font-bold text-base flex items-center justify-center mb-4 flex-shrink-0">
                     {s.num}
@@ -356,7 +356,7 @@ export default function LandingPage() {
                   <p className="text-sm text-dark-muted leading-relaxed">{s.description}</p>
                 </div>
                 {i < STEPS.length - 1 && (
-                  <div className="hidden lg:flex items-center flex-shrink-0 text-surface-border">
+                  <div className="hidden lg:flex items-center justify-center w-8 flex-shrink-0">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-primary/40">
                       <path d="M9 18l6-6-6-6"/>
                     </svg>
