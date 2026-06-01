@@ -540,7 +540,7 @@ Once the frontend starts, open port `5173` in the browser. In the Ports panel, f
 | Node.js 20 | Install from [nodejs.org](https://nodejs.org), pick the v20 LTS installer |
 | Git | Install from [git-scm.com](https://git-scm.com/downloads), includes Git Bash on Windows |
 | Maven | Wrapper included (`./mvnw`), no separate install needed |
-| Anthropic API Key | Optional. Without it the app runs normally but the AI chat feature will not work. Set as `anthropic.api.key` in `application.properties` |
+| Anthropic API Key | Optional. Without it the app runs normally but the AI chat feature will not work. Set as the `ANTHROPIC_API_KEY` environment variable (see step 2 below) |
 
 > All commands below should be run in **Git Bash** (Windows), or any terminal on Mac/Linux.
 
@@ -553,13 +553,26 @@ git clone https://github.com/sayeed-sadman/bit-semester-planner.git
 cd bit-semester-planner
 ```
 
-**2. Set the Anthropic API key**
+**2. Set the Anthropic API key (optional)**
 
-Open `src/main/resources/application.properties` and set:
+This step is only needed if you want the AI chat feature to work. In your terminal, set the environment variable before starting the backend:
 
-```properties
-anthropic.api.key=your-api-key-here
+**Git Bash / Mac / Linux:**
+```bash
+export ANTHROPIC_API_KEY=your-api-key-here
 ```
+
+**Windows Command Prompt:**
+```cmd
+set ANTHROPIC_API_KEY=your-api-key-here
+```
+
+**Windows PowerShell:**
+```powershell
+$env:ANTHROPIC_API_KEY="your-api-key-here"
+```
+
+> The variable only needs to be set in the terminal session where you run the backend. Without it, the app starts normally but the AI chat will return an error when used.
 
 **3. Start the backend** (Git Bash — Terminal 1)
 
