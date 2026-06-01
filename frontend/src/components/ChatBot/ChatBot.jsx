@@ -120,11 +120,10 @@ export default function ChatBot({ onSuggestNote }) {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // Clear chat history and auto-open on login
+  // Clear chat history on login
   useEffect(() => {
     if (!prevAuthRef.current && isAuthenticated) {
       clearMessages();
-      setIsOpen(true);
     }
     prevAuthRef.current = isAuthenticated;
   }, [isAuthenticated]);
