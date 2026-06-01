@@ -692,8 +692,10 @@ export default function ChatBot({ onSuggestNote }) {
                 <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-2">
                   {messages.length === 0 && (
                     <p className="text-center text-dark-muted text-sm mt-6 leading-relaxed">
-                      {isAuthenticated
-                        ? `Hi ${user?.firstName}! Ask me anything about your modules or uploaded documents!`
+                      {isAdmin
+                        ? `Hi ${user?.firstName}! Upload module documents, manage the catalog, or ask anything about the BIT programme.`
+                        : isStudent
+                        ? `Hi ${user?.firstName}! Ask me anything about your modules, uploaded documents, or your schedule.`
                         : "Ask me anything about FHNW or the BIT programme. Log in for personalised assistance."}
                     </p>
                   )}

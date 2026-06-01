@@ -528,36 +528,54 @@ The required Anthropic API key for the AI assistant is pre-configured as a repos
 cd frontend && npm run dev
 ```
 
+Once the frontend starts, open port `5173` in the browser. In the Ports panel, find port `5173` and click **Open in Browser**.
+
 ### 7.2 How to Run Locally
 
 **Prerequisites**
 
-| Requirement | Version |
+| Requirement | Details |
 |-------------|---------|
-| Java | 17 or higher |
-| Node.js | 20 |
-| Maven | Wrapper included (`./mvnw`) |
-| Anthropic API Key | Required for the AI assistant; set as `anthropic.api.key` in `application.properties` |
+| Java 17 or higher | Install from [Adoptium](https://adoptium.net), pick Temurin 17 LTS or later |
+| Node.js 20 | Install from [nodejs.org](https://nodejs.org), pick the v20 LTS installer |
+| Git | Install from [git-scm.com](https://git-scm.com/downloads), includes Git Bash on Windows |
+| Maven | Wrapper included (`./mvnw`), no separate install needed |
+| Anthropic API Key | Optional. Without it the app runs normally but the AI chat feature will not work. Set as `anthropic.api.key` in `application.properties` |
 
-On GitHub Codespaces all dependencies are provisioned automatically. For local development, Java and Node.js must be installed independently.
+> All commands below should be run in **Git Bash** (Windows), or any terminal on Mac/Linux.
 
-Set your Anthropic API key in `src/main/resources/application.properties`:
+**1. Clone the repository**
+
+Open **Git Bash** and run:
+
+```bash
+git clone https://github.com/sayeed-sadman/bit-semester-planner.git
+cd bit-semester-planner
+```
+
+**2. Set the Anthropic API key**
+
+Open `src/main/resources/application.properties` and set:
 
 ```properties
 anthropic.api.key=your-api-key-here
 ```
 
-**Start Commands**
-
-Run the following from the repository root. Start the backend first and wait for it to be ready before starting the frontend.
+**3. Start the backend** (Git Bash — Terminal 1)
 
 ```bash
-# Start backend
 ./mvnw spring-boot:run
+```
 
-# Start frontend (in a new terminal)
+**4. Start the frontend** (Git Bash — Terminal 2, once backend is ready)
+
+```bash
 cd frontend && npm install && npm run dev
 ```
+
+**5. Open the app**
+
+Go to `http://localhost:5173` in your browser.
 
 ### 7.3 Application URLs and Credentials
 
