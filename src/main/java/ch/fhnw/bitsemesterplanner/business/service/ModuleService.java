@@ -3,18 +3,23 @@ package ch.fhnw.bitsemesterplanner.business.service;
 import ch.fhnw.bitsemesterplanner.business.exception.EntityNotFoundException;
 import ch.fhnw.bitsemesterplanner.data.domain.Module;
 import ch.fhnw.bitsemesterplanner.data.domain.ModuleType;
+import ch.fhnw.bitsemesterplanner.data.repository.DocumentUploadRepository;
 import ch.fhnw.bitsemesterplanner.data.repository.ModuleRepository;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Service
 public class ModuleService {
 
     private final ModuleRepository moduleRepository;
+    private final DocumentUploadRepository documentUploadRepository;
 
-    public ModuleService(ModuleRepository moduleRepository) {
+    public ModuleService(ModuleRepository moduleRepository, DocumentUploadRepository documentUploadRepository) {
         this.moduleRepository = moduleRepository;
+        this.documentUploadRepository = documentUploadRepository;
     }
 
     public List<Module> getAllModules() {
@@ -56,6 +61,9 @@ public class ModuleService {
 
     public void deleteModule(Long id) {
         getModuleById(id);
+        documentUploadRepository.findByModuleModuleID(id).forEach(upload -> {
+            try { Files.deleteIfExists(Paths.get("docs/knowledge/.temp", upload.getId() + ".pdf")); } catch (Exception ignored) {}
+        });
         moduleRepository.deleteById(id);
     }
 }

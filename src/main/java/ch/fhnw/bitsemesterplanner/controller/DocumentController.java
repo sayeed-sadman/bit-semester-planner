@@ -88,6 +88,11 @@ public class DocumentController {
         upload.setFileName(fileName);
         upload.setFileType(fileType);
         upload.setRawText(rawText);
+        if (moduleId != null && !moduleId.isBlank()) {
+            try {
+                upload.setModule(moduleService.getModuleById(Long.parseLong(moduleId)));
+            } catch (Exception ignored) {}
+        }
         upload = documentUploadRepository.save(upload);
 
         List<DocumentChunk> savedChunks = new ArrayList<>();

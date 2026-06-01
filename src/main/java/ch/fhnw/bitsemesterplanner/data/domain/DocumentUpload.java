@@ -26,6 +26,10 @@ public class DocumentUpload {
     @JoinColumn(name = "student_id", nullable = true)
     private User student;
 
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "module_id", nullable = true)
+    private Module module;
+
     @Column(nullable = false)
     private String fileName;
 

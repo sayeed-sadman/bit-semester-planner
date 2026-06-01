@@ -52,4 +52,8 @@ public class Module {
     @JsonIgnore
     @OneToMany(mappedBy = "module", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Note> notes = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DocumentUpload> uploads = new ArrayList<>();
 }
