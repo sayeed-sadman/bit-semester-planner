@@ -427,6 +427,14 @@ Two startup components seed the database on first run. Both are idempotent and s
 - `DataInitializer` seeds two default user accounts (`admin@fhnw.ch` and `student@fhnw.ch`) and 8 BIT modules if the module table is empty.
 - `KnowledgeSeeder` scans `docs/knowledge/` and processes any PDF or DOCX files found, chunking and embedding them into the RAG knowledge base as shared documents (`student = null`).
 
+Three file storage directories are used at runtime:
+
+| Directory | Purpose |
+|-----------|---------|
+| `docs/knowledge/` | Official module description PDFs, served publicly and indexed for RAG retrieval for all users |
+| `docs/knowledge/.temp/` | Temporary admin uploads awaiting module linking; cleaned up on logout or dismiss |
+| `docs/student-uploads/` | Original PDF and DOCX files uploaded by students; served back via the My Documents viewer and indexed for RAG retrieval for students |
+
 ### 5.2 Data Access Layer
 
 Each domain entity maps to a database table via JPA. Seven repository interfaces extend `JpaRepository` to provide CRUD operations without manual SQL.
@@ -696,7 +704,10 @@ Students and admins can upload PDF or DOCX files for AI-assisted analysis. Stude
 
 ### 8.2 RAG Pipeline
 
-**Ingestion:** uploaded files are extracted (Apache PDFBox for PDF, Apache POI for DOCX), split into 400-word chunks with a 50-word overlap, and a 64-float pseudo-embedding is generated per chunk via the Anthropic API and stored in `DocumentChunk`.
+**Ingestion:** uploaded files are extracted (Apache PDFBox for PDF, Apache POI for DOCX) and split into 400-word chunks with a 50-word overlap. The ingestion behaviour then differs by role:
+
+- **Student uploads:** chunks are embedded and written to `DocumentChunk` immediately on upload, making the content available for RAG retrieval straight away.
+- **Admin uploads:** chunks are computed in memory at upload time only to power the AI description suggestion, but are not persisted to the database. Chunks are written to `DocumentChunk` only when the admin links the upload to a module. If the admin dismisses or logs out without linking, no chunks are ever stored.
 
 **Retrieval:** on each chat request, the query is embedded using the same process. Cosine similarity is computed against all relevant chunks, and the top 5 are injected into the system prompt as context before the model generates a response.
 
