@@ -24,7 +24,11 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -116,6 +120,16 @@ public class DocumentController {
             }
         }
 
+        // For student uploads save the original file to disk
+        if (student.getRole() == Role.STUDENT) {
+            try {
+                String ext = fileType.equalsIgnoreCase("PDF") ? ".pdf" : ".docx";
+                Path uploadDir = Paths.get("docs/student-uploads");
+                Files.createDirectories(uploadDir);
+                Files.write(uploadDir.resolve(upload.getId() + ext), file.getBytes());
+            } catch (Exception ignored) {}
+        }
+
         // For admin PDF uploads save raw bytes to temp so they can later be linked to a module
         if (student.getRole() == Role.ADMIN && fileName.toLowerCase().endsWith(".pdf")) {
             try {
@@ -184,7 +198,36 @@ public class DocumentController {
         documentUploadRepository.delete(upload);
         Path tempFile = Paths.get("docs/knowledge/.temp", id + ".pdf");
         try { Files.deleteIfExists(tempFile); } catch (Exception ignored) {}
+        try { Files.deleteIfExists(Paths.get("docs/student-uploads", id + ".pdf")); } catch (Exception ignored) {}
+        try { Files.deleteIfExists(Paths.get("docs/student-uploads", id + ".docx")); } catch (Exception ignored) {}
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/uploads/{id}/file")
+    @Operation(summary = "Download or view the original uploaded file for a student")
+    @ApiResponse(responseCode = "200", description = "File returned")
+    @ApiResponse(responseCode = "404", description = "File not found")
+    @ApiResponse(responseCode = "403", description = "Access denied")
+    public ResponseEntity<Resource> getUploadFile(
+            @Parameter(description = "Upload ID") @PathVariable Long id,
+            Authentication auth) {
+        User user = userService.getCurrentUser(auth);
+        DocumentUpload upload = documentUploadRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Upload not found with ID: " + id));
+        if (upload.getStudent() == null || !upload.getStudent().getUserID().equals(user.getUserID())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        Path pdfPath = Paths.get("docs/student-uploads", id + ".pdf");
+        Path docxPath = Paths.get("docs/student-uploads", id + ".docx");
+        Path filePath = Files.exists(pdfPath) ? pdfPath : Files.exists(docxPath) ? docxPath : null;
+        if (filePath == null) return ResponseEntity.notFound().build();
+        MediaType mediaType = filePath.toString().endsWith(".pdf")
+                ? MediaType.APPLICATION_PDF
+                : MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        return ResponseEntity.ok()
+                .contentType(mediaType)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + upload.getFileName() + "\"")
+                .body(new FileSystemResource(filePath));
     }
 
     @DeleteMapping("/uploads/unlinked")

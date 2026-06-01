@@ -541,7 +541,7 @@ Once the frontend starts, open port `5173` in the browser. In the Ports panel, f
 | Node.js 20 | Install from [nodejs.org](https://nodejs.org), pick the v20 LTS installer |
 | Git | Install from [git-scm.com](https://git-scm.com/downloads), includes Git Bash on Windows |
 | Maven | Wrapper included (`./mvnw`), no separate install needed |
-| Anthropic API Key | Optional. Without it the app runs normally but the AI chat feature will not work. Set as the `ANTHROPIC_API_KEY` environment variable (see step 2 below) |
+| Anthropic API Key | Optional. Without it the app runs normally: basic module info extraction from uploaded documents (PDF and DOCX) still works, but AI-powered chat responses, RAG-based retrieval, and AI-enhanced description generation will not. Set as the `ANTHROPIC_API_KEY` environment variable (see step 2 below) |
 
 > All commands below should be run in **Git Bash** (Windows), or any terminal on Mac/Linux.
 

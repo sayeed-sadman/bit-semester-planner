@@ -46,6 +46,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/calendars/**").hasRole("STUDENT")
                 .requestMatchers(HttpMethod.POST, "/api/rag/upload").hasAnyRole("STUDENT", "ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/rag/uploads").hasAnyRole("STUDENT", "ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/rag/uploads/*/file").hasRole("STUDENT")
                 .requestMatchers(HttpMethod.DELETE, "/api/rag/uploads/**").hasAnyRole("STUDENT", "ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/rag/match-module").hasRole("ADMIN")
                 .requestMatchers("/api/rag/**").hasRole("STUDENT")

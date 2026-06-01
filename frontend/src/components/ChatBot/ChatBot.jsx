@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useChatBot } from "./useChatBot";
+import PdfViewerModal from "../common/PdfViewerModal";
 
 function getAuthHeaders() {
   const headers = {};
@@ -103,6 +104,7 @@ export default function ChatBot({ onSuggestNote }) {
   const [docsExpanded, setDocsExpanded] = useState(false);
   const [deleteErrors, setDeleteErrors] = useState({});
   const [confirmingId, setConfirmingId] = useState(null);
+  const [viewingPdf, setViewingPdf] = useState(null); // { url, title }
 
   // Responsive breakpoint
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -368,6 +370,7 @@ export default function ChatBot({ onSuggestNote }) {
     setModuleMatchResult(null);
     setAdminModuleStatus(null);
     setCreatedModuleId(null);
+    setUploadStatus(null);
   };
 
   // ── Chat helpers ─────────────────────────────────────────────────────────────
@@ -400,7 +403,7 @@ export default function ChatBot({ onSuggestNote }) {
         handleAddToNotes(result.suggestions.suggestedNoteText, fileName);
       } else if (result.userRole !== "ADMIN") {
         addAssistantMessage(
-          "Your document has been uploaded and indexed. No exam or assessment info was found in it, so there is nothing to save as a note. Feel free to ask me any questions about the document."
+          "No exam or assessment info was found in it, so there is nothing to save as a note. Feel free to ask me any questions about the document."
         );
       }
     } catch {
@@ -427,6 +430,25 @@ export default function ChatBot({ onSuggestNote }) {
     }
   };
 
+  const openFile = async (f) => {
+    const headers = getAuthHeaders();
+    try {
+      const res = await fetch(`/api/rag/uploads/${f.id}/file`, { headers });
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      if (f.fileType === "PDF") {
+        setViewingPdf({ url, title: f.fileName });
+      } else {
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = f.fileName;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+    } catch { /* ignore */ }
+  };
+
   // ── Shared input class ───────────────────────────────────────────────────────
   const inputCls = "w-full px-3 py-2 text-sm border border-surface-border rounded-input text-dark focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 bg-white";
 
@@ -437,6 +459,14 @@ export default function ChatBot({ onSuggestNote }) {
 
   return (
     <>
+      {viewingPdf && (
+        <PdfViewerModal
+          pdfUrl={viewingPdf.url}
+          title={viewingPdf.title}
+          onClose={() => { URL.revokeObjectURL(viewingPdf.url); setViewingPdf(null); }}
+        />
+      )}
+
       {/* Floating toggle button */}
       <button
         onClick={() => setIsOpen((prev) => !prev)}
@@ -787,9 +817,6 @@ export default function ChatBot({ onSuggestNote }) {
                         {uploadStatus === "uploading" ? "Uploading…" : "Upload"}
                       </button>
                     </div>
-                    {uploadStatus === "done" && !suggestedText && !moduleMatchResult && (
-                      <p className="text-xs text-success font-medium">Document uploaded and processed!</p>
-                    )}
                     {uploadStatus === "error" && (
                       <p className="text-xs text-danger font-medium">Upload failed. Please try again.</p>
                     )}
@@ -856,7 +883,7 @@ export default function ChatBot({ onSuggestNote }) {
                         <path d="M4 2h6l4 4v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h1z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
                         <path d="M9 2v4h4" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
                       </svg>
-                      <span className="text-xs text-dark-secondary flex-1 min-w-0 truncate">{truncate(f.fileName)}</span>
+                      <button onClick={() => openFile(f)} className="text-xs text-primary hover:underline flex-1 min-w-0 truncate text-left">{truncate(f.fileName)}</button>
                       {deleteErrors[f.id] && (
                         <span className="text-xs text-danger leading-none flex-shrink-0">Failed</span>
                       )}

@@ -189,27 +189,41 @@ export function useChatBot() {
     const data = await res.json();
 
     if (data.userRole === "ADMIN") {
-      const titleGuess = file.name.replace(/\.[^.]+$/, "").replace(/[-_]/g, " ");
-      try {
-        const matchRes = await fetch(
-          `/api/rag/match-module?title=${encodeURIComponent(titleGuess)}`,
-          { headers }
-        );
-        if (matchRes.ok) {
-          const matchData = await matchRes.json();
-          setModuleMatchResult({
-            matched: matchData.matched,
-            module: matchData.module,
-            matchScore: matchData.matchScore,
-            suggestions: data.suggestions,
-            fileName: file.name,
-            uploadId: data.uploadId,
-          });
-        } else {
+      const facts = data.suggestions?.detectedFacts || [];
+      const looksLikeModule =
+        facts.some(f => f.startsWith("Credits:")) ||
+        facts.some(f => f.startsWith("Lecturer:")) ||
+        facts.some(f => f.startsWith("Short Description:"));
+
+      if (!looksLikeModule) {
+        setMessages(prev => [...prev, {
+          id: Date.now(),
+          role: "assistant",
+          text: "This document doesn't appear to be a module description. No module action was taken. Feel free to ask me any questions.",
+        }]);
+      } else {
+        const titleGuess = file.name.replace(/\.[^.]+$/, "").replace(/[-_]/g, " ");
+        try {
+          const matchRes = await fetch(
+            `/api/rag/match-module?title=${encodeURIComponent(titleGuess)}`,
+            { headers }
+          );
+          if (matchRes.ok) {
+            const matchData = await matchRes.json();
+            setModuleMatchResult({
+              matched: matchData.matched,
+              module: matchData.module,
+              matchScore: matchData.matchScore,
+              suggestions: data.suggestions,
+              fileName: file.name,
+              uploadId: data.uploadId,
+            });
+          } else {
+            setModuleMatchResult({ matched: false, module: null, matchScore: 0, suggestions: data.suggestions, fileName: file.name });
+          }
+        } catch {
           setModuleMatchResult({ matched: false, module: null, matchScore: 0, suggestions: data.suggestions, fileName: file.name });
         }
-      } catch {
-        setModuleMatchResult({ matched: false, module: null, matchScore: 0, suggestions: data.suggestions, fileName: file.name });
       }
     }
 
