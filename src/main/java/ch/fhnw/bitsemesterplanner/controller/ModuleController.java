@@ -1,9 +1,12 @@
 package ch.fhnw.bitsemesterplanner.controller;
 
 import ch.fhnw.bitsemesterplanner.business.service.ModuleService;
+import ch.fhnw.bitsemesterplanner.business.service.rag.RagService;
 import ch.fhnw.bitsemesterplanner.config.KnowledgeSeeder;
+import ch.fhnw.bitsemesterplanner.data.domain.DocumentChunk;
 import ch.fhnw.bitsemesterplanner.data.domain.Module;
 import ch.fhnw.bitsemesterplanner.data.domain.ModuleType;
+import ch.fhnw.bitsemesterplanner.data.repository.DocumentChunkRepository;
 import ch.fhnw.bitsemesterplanner.data.repository.DocumentUploadRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -32,11 +35,18 @@ public class ModuleController {
     private final ModuleService moduleService;
     private final KnowledgeSeeder knowledgeSeeder;
     private final DocumentUploadRepository documentUploadRepository;
+    private final DocumentChunkRepository documentChunkRepository;
+    private final RagService ragService;
 
-    public ModuleController(ModuleService moduleService, KnowledgeSeeder knowledgeSeeder, DocumentUploadRepository documentUploadRepository) {
+    public ModuleController(ModuleService moduleService, KnowledgeSeeder knowledgeSeeder,
+                            DocumentUploadRepository documentUploadRepository,
+                            DocumentChunkRepository documentChunkRepository,
+                            RagService ragService) {
         this.moduleService = moduleService;
         this.knowledgeSeeder = knowledgeSeeder;
         this.documentUploadRepository = documentUploadRepository;
+        this.documentChunkRepository = documentChunkRepository;
+        this.ragService = ragService;
     }
 
     @GetMapping
@@ -130,6 +140,19 @@ public class ModuleController {
             documentUploadRepository.findById(uploadId).ifPresent(upload -> {
                 upload.setModule(module);
                 documentUploadRepository.save(upload);
+                List<String> chunkTexts = ragService.chunkText(upload.getRawText());
+                final int EMBED_LIMIT = 40;
+                for (int i = 0; i < chunkTexts.size(); i++) {
+                    float[] embedding = i < EMBED_LIMIT
+                            ? ragService.generateEmbedding(chunkTexts.get(i))
+                            : new float[64];
+                    DocumentChunk chunk = new DocumentChunk();
+                    chunk.setDocumentUpload(upload);
+                    chunk.setChunkIndex(i);
+                    chunk.setChunkText(chunkTexts.get(i));
+                    chunk.setEmbeddingJson(ragService.embeddingToJson(embedding));
+                    documentChunkRepository.save(chunk);
+                }
             });
             new Thread(() -> knowledgeSeeder.indexIfNeeded(dest)).start();
             return ResponseEntity.ok().build();

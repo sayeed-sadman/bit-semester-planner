@@ -107,7 +107,13 @@ public class DocumentController {
             chunk.setChunkIndex(i);
             chunk.setChunkText(chunks.get(i));
             chunk.setEmbeddingJson(ragService.embeddingToJson(embedding));
-            savedChunks.add(documentChunkRepository.save(chunk));
+            // Admin uploads: keep chunks in memory only — they are saved to DB
+            // when the upload is linked to a module via assignUploadAsPdf.
+            if (student.getRole() == Role.ADMIN) {
+                savedChunks.add(chunk);
+            } else {
+                savedChunks.add(documentChunkRepository.save(chunk));
+            }
         }
 
         // For admin PDF uploads save raw bytes to temp so they can later be linked to a module
