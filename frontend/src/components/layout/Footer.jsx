@@ -9,7 +9,7 @@ export default function Footer() {
           BIT Semester Planner
         </p>
         <p className="text-[13px] font-normal leading-tight" style={{ color: "#B2BFD1" }}>
-          FHNW University of Applied Sciences and Arts Northwestern Switzerland
+          FHNW | University of Applied Sciences and Arts Northwestern Switzerland
         </p>
       </div>
     </footer>
