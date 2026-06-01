@@ -798,8 +798,8 @@ Students and admins can upload PDF or DOCX files for AI-assisted analysis. Stude
 ┌──────────────────┐          │ Save temp PDF to                     │
 │ Save chunks to   │          │ docs/knowledge/module-catalog/       │
 │ DocumentChunk    │          │ .temp/{uploadId}.pdf                 │
-│ DocumentChunk    │          └──────────────────┬───────────────────┘
-│ in database      │                             │
+│ in database      │          └──────────────────┬───────────────────┘
+│                  │                             │
 └────────┬─────────┘                             ▼
          │                    ┌──────────────────────────────────────┐
          ▼                    │ Admin action?                        │
