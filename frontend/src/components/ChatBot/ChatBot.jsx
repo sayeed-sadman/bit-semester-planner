@@ -106,17 +106,35 @@ export default function ChatBot({ onSuggestNote }) {
   // Responsive breakpoint
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-  const { isStudent, isAdmin, isAuthenticated } = useAuth();
+  const { isStudent, isAdmin, isAuthenticated, user } = useAuth();
   const canUpload = isStudent || isAdmin;
 
   const { messages, inputValue, setInputValue, sendMessage, uploadFile, deleteFile, clearMessages, addAssistantMessage, isLoading, uploadedFiles, moduleMatchResult, setModuleMatchResult } = useChatBot();
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
+  const prevAuthRef = useRef(isAuthenticated);
 
   useEffect(() => {
     const onResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
+
+  // Clear chat history and auto-open on login
+  useEffect(() => {
+    if (!prevAuthRef.current && isAuthenticated) {
+      clearMessages();
+      setIsOpen(true);
+    }
+    prevAuthRef.current = isAuthenticated;
+  }, [isAuthenticated]);
+
+  // Auto-focus input when chat opens
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => inputRef.current?.focus(), 50);
+    }
+  }, [isOpen]);
 
   // Collapse docs panel when no files remain
   useEffect(() => {
@@ -676,7 +694,7 @@ export default function ChatBot({ onSuggestNote }) {
                   {messages.length === 0 && (
                     <p className="text-center text-dark-muted text-sm mt-6 leading-relaxed">
                       {isAuthenticated
-                        ? "Ask me anything about your modules or uploaded documents!"
+                        ? `Hi ${user?.firstName}! Ask me anything about your modules or uploaded documents!`
                         : "Ask me anything about FHNW or the BIT programme. Log in for personalised assistance."}
                     </p>
                   )}
@@ -718,6 +736,7 @@ export default function ChatBot({ onSuggestNote }) {
                 {/* Input row */}
                 <div className="px-3 py-2 border-t border-surface-divider flex gap-2 flex-shrink-0">
                   <input
+                    ref={inputRef}
                     type="text"
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}

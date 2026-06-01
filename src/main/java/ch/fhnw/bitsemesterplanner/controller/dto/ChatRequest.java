@@ -1,3 +1,3 @@
 package ch.fhnw.bitsemesterplanner.controller.dto;
 
-public record ChatRequest(String question, Long userId) {}
+public record ChatRequest(String question, Long userId, String userFirstName) {}

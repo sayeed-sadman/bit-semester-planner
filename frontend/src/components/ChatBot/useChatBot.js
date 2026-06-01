@@ -82,6 +82,8 @@ export function useChatBot() {
       const body = { question };
       const userId = userRef.current?.userID ?? null;
       if (userId) body.userId = userId;
+      const userFirstName = userRef.current?.firstName ?? null;
+      if (userFirstName) body.userFirstName = userFirstName;
 
       const res = await fetch("/api/chat/stream", {
         method: "POST",

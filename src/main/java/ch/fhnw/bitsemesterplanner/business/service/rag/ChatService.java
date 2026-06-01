@@ -127,9 +127,9 @@ public class ChatService {
         this.httpClient = HttpClient.newHttpClient();
     }
 
-    public Stream<String> streamChat(String userQuestion, List<DocumentChunk> contextChunks, String appContext, List<String> calendarEvents, String userRole) {
+    public Stream<String> streamChat(String userQuestion, List<DocumentChunk> contextChunks, String appContext, List<String> calendarEvents, String userRole, String userFirstName) {
         try {
-            String systemPrompt = buildSystemPrompt(contextChunks, appContext, calendarEvents, userRole);
+            String systemPrompt = buildSystemPrompt(contextChunks, appContext, calendarEvents, userRole, userFirstName);
 
             ObjectNode requestBody = objectMapper.createObjectNode();
             requestBody.put("model", MODEL);
@@ -208,10 +208,10 @@ public class ChatService {
         }
     }
 
-    public String chat(String userQuestion, List<DocumentChunk> contextChunks, String appContext, List<String> calendarEvents, String userRole) {
+    public String chat(String userQuestion, List<DocumentChunk> contextChunks, String appContext, List<String> calendarEvents, String userRole, String userFirstName) {
         if (apiKey.equals("NOT_SET")) throw new RuntimeException("Anthropic API key not configured.");
         try {
-            String systemPrompt = buildSystemPrompt(contextChunks, appContext, calendarEvents, userRole);
+            String systemPrompt = buildSystemPrompt(contextChunks, appContext, calendarEvents, userRole, userFirstName);
 
             ObjectNode requestBody = objectMapper.createObjectNode();
             requestBody.put("model", MODEL);
@@ -241,7 +241,7 @@ public class ChatService {
         }
     }
 
-    private String buildSystemPrompt(List<DocumentChunk> contextChunks, String appContext, List<String> calendarEvents, String userRole) {
+    private String buildSystemPrompt(List<DocumentChunk> contextChunks, String appContext, List<String> calendarEvents, String userRole, String userFirstName) {
         String dateHeader = "Today's date is " + java.time.LocalDate.now()
                 + " (" + java.time.LocalDate.now().getDayOfWeek() + ").\n\n";
         StringBuilder sb = new StringBuilder(dateHeader).append(BASE_SYSTEM_PROMPT);
@@ -252,6 +252,10 @@ public class ChatService {
             sb.append(PUBLIC_CONTEXT);
         } else {
             sb.append(STUDENT_CONTEXT);
+        }
+
+        if (userFirstName != null && !userFirstName.isBlank()) {
+            sb.append("The student's first name is ").append(userFirstName).append(". Address them by first name when it feels natural.\n");
         }
 
         if (!contextChunks.isEmpty()) {

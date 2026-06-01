@@ -101,7 +101,7 @@ public class ChatController {
             topChunks = ragService.retrieveTopChunks(req.question(), candidateChunks, 5);
         }
 
-        String answer = chatService.chat(req.question(), topChunks, notesContext, calendarEvents, userRole);
+        String answer = chatService.chat(req.question(), topChunks, notesContext, calendarEvents, userRole, req.userFirstName());
         return ResponseEntity.ok(new ChatResponse(answer, topChunks.size()));
     }
 
@@ -162,9 +162,10 @@ public class ChatController {
             final String finalUserRole = userRole;
             final String finalNotesContext = notesContext;
 
+            final String finalUserFirstName = req.userFirstName();
             new Thread(() -> {
                 try (Stream<String> chunks = chatService.streamChat(
-                        req.question(), finalTopChunks, finalNotesContext, finalCalendarEvents, finalUserRole)) {
+                        req.question(), finalTopChunks, finalNotesContext, finalCalendarEvents, finalUserRole, finalUserFirstName)) {
                     chunks.forEach(chunk -> {
                         try {
                             emitter.send(SseEmitter.event().data(chunk.replace("\n", "\\n")));
