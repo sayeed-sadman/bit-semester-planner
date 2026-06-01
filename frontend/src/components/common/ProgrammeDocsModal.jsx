@@ -78,14 +78,6 @@ export default function ProgrammeDocsModal({ isAdmin, onClose }) {
 
   return (
     <>
-      {viewingPdf && (
-        <PdfViewerModal
-          pdfUrl={viewingPdf.url}
-          title={viewingPdf.title}
-          onClose={() => { URL.revokeObjectURL(viewingPdf.url); setViewingPdf(null); }}
-        />
-      )}
-
       <div
         className="fixed inset-0 z-50 flex items-center justify-center"
         style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
@@ -197,6 +189,14 @@ export default function ProgrammeDocsModal({ isAdmin, onClose }) {
           </div>
         </div>
       </div>
+
+      {viewingPdf && (
+        <PdfViewerModal
+          pdfUrl={viewingPdf.url}
+          title={viewingPdf.title}
+          onClose={() => { URL.revokeObjectURL(viewingPdf.url); setViewingPdf(null); }}
+        />
+      )}
     </>
   );
 }
