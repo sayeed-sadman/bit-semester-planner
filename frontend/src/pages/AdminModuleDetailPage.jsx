@@ -244,65 +244,70 @@ export default function AdminModuleDetailPage() {
       </div>
 
       <div className="mt-3 bg-white border border-surface-border rounded-card px-4 py-4">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-medium text-dark-muted uppercase tracking-wide">
-            Upload / Replace Official Description PDF
-          </span>
-          {pdfExists
-            ? <span className="text-xs font-medium text-success">{module?.title}.pdf</span>
-            : <span className="text-xs font-medium text-dark-muted">No PDF uploaded</span>
-          }
-        </div>
-        <div className="flex items-center gap-3 flex-wrap">
-          <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 border border-surface-border rounded-input text-sm text-dark-muted hover:border-primary hover:text-primary transition-colors">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <path d="M3 2h7l3 3v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round"/>
-              <path d="M10 2v3h3" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round"/>
-            </svg>
-            {replacePdfFile ? replacePdfFile.name : "Choose PDF…"}
-            <input type="file" accept=".pdf" className="hidden" onChange={(e) => { setReplacePdfFile(e.target.files[0] || null); setPdfUploadStatus(null); }} />
-          </label>
-          <button
-            onClick={async () => {
-              if (!replacePdfFile) return;
-              setPdfUploadStatus("uploading");
-              const formData = new FormData();
-              formData.append("file", replacePdfFile);
-              try {
-                const res = await fetch(`/api/modules/${id}/pdf`, { method: "POST", headers: getAuthHeaders(), body: formData });
-                setPdfUploadStatus(res.ok ? "done" : "error");
-                if (res.ok) { setReplacePdfFile(null); setPdfExists(true); }
-              } catch { setPdfUploadStatus("error"); }
-            }}
-            disabled={!replacePdfFile || pdfUploadStatus === "uploading"}
-            className="px-3 py-2 bg-primary text-white text-sm font-medium rounded-input hover:bg-primary-dark transition-colors disabled:opacity-50"
-          >
-            {pdfUploadStatus === "uploading" ? "Uploading…" : "Upload"}
-          </button>
-          {pdfUploadStatus === "done" && <span className="text-xs text-success font-medium">PDF updated successfully.</span>}
-          {pdfUploadStatus === "error" && <span className="text-xs text-danger font-medium">Upload failed. Please try again.</span>}
-          {pdfExists && (
+        <span className="text-xs font-medium text-dark-muted uppercase tracking-wide block mb-3">
+          Official Description PDF
+        </span>
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-2">
+            <label className={`cursor-pointer inline-flex items-center gap-2 px-3 py-2 border border-surface-border rounded-input text-sm transition-colors ${pdfExists ? "opacity-40 pointer-events-none text-dark-muted" : "text-dark-muted hover:border-primary hover:text-primary"}`}>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <path d="M3 2h7l3 3v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round"/>
+                <path d="M10 2v3h3" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round"/>
+              </svg>
+              {replacePdfFile ? replacePdfFile.name : "Choose PDF…"}
+              <input type="file" accept=".pdf" className="hidden" disabled={pdfExists} onChange={(e) => { setReplacePdfFile(e.target.files[0] || null); setPdfUploadStatus(null); }} />
+            </label>
             <button
               onClick={async () => {
-                setPdfDeleteStatus("deleting");
+                if (!replacePdfFile) return;
+                setPdfUploadStatus("uploading");
+                const formData = new FormData();
+                formData.append("file", replacePdfFile);
                 try {
-                  const res = await fetch(`/api/modules/${id}/pdf`, { method: "DELETE", headers: getAuthHeaders() });
-                  if (res.ok || res.status === 204) {
-                    setPdfExists(false);
-                    setPdfDeleteStatus("done");
-                  } else {
-                    setPdfDeleteStatus("error");
-                  }
-                } catch { setPdfDeleteStatus("error"); }
+                  const res = await fetch(`/api/modules/${id}/pdf`, { method: "POST", headers: getAuthHeaders(), body: formData });
+                  setPdfUploadStatus(res.ok ? "done" : "error");
+                  if (res.ok) { setReplacePdfFile(null); setPdfExists(true); }
+                } catch { setPdfUploadStatus("error"); }
               }}
-              disabled={pdfDeleteStatus === "deleting"}
-              className="px-3 py-2 bg-danger text-white text-sm font-medium rounded-input hover:bg-red-700 transition-colors disabled:opacity-50"
+              disabled={pdfExists || !replacePdfFile || pdfUploadStatus === "uploading"}
+              className="px-3 py-2 bg-primary text-white text-sm font-medium rounded-input hover:bg-primary-dark transition-colors disabled:opacity-40"
             >
-              {pdfDeleteStatus === "deleting" ? "Removing…" : "Remove"}
+              {pdfUploadStatus === "uploading" ? "Uploading…" : "Upload"}
             </button>
+            {pdfUploadStatus === "done" && <span className="text-xs text-success font-medium">Uploaded.</span>}
+            {pdfUploadStatus === "error" && <span className="text-xs text-danger font-medium">Upload failed.</span>}
+          </div>
+
+          {pdfExists && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowPdf(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 border border-surface-border rounded-input text-sm text-primary font-medium hover:border-primary transition-colors"
+              >
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                  <path d="M3 2h7l3 3v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round"/>
+                  <path d="M10 2v3h3" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round"/>
+                </svg>
+                {module?.title}.pdf
+              </button>
+              <button
+                onClick={async () => {
+                  setPdfDeleteStatus("deleting");
+                  try {
+                    const res = await fetch(`/api/modules/${id}/pdf`, { method: "DELETE", headers: getAuthHeaders() });
+                    if (res.ok || res.status === 204) { setPdfExists(false); setPdfDeleteStatus("done"); }
+                    else { setPdfDeleteStatus("error"); }
+                  } catch { setPdfDeleteStatus("error"); }
+                }}
+                disabled={pdfDeleteStatus === "deleting"}
+                className="px-3 py-2 bg-danger text-white text-sm font-medium rounded-input hover:bg-red-700 transition-colors disabled:opacity-50"
+              >
+                {pdfDeleteStatus === "deleting" ? "Removing…" : "Remove"}
+              </button>
+              {pdfDeleteStatus === "error" && <span className="text-xs text-danger font-medium">Could not remove.</span>}
+            </div>
           )}
-          {pdfDeleteStatus === "done" && <span className="text-xs text-success font-medium">PDF removed.</span>}
-          {pdfDeleteStatus === "error" && <span className="text-xs text-danger font-medium">Could not remove PDF.</span>}
+          {!pdfExists && pdfDeleteStatus === "done" && <span className="text-xs text-success font-medium">PDF removed.</span>}
         </div>
       </div>
 
