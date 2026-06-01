@@ -233,7 +233,7 @@ The application is built around seven entities. The `User` entity covers both Ad
 | `StudentModule` | Links a student to the modules they have added to their semester plan. |
 | `Note` | Stores a student's personal text note for a planned module. |
 | `StudentCalendar` | Records the ICS calendar feed connections a student has configured. |
-| `DocumentUpload` | Represents a file uploaded by a student or admin for AI-assisted analysis. |
+| `DocumentUpload` | Represents a file uploaded by a student or admin for AI-assisted analysis. Optionally linked to a `Module` for admin uploads. |
 | `DocumentChunk` | Stores extracted text segments from an uploaded document used for RAG retrieval. |
 
 **Entity Relationships**
@@ -246,6 +246,7 @@ The application is built around seven entities. The `User` entity covers both Ad
 | `Module` to `Note` | One-to-Many |
 | `User` to `StudentCalendar` | One-to-Many |
 | `User` to `DocumentUpload` | One-to-Many |
+| `Module` to `DocumentUpload` | One-to-Many (optional, admin uploads only) |
 | `DocumentUpload` to `DocumentChunk` | One-to-Many |
 
 ---
