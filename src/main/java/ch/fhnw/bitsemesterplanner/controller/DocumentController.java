@@ -124,7 +124,7 @@ public class DocumentController {
         if (student.getRole() == Role.STUDENT) {
             try {
                 String ext = fileType.equalsIgnoreCase("PDF") ? ".pdf" : ".docx";
-                Path uploadDir = Paths.get("docs/student-uploads");
+                Path uploadDir = Paths.get("docs/knowledge/student-uploads");
                 Files.createDirectories(uploadDir);
                 Files.write(uploadDir.resolve(upload.getId() + ext), file.getBytes());
             } catch (Exception ignored) {}
@@ -133,7 +133,7 @@ public class DocumentController {
         // For admin PDF uploads save raw bytes to temp so they can later be linked to a module
         if (student.getRole() == Role.ADMIN && fileName.toLowerCase().endsWith(".pdf")) {
             try {
-                Path tempDir = Paths.get("docs/knowledge/.temp");
+                Path tempDir = Paths.get("docs/knowledge/module-catalog/.temp");
                 Files.createDirectories(tempDir);
                 Files.write(tempDir.resolve(upload.getId() + ".pdf"), file.getBytes());
             } catch (Exception ignored) {}
@@ -196,10 +196,10 @@ public class DocumentController {
         }
         documentChunkRepository.deleteAll(documentChunkRepository.findByDocumentUploadId(id));
         documentUploadRepository.delete(upload);
-        Path tempFile = Paths.get("docs/knowledge/.temp", id + ".pdf");
+        Path tempFile = Paths.get("docs/knowledge/module-catalog/.temp", id + ".pdf");
         try { Files.deleteIfExists(tempFile); } catch (Exception ignored) {}
-        try { Files.deleteIfExists(Paths.get("docs/student-uploads", id + ".pdf")); } catch (Exception ignored) {}
-        try { Files.deleteIfExists(Paths.get("docs/student-uploads", id + ".docx")); } catch (Exception ignored) {}
+        try { Files.deleteIfExists(Paths.get("docs/knowledge/student-uploads", id + ".pdf")); } catch (Exception ignored) {}
+        try { Files.deleteIfExists(Paths.get("docs/knowledge/student-uploads", id + ".docx")); } catch (Exception ignored) {}
         return ResponseEntity.noContent().build();
     }
 
@@ -217,8 +217,8 @@ public class DocumentController {
         if (upload.getStudent() == null || !upload.getStudent().getUserID().equals(user.getUserID())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        Path pdfPath = Paths.get("docs/student-uploads", id + ".pdf");
-        Path docxPath = Paths.get("docs/student-uploads", id + ".docx");
+        Path pdfPath = Paths.get("docs/knowledge/student-uploads", id + ".pdf");
+        Path docxPath = Paths.get("docs/knowledge/student-uploads", id + ".docx");
         Path filePath = Files.exists(pdfPath) ? pdfPath : Files.exists(docxPath) ? docxPath : null;
         if (filePath == null) return ResponseEntity.notFound().build();
         MediaType mediaType = filePath.toString().endsWith(".pdf")
@@ -238,7 +238,7 @@ public class DocumentController {
         documentUploadRepository.findByStudentUserIDAndModuleIsNull(user.getUserID()).forEach(upload -> {
             documentChunkRepository.deleteAll(documentChunkRepository.findByDocumentUploadId(upload.getId()));
             documentUploadRepository.delete(upload);
-            Path tempFile = Paths.get("docs/knowledge/.temp", upload.getId() + ".pdf");
+            Path tempFile = Paths.get("docs/knowledge/module-catalog/.temp", upload.getId() + ".pdf");
             try { Files.deleteIfExists(tempFile); } catch (Exception ignored) {}
         });
         return ResponseEntity.noContent().build();

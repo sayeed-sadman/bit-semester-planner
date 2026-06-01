@@ -35,15 +35,28 @@ build/
 
 ### Environment ###
 /data/
-/docs/knowledge/.temp/
+/docs/knowledge/module-catalog/.temp/
+/docs/knowledge/student-uploads/
 
 ### Runtime module PDFs (added by admin during session — not seed data) ###
-/docs/knowledge/*.pdf
-!/docs/knowledge/Algorithms and Data Structures.pdf
-!/docs/knowledge/Business Intelligence.pdf
-!/docs/knowledge/Internet Technology.pdf
-!/docs/knowledge/Logistics and Supply Chain Management.pdf
-!/docs/knowledge/Quantum Disruption.pdf
-!/docs/knowledge/Social Engineering with Africa.pdf
-!/docs/knowledge/Statistics and Probability.pdf
-!/docs/knowledge/Topics in Business Information Technology.pdf
+/docs/knowledge/module-catalog/*.pdf
+!/docs/knowledge/module-catalog/Algorithms and Data Structures.pdf
+!/docs/knowledge/module-catalog/Business Intelligence.pdf
+!/docs/knowledge/module-catalog/Internet Technology.pdf
+!/docs/knowledge/module-catalog/Logistics and Supply Chain Management.pdf
+!/docs/knowledge/module-catalog/Quantum Disruption.pdf
+!/docs/knowledge/module-catalog/Social Engineering with Africa.pdf
+!/docs/knowledge/module-catalog/Statistics and Probability.pdf
+!/docs/knowledge/module-catalog/Topics in Business Information Technology.pdf
+
+### Programme docs (seed files committed, admin-added files stay local) ###
+/docs/knowledge/programme/**/*.pdf
+/docs/knowledge/programme/**/*.docx
+!/docs/knowledge/programme/administrative/Bachelor Thesis.pdf
+!/docs/knowledge/programme/administrative/Semesterplan 26-27.pdf
+!/docs/knowledge/programme/compulsory/Compulsory Module_Overview.pdf
+!/docs/knowledge/programme/elective/Elective Module_List.pdf
+!/docs/knowledge/programme/specialization/Specialization_BusinessAnalytics.pdf
+!/docs/knowledge/programme/specialization/Specialization_DigitalBusinessManagement.pdf
+!/docs/knowledge/programme/specialization/Specialization_ModuleOverview.pdf
+!/docs/knowledge/programme/specialization/Specialization_SoftwareEngineeringLeadership.pdf

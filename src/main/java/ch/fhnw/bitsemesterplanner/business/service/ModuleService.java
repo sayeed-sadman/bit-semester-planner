@@ -62,7 +62,7 @@ public class ModuleService {
     public void deleteModule(Long id) {
         getModuleById(id);
         documentUploadRepository.findByModuleModuleID(id).forEach(upload -> {
-            try { Files.deleteIfExists(Paths.get("docs/knowledge/.temp", upload.getId() + ".pdf")); } catch (Exception ignored) {}
+            try { Files.deleteIfExists(Paths.get("docs/knowledge/module-catalog/.temp", upload.getId() + ".pdf")); } catch (Exception ignored) {}
         });
         moduleRepository.deleteById(id);
     }

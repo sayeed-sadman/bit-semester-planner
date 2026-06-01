@@ -87,13 +87,13 @@ public class ModuleController {
     }
 
     @GetMapping("/{id}/pdf")
-    @Operation(summary = "Stream the official module description PDF from docs/knowledge/")
+    @Operation(summary = "Stream the official module description PDF from docs/knowledge/module-catalog/")
     @ApiResponse(responseCode = "200", description = "PDF returned")
     @ApiResponse(responseCode = "404", description = "PDF not found for this module")
     public ResponseEntity<Resource> getModulePdf(
             @Parameter(description = "Module ID") @PathVariable Long id) {
         Module module = moduleService.getModuleById(id);
-        Path pdfPath = Paths.get("docs/knowledge", module.getTitle() + ".pdf");
+        Path pdfPath = Paths.get("docs/knowledge/module-catalog", module.getTitle() + ".pdf");
         if (!Files.exists(pdfPath)) {
             return ResponseEntity.notFound().build();
         }
@@ -112,7 +112,7 @@ public class ModuleController {
             @RequestParam("file") MultipartFile file) {
         try {
             Module module = moduleService.getModuleById(id);
-            Path dest = Paths.get("docs/knowledge", module.getTitle() + ".pdf");
+            Path dest = Paths.get("docs/knowledge/module-catalog", module.getTitle() + ".pdf");
             Files.createDirectories(dest.getParent());
             file.transferTo(dest.toFile());
             new Thread(() -> knowledgeSeeder.indexIfNeeded(dest)).start();
@@ -131,9 +131,9 @@ public class ModuleController {
             @Parameter(description = "Upload ID from RAG upload") @PathVariable Long uploadId) {
         try {
             Module module = moduleService.getModuleById(id);
-            Path temp = Paths.get("docs/knowledge/.temp", uploadId + ".pdf");
+            Path temp = Paths.get("docs/knowledge/module-catalog/.temp", uploadId + ".pdf");
             if (!Files.exists(temp)) return ResponseEntity.notFound().build();
-            Path dest = Paths.get("docs/knowledge", module.getTitle() + ".pdf");
+            Path dest = Paths.get("docs/knowledge/module-catalog", module.getTitle() + ".pdf");
             Files.createDirectories(dest.getParent());
             Files.copy(temp, dest, StandardCopyOption.REPLACE_EXISTING);
             Files.deleteIfExists(temp);
@@ -168,7 +168,7 @@ public class ModuleController {
     public ResponseEntity<Void> deleteModulePdf(
             @Parameter(description = "Module ID") @PathVariable Long id) {
         Module module = moduleService.getModuleById(id);
-        Path pdfPath = Paths.get("docs/knowledge", module.getTitle() + ".pdf");
+        Path pdfPath = Paths.get("docs/knowledge/module-catalog", module.getTitle() + ".pdf");
         try {
             if (!Files.deleteIfExists(pdfPath)) return ResponseEntity.notFound().build();
             return ResponseEntity.noContent().build();

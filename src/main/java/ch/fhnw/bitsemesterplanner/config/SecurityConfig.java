@@ -32,9 +32,13 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Public endpoints
                 .requestMatchers(HttpMethod.GET, "/api/modules", "/api/modules/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/programme-docs", "/api/programme-docs/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
                 .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/api-docs", "/api-docs/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
+                // Admin-only programme doc management
+                .requestMatchers(HttpMethod.POST, "/api/programme-docs/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/programme-docs/**").hasRole("ADMIN")
                 // Admin-only module management
                 .requestMatchers(HttpMethod.POST, "/api/modules", "/api/modules/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/modules/**").hasRole("ADMIN")

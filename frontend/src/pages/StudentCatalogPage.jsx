@@ -8,6 +8,7 @@ import ModuleRow from "../components/modules/ModuleRow";
 import DropdownFilter from "../components/common/DropdownFilter";
 import SuccessBanner from "../components/common/SuccessBanner";
 import ConfirmModal from "../components/common/ConfirmModal";
+import ProgrammeDocsModal from "../components/common/ProgrammeDocsModal";
 
 export default function StudentCatalogPage() {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ export default function StudentCatalogPage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [removeTarget, setRemoveTarget] = useState(null);
+  const [showProgrammeDocs, setShowProgrammeDocs] = useState(false);
   const [removing, setRemoving] = useState(false);
   const [addingId, setAddingId] = useState(null);
 
@@ -142,8 +144,22 @@ export default function StudentCatalogPage() {
               { value: "ELECTIVE", label: "Elective" },
             ]}
           />
-          <span className="text-sm text-dark-muted ml-auto">{filtered.length} modules</span>
+          <div className="ml-auto flex items-center gap-3">
+            <button
+              onClick={() => setShowProgrammeDocs(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-primary text-primary text-xs font-semibold rounded-input hover:bg-primary hover:text-white transition-colors"
+            >
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                <path d="M3 2h7l3 3v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
+                <path d="M10 2v3h3" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
+                <path d="M5 9h6M5 11.5h4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+              </svg>
+              Programme Resources
+            </button>
+            <span className="text-sm text-dark-muted">{filtered.length} modules</span>
+          </div>
         </div>
+        {showProgrammeDocs && <ProgrammeDocsModal isAdmin={false} onClose={() => setShowProgrammeDocs(false)} />}
 
         {loading ? (
           <div className="text-center py-12 text-dark-muted text-sm">Loading modules…</div>

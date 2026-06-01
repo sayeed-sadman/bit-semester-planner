@@ -401,6 +401,15 @@ All endpoints follow these principles consistently:
 | `DELETE` | `/api/rag/uploads/unlinked` | Delete all unlinked temp uploads for the current user (called on logout) |
 | `GET` | `/api/rag/match-module` | Find the best matching module for a document title (Admin only) |
 
+**Programme Resources**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/programme-docs` | List all programme documents grouped by section (public) |
+| `GET` | `/api/programme-docs/{section}/{filename}` | Serve a programme document file (public) |
+| `POST` | `/api/programme-docs/{section}` | Upload a new programme document (Admin only) |
+| `DELETE` | `/api/programme-docs/{section}/{filename}` | Delete a programme document and its RAG chunks (Admin only) |
+
 **OpenAPI Documentation**
 
 All endpoints are documented using OpenAPI 3.0 via `springdoc-openapi`. The interactive Swagger UI is available at `/swagger-ui.html` on the running application and requires no login. The raw API specification is accessible at `/api-docs`.
@@ -427,15 +436,19 @@ The application uses an H2 embedded relational database in file-backed mode. Dat
 Two startup components seed the database on first run. Both are idempotent and skip records that already exist.
 
 - `DataInitializer` seeds two default user accounts (`admin@fhnw.ch` and `student@fhnw.ch`) and 8 BIT modules if the module table is empty.
-- `KnowledgeSeeder` scans `docs/knowledge/` and processes any PDF or DOCX files found, chunking and embedding them into the RAG knowledge base as shared documents (`student = null`).
+- `KnowledgeSeeder` scans `docs/knowledge/module-catalog/` for official module PDFs and each subfolder of `docs/knowledge/programme/` for BIT programme reference documents. Each chunk is prefixed with its source section label so the RAG agent understands where the content comes from.
 
-Three file storage directories are used at runtime:
+Five file storage directories are used at runtime:
 
 | Directory | Purpose |
 |-----------|---------|
-| `docs/knowledge/` | Official module description PDFs, served publicly and indexed for RAG retrieval for all users |
-| `docs/knowledge/.temp/` | Temporary admin uploads awaiting module linking; cleaned up on logout or dismiss |
-| `docs/student-uploads/` | Original PDF and DOCX files uploaded by students; served back via the My Documents viewer and indexed for RAG retrieval for students |
+| `docs/knowledge/module-catalog/` | Official module description PDFs, served publicly and indexed for RAG retrieval for all users |
+| `docs/knowledge/module-catalog/.temp/` | Temporary admin uploads awaiting module linking; cleaned up on logout or dismiss |
+| `docs/knowledge/programme/administrative/` | BIT administrative documents (bachelor thesis info, semester plans); indexed for RAG |
+| `docs/knowledge/programme/compulsory/` | Compulsory module overview documents; indexed for RAG |
+| `docs/knowledge/programme/elective/` | Elective module list documents; indexed for RAG |
+| `docs/knowledge/programme/specialization/` | Specialization brochures; indexed for RAG |
+| `docs/knowledge/student-uploads/` | Original PDF and DOCX files uploaded by students; served back via the My Documents viewer and indexed for RAG retrieval for students |
 
 ### 5.2 Data Access Layer
 
@@ -713,7 +726,7 @@ The following sequence demonstrates all major application features using the see
 
 16. **Log in as admin.** Log out. Log in with email `admin@fhnw.ch` and password `admin123`.
 
-17. **Upload a module PDF via ChatBot.** Open the ChatBot and upload one of the official module PDFs from `docs/knowledge/`. If the filename matches an existing module, the panel confirms the match and shows a **View Module →** link. If no match is found, a pre-filled Create New Module form appears with extracted data.
+17. **Upload a module PDF via ChatBot.** Open the ChatBot and upload one of the official module PDFs from `docs/knowledge/module-catalog/`. If the filename matches an existing module, the panel confirms the match and shows a **View Module →** link. If no match is found, a pre-filled Create New Module form appears with extracted data.
 
 18. **Ask the assistant about a module.** Ask: *"Give me detailed information from the official description of Algorithms and Data Structures."* The assistant retrieves content from the indexed knowledge base and responds accurately.
 
@@ -783,7 +796,8 @@ Students and admins can upload PDF or DOCX files for AI-assisted analysis. Stude
          │                                  ▼
          ▼                    ┌──────────────────────────────────────┐
 ┌──────────────────┐          │ Save temp PDF to                     │
-│ Save chunks to   │          │ docs/knowledge/.temp/{uploadId}.pdf  │
+│ Save chunks to   │          │ docs/knowledge/module-catalog/       │
+│ DocumentChunk    │          │ .temp/{uploadId}.pdf                 │
 │ DocumentChunk    │          └──────────────────┬───────────────────┘
 │ in database      │                             │
 └────────┬─────────┘                             ▼
@@ -796,7 +810,8 @@ Students and admins can upload PDF or DOCX files for AI-assisted analysis. Stude
 │ uploads/         │                  ▼                  ▼
 └──────────────────┘   ┌─────────────────────┐  ┌──────────────────────┐
                        │ Copy temp file to   │  │ Delete temp file     │
-                       │ docs/knowledge/     │  │ Delete DocumentUpload│
+                       │ docs/knowledge/     │  │ Delete DocumentUpload │
+                       │ module-catalog/     │  │ No chunks to delete  │
                        │ Delete temp file    │  │ No chunks ever saved │
                        │ Save chunks to      │  └──────────────────────┘
                        │ DocumentChunk (same │
@@ -860,7 +875,7 @@ Students and admins can upload PDF or DOCX files for AI-assisted analysis. Stude
 └───────────────────────────────────────────────────────┘
 ```
 
-Shared knowledge documents (the 8 official BIT module PDFs in `docs/knowledge/`) are seeded at startup by `KnowledgeSeeder` and available to all users including unauthenticated visitors.
+Shared knowledge documents are seeded at startup by `KnowledgeSeeder` and available to all users including unauthenticated visitors: the 9 official BIT module PDFs in `docs/knowledge/module-catalog/` and the BIT programme reference documents (electives, specializations, administrative info) in `docs/knowledge/programme/`.
 
 ---
 
