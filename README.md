@@ -516,7 +516,7 @@ Access to each endpoint group is governed by Spring Security rules enforced in `
 2. Wait for the container to build. The backend and frontend start automatically.
 3. When prompted, click **Open in Browser** for port `5173` to access the frontend.
 
-The required Anthropic API key for the AI assistant is pre-configured as a repository secret and is automatically available on GitHub Codespaces.
+The required Anthropic API key for the AI assistant is pre-configured as a repository secret and is automatically available on GitHub Codespaces for contributors.
 
 **Manual Start Commands (if auto-start fails or after restarting a Codespace)**
 
