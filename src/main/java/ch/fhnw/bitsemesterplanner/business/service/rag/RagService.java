@@ -33,7 +33,7 @@ public class RagService {
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
 
-    @Value("${anthropic.api.key}")
+    @Value("${ANTHROPIC_API_KEY:NOT_SET}")
     private String apiKey;
 
     public RagService(DocumentChunkRepository documentChunkRepository) {

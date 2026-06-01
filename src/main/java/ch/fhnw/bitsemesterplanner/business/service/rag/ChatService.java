@@ -119,7 +119,7 @@ public class ChatService {
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
 
-    @Value("${anthropic.api.key:NOT_SET}")
+    @Value("${ANTHROPIC_API_KEY:NOT_SET}")
     private String apiKey;
 
     public ChatService() {
