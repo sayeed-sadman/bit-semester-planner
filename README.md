@@ -6,10 +6,10 @@ BIT Semester Planner is a web application for FHNW Business Information Technolo
 
 | Name | GitHub Username | Contribution |
 |------|----------------|--------------|
-| Sayeed Sadman | @sayeed-sadman | to be confirmed |
-| Eva Siegenthaler | @evasiegenthaler | to be confirmed |
-| Kesanet Girmay | @Kesanet | to be confirmed |
-| Renjita Byju Resmi | @RenjitaBR | to be confirmed |
+| Sayeed Sadman | `@sayeed-sadman` | Full-stack development, system architecture, backend implementation, REST API design, AI/RAG integration, deployment and project coordination |
+| Eva Siegenthaler | `@evasiegenthaler` | UI/UX design, Figma prototyping, frontend design review and user experience feedback |
+| Kesanet Girmay | `@Kesanet` | Data model design, domain entity definition, database schema review and data architecture feedback |
+| Renjita Byju Resmi | `@RenjitaBR` | Security design review, authentication and role-based access control specification, API security feedback |
 
 ## Links
 - **Video Presentation:** *to be added*
