@@ -365,11 +365,6 @@ export default function ChatBot({ onSuggestNote }) {
   };
 
   const handleDismissAdminPanel = () => {
-    if (moduleMatchResult?.matched && moduleMatchResult?.module) {
-      addAssistantMessage(
-        `${moduleMatchResult.module.title} is already in the module catalog. Your document has been uploaded and indexed. Feel free to ask me any questions about it.`
-      );
-    }
     setModuleMatchResult(null);
     setAdminModuleStatus(null);
     setCreatedModuleId(null);
@@ -580,12 +575,10 @@ export default function ChatBot({ onSuggestNote }) {
             {activePanel === "admin" && moduleMatchResult?.matched && (
               <div className="flex-1 flex flex-col overflow-hidden">
                 <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
-                  <div className="p-3 rounded-input bg-blue-50 border border-blue-200">
-                    <p className="text-xs font-semibold text-blue-700 mb-0.5">Module already in catalog</p>
-                    <p className="text-sm font-medium text-primary">{moduleMatchResult.module.title}</p>
-                    <p className="text-xs text-blue-600 mt-1">
-                      Your document has been uploaded and indexed. Dismiss to ask me questions about it.
-                    </p>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs font-medium text-dark-muted uppercase tracking-wide">Already in catalog</span>
+                    <p className="text-sm font-semibold text-dark">{moduleMatchResult.module.title}</p>
+                    <p className="text-xs text-dark-secondary mt-1">View the module to review or update it, or dismiss to ask questions about this document.</p>
                   </div>
                 </div>
                 <div className="px-4 py-3 border-t border-surface-divider flex gap-2 flex-shrink-0">
@@ -706,7 +699,7 @@ export default function ChatBot({ onSuggestNote }) {
                   {messages.length === 0 && (
                     <p className="text-center text-dark-muted text-sm mt-6 leading-relaxed">
                       {isAdmin
-                        ? `Hi ${user?.firstName}! Upload module documents, manage the catalog, or ask anything about the BIT programme.`
+                        ? `Hi ${user?.firstName}! Upload module documents to update the catalog, or ask me anything about the module catalog or the BIT programme.`
                         : isStudent
                         ? `Hi ${user?.firstName}! Ask me anything about your modules, uploaded documents, or your schedule.`
                         : "Ask me anything about FHNW or the BIT programme. Log in for personalised assistance."}
