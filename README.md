@@ -704,14 +704,126 @@ Students and admins can upload PDF or DOCX files for AI-assisted analysis. Stude
 
 ### 8.2 RAG Pipeline
 
-**Ingestion:** uploaded files are extracted (Apache PDFBox for PDF, Apache POI for DOCX) and split into 400-word chunks with a 50-word overlap. The ingestion behaviour then differs by role:
+#### Ingestion Phase
 
-- **Student uploads:** chunks are embedded and written to `DocumentChunk` immediately on upload, making the content available for RAG retrieval straight away. A 64-float pseudo-embedding is generated via the Anthropic API for the first 40 chunks (~14,000 words); chunks beyond that limit receive a zero-filled embedding and are stored as raw text only (sufficient for all typical module documents).
-- **Admin uploads:** chunks are computed in memory at upload time only to power the AI description suggestion, but are not persisted to the database. Chunks are written to `DocumentChunk` (following the same 40-chunk embedding limit) only when the admin links the upload to a module. If the admin dismisses or logs out without linking, no chunks are ever stored.
+```
+┌──────────────────┐
+│   File Upload    │  PDF or DOCX via POST /api/rag/upload
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────────────────────────────────────┐
+│  Text Extraction                                 │
+│  Apache PDFBox  (PDF  → plain text)              │
+│  Apache POI     (DOCX → plain text)              │
+└────────┬─────────────────────────────────────────┘
+         │
+         ▼
+┌──────────────────────────────────────────────────┐
+│  Save DocumentUpload (rawText stored in DB)      │
+└────────┬─────────────────────────────────────────┘
+         │
+         ▼
+┌──────────────────────────────────────────────────┐
+│  Chunking                                        │
+│  chunk_size = 400 words   overlap = 50 words     │
+│  Sliding window over extracted text              │
+└────────┬─────────────────────────────────────────┘
+         │
+    ┌────┴────────────────────┐
+    │                         │
+ STUDENT                    ADMIN
+    │                         │
+    ▼                         ▼
+┌──────────────────┐   ┌───────────────────────────────────────────┐
+│ Embed chunks     │   │ Embed chunks IN MEMORY only               │
+│ (first 40: real  │   │ (first 40: real 64-float via Anthropic,   │
+│  64-float via    │   │  rest: zero-filled float[64])             │
+│  Anthropic API;  │   │ Used to generate AI description           │
+│  rest: zero-     │   │ suggestion only, not persisted            │
+│  filled float[64]│   └──────────────────┬────────────────────────┘
+└────────┬─────────┘                      │
+         │                               ▼
+         ▼                    ┌──────────────────────────────────────┐
+┌──────────────────┐          │ Save temp PDF to                     │
+│ Save chunks to   │          │ docs/knowledge/.temp/{uploadId}.pdf  │
+│ DocumentChunk    │          └──────────────────┬───────────────────┘
+│ in database      │                             │
+└────────┬─────────┘                             ▼
+         │                    ┌──────────────────────────────────────┐
+         ▼                    │ Admin action?                        │
+┌──────────────────┐          └───────┬──────────────────┬──────────┘
+│ Save original    │                  │                  │
+│ file to          │           Links to module     Dismisses / logs out
+│ docs/student-    │                  │                  │
+│ uploads/         │                  ▼                  ▼
+└──────────────────┘   ┌─────────────────────┐  ┌──────────────────────┐
+                       │ Copy temp file to   │  │ Delete temp file     │
+                       │ docs/knowledge/     │  │ Delete DocumentUpload│
+                       │ Delete temp file    │  │ No chunks ever saved │
+                       │ Save chunks to      │  └──────────────────────┘
+                       │ DocumentChunk (same │
+                       │ 40-chunk limit)     │
+                       │ Set module FK on    │
+                       │ DocumentUpload      │
+                       └─────────────────────┘
+```
 
-**Retrieval:** on each chat request, the query is embedded using the same process. Cosine similarity is computed against all relevant chunks, and the top 5 are injected into the system prompt as context before the model generates a response.
+#### Retrieval Phase
 
-Shared knowledge documents (the 8 official BIT module PDFs in `docs/knowledge/`) are seeded at startup and available to all users including unauthenticated visitors.
+```
+┌──────────────────────┐
+│  User Chat Message   │
+└──────────┬───────────┘
+           │
+           ▼
+┌───────────────────────────────────────────────────────┐
+│  Query Embedding                                      │
+│  Same pseudo-embedding process:                       │
+│  POST /v1/messages → parse float[64] from response   │
+└──────────┬────────────────────────────────────────────┘
+           │
+           ▼
+┌───────────────────────────────────────────────────────┐
+│  Candidate Retrieval                                  │
+│  Knowledge base chunks   (student = null,             │
+│                           from KnowledgeSeeder +      │
+│                           module-linked admin uploads)│
+│  + student's own chunks  (student = current user,     │
+│                           if userId provided)         │
+│  Deserialise embeddingJson → float[64] per chunk      │
+└──────────┬────────────────────────────────────────────┘
+           │
+           ▼
+┌───────────────────────────────────────────────────────┐
+│  Cosine Similarity Ranking                            │
+│  score(q, c) = (q · c) / (‖q‖ × ‖c‖)                │
+│  Computed in Java for every candidate chunk           │
+│  Top-K = 5 chunks selected by descending score        │
+└──────────┬────────────────────────────────────────────┘
+           │
+           ▼
+┌───────────────────────────────────────────────────────┐
+│  Prompt Construction  (ChatService.buildSystemPrompt) │
+│  Base system prompt                                   │
+│  + Role context (PUBLIC / STUDENT / ADMIN)            │
+│  + [CONTEXT] top-5 chunk texts [/CONTEXT]             │
+│  + [NOTES] student's module notes [/NOTES]            │
+│  + [CALENDAR] upcoming events [/CALENDAR]             │
+│  + Current date header                                │
+└──────────┬────────────────────────────────────────────┘
+           │
+           ▼
+┌───────────────────────────────────────────────────────┐
+│  Response Generation                                  │
+│  POST https://api.anthropic.com/v1/messages           │
+│  Model: claude-haiku-4-5-20251001   max_tokens: 1024  │
+│  Streaming: content_block_delta SSE events            │
+│  Non-streaming: single synchronous response           │
+└───────────────────────────────────────────────────────┘
+```
+
+Shared knowledge documents (the 8 official BIT module PDFs in `docs/knowledge/`) are seeded at startup by `KnowledgeSeeder` and available to all users including unauthenticated visitors.
 
 ---
 
