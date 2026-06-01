@@ -171,6 +171,8 @@ public class DocumentController {
         }
         documentChunkRepository.deleteAll(documentChunkRepository.findByDocumentUploadId(id));
         documentUploadRepository.delete(upload);
+        Path tempFile = Paths.get("docs/knowledge/.temp", id + ".pdf");
+        try { Files.deleteIfExists(tempFile); } catch (Exception ignored) {}
         return ResponseEntity.noContent().build();
     }
 
