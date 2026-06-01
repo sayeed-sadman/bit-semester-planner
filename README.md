@@ -44,6 +44,8 @@ BIT Semester Planner is a web application for FHNW Business Information Technolo
   - [5.1 Database Configuration](#51-database-configuration)
   - [5.2 Data Access Layer](#52-data-access-layer)
   - [5.3 Architecture Overview](#53-architecture-overview)
+  - [5.4 Error Handling](#54-error-handling)
+  - [5.5 Backend Technology Stack](#55-backend-technology-stack)
 
 - [6. Security](#6-security)
   - [6.1 Authentication (Basic Auth)](#61-authentication-basic-auth)
@@ -459,8 +461,6 @@ The backend follows a three-layer architecture across two tiers. All dependencie
 | Business Logic | Enforces business rules, coordinates data access | `UserService`, `ModuleService`, `StudentModuleService`, `NoteService`, `CalendarService`, `RagService`, `ChatService`, `ExtractionService` |
 | Persistence | Maps entities to database tables, provides CRUD via repository interfaces | `UserRepository`, `ModuleRepository`, `StudentModuleRepository`, `NoteRepository`, `StudentCalendarRepository`, `DocumentUploadRepository`, `DocumentChunkRepository` |
 
-A `@ControllerAdvice` class (`GlobalExceptionHandler`) intercepts exceptions from any layer and maps them to structured error responses with appropriate HTTP status codes.
-
 **Architectural Patterns**
 
 | Pattern | Purpose |
@@ -472,7 +472,44 @@ A `@ControllerAdvice` class (`GlobalExceptionHandler`) intercepts exceptions fro
 | Global Exception Handling | `GlobalExceptionHandler` (`@ControllerAdvice`) maps all application exceptions to structured `ErrorResponse` objects with appropriate HTTP status codes. |
 | Startup Initialisation | `@PostConstruct` methods in `DataInitializer` and `KnowledgeSeeder` ensure the application starts in a consistent, usable state. |
 
-**Backend Technology Stack**
+### 5.4 Error Handling
+
+A `@ControllerAdvice` class (`GlobalExceptionHandler`) intercepts exceptions thrown from any layer and maps them to structured JSON error responses with appropriate HTTP status codes.
+
+**Exception to Status Mappings**
+
+| Exception | HTTP Status |
+|-----------|-------------|
+| `EntityNotFoundException` | `404 Not Found` |
+| `BusinessRuleException` | `400 Bad Request` |
+| `DuplicateEntryException` | `409 Conflict` |
+| `AccessDeniedException` | `403 Forbidden` |
+| `IllegalArgumentException` | `400 Bad Request` |
+| `Exception` (catch-all) | `500 Internal Server Error` |
+
+**ErrorResponse Structure**
+
+| Field | Type | Purpose |
+|-------|------|---------|
+| `timestamp` | `LocalDateTime` | Date and time at which the error occurred |
+| `status` | `int` | HTTP status code as an integer |
+| `error` | `String` | HTTP status reason phrase (e.g. `"Not Found"`) |
+| `message` | `String` | Human-readable description of the specific error |
+| `path` | `String` | Request URI that triggered the error |
+
+**Example Response (404 Not Found)**
+
+```json
+{
+  "timestamp": "2026-05-30T10:15:42",
+  "status": 404,
+  "error": "Not Found",
+  "message": "Module not found with ID: 99",
+  "path": "/api/modules/99"
+}
+```
+
+### 5.5 Backend Technology Stack
 
 | Technology | Purpose |
 |------------|---------|
