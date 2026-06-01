@@ -348,7 +348,7 @@ export default function LandingPage() {
           <div className="flex flex-col lg:flex-row items-stretch">
             {STEPS.map((s, i) => (
               <div key={s.num} className="flex lg:flex-row items-center flex-1">
-                <div className="flex-1 rounded-card border border-surface-border bg-surface-section p-6 flex flex-col h-full">
+                <div className="flex-1 rounded-card border border-surface-border bg-surface-section p-6 flex flex-col items-center text-center h-full">
                   <div className="w-9 h-9 rounded-full bg-primary-light text-primary font-bold text-base flex items-center justify-center mb-4 flex-shrink-0">
                     {s.num}
                   </div>
