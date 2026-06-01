@@ -98,7 +98,7 @@ public class ChatController {
         }
 
         if (!candidateChunks.isEmpty()) {
-            topChunks = ragService.retrieveTopChunks(req.question(), candidateChunks, 5);
+            topChunks = ragService.retrieveTopChunks(req.question(), candidateChunks, 10);
         }
 
         String answer = chatService.chat(req.question(), topChunks, notesContext, calendarEvents, userRole, req.userFirstName());
@@ -153,7 +153,7 @@ public class ChatController {
             }
 
             if (!candidateChunks.isEmpty()) {
-                topChunks = ragService.retrieveTopChunks(req.question(), candidateChunks, 5);
+                topChunks = ragService.retrieveTopChunks(req.question(), candidateChunks, 10);
             }
 
             SseEmitter emitter = new SseEmitter(120_000L);
