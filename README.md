@@ -448,7 +448,7 @@ Each domain entity maps to a database table via JPA. Seven repository interfaces
 | `StudentModule` | `student_module` | `entryID`, `student_id`, `module_id`, `addedAt` |
 | `Note` | `note` | `noteID`, `student_id`, `module_id`, `content`, `updatedAt` |
 | `StudentCalendar` | `student_calendar` | `calendarID`, `student_id`, `displayName`, `icsURL` |
-| `DocumentUpload` | `document_upload` | `id`, `student_id` (nullable), `fileName`, `rawText` |
+| `DocumentUpload` | `document_upload` | `id`, `student_id` (nullable), `module_id` (nullable), `fileName`, `rawText` |
 | `DocumentChunk` | `document_chunk` | `id`, `document_upload_id`, `chunkText`, `embeddingJson` |
 
 ### 5.3 Architecture Overview
@@ -767,20 +767,20 @@ Students and admins can upload PDF or DOCX files for AI-assisted analysis. Stude
 │  Sliding window over extracted text              │
 └────────┬─────────────────────────────────────────┘
          │
-    ┌────┴────────────────────┐
-    │                         │
- STUDENT                    ADMIN
-    │                         │
-    ▼                         ▼
-┌──────────────────┐   ┌───────────────────────────────────────────┐
-│ Embed chunks     │   │ Embed chunks IN MEMORY only               │
-│ (first 40: real  │   │ (first 40: real 64-float via Anthropic,   │
-│  64-float via    │   │  rest: zero-filled float[64])             │
-│  Anthropic API;  │   │ Used to generate AI description           │
-│  rest: zero-     │   │ suggestion only, not persisted            │
-│  filled float[64]│   └──────────────────┬────────────────────────┘
-└────────┬─────────┘                      │
-         │                               ▼
+    ┌────┴──────────────────────┐
+    │                           │
+ STUDENT                      ADMIN
+    │                           │
+    ▼                           ▼
+┌───────────────────┐    ┌───────────────────────────────────────────┐
+│ Embed chunks      │    │ Embed chunks IN MEMORY only               │
+│ (first 40: real   │    │ (first 40: real 64-float via Anthropic,   │
+│  64-float via     │    │  rest: zero-filled float[64])             │
+│  Anthropic API;   │    │ Used to generate AI description           │
+│  rest: zero-      │    │ suggestion only, not persisted            │
+│  filled float[64])│    └──────────────────┬────────────────────────┘
+└────────┬──────────┘                       │
+         │                                  ▼
          ▼                    ┌──────────────────────────────────────┐
 ┌──────────────────┐          │ Save temp PDF to                     │
 │ Save chunks to   │          │ docs/knowledge/.temp/{uploadId}.pdf  │
@@ -789,7 +789,7 @@ Students and admins can upload PDF or DOCX files for AI-assisted analysis. Stude
 └────────┬─────────┘                             ▼
          │                    ┌──────────────────────────────────────┐
          ▼                    │ Admin action?                        │
-┌──────────────────┐          └───────┬──────────────────┬──────────┘
+┌──────────────────┐          └───────┬──────────────────┬───────────┘
 │ Save original    │                  │                  │
 │ file to          │           Links to module     Dismisses / logs out
 │ docs/student-    │                  │                  │
@@ -817,7 +817,7 @@ Students and admins can upload PDF or DOCX files for AI-assisted analysis. Stude
 ┌───────────────────────────────────────────────────────┐
 │  Query Embedding                                      │
 │  Same pseudo-embedding process:                       │
-│  POST /v1/messages → parse float[64] from response   │
+│  POST /v1/messages → parse float[64] from response    │
 └──────────┬────────────────────────────────────────────┘
            │
            ▼
@@ -834,7 +834,7 @@ Students and admins can upload PDF or DOCX files for AI-assisted analysis. Stude
            ▼
 ┌───────────────────────────────────────────────────────┐
 │  Cosine Similarity Ranking                            │
-│  score(q, c) = (q · c) / (‖q‖ × ‖c‖)                │
+│  score(q, c) = (q · c) / (‖q‖ × ‖c‖)                  │
 │  Computed in Java for every candidate chunk           │
 │  Top-K = 5 chunks selected by descending score        │
 └──────────┬────────────────────────────────────────────┘
