@@ -578,7 +578,7 @@ export default function ChatBot({ onSuggestNote }) {
                   <div className="flex flex-col gap-1">
                     <span className="text-xs font-medium text-dark-muted uppercase tracking-wide">Already in catalog</span>
                     <p className="text-sm font-semibold text-dark">{moduleMatchResult.module.title}</p>
-                    <p className="text-xs text-dark-secondary mt-1">View the module to review or update it, or dismiss to ask questions about this document.</p>
+                    <p className="text-xs text-dark-secondary mt-1">View the module to review or update it, or dismiss to ask any questions.</p>
                   </div>
                 </div>
                 <div className="px-4 py-3 border-t border-surface-divider flex gap-2 flex-shrink-0">
