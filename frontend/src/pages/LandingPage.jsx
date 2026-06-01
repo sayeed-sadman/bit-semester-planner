@@ -343,16 +343,25 @@ export default function LandingPage() {
           STEPS
           ══════════════════════════════════════════════════════════ */}
       <section className="bg-white border-t border-surface-border py-16 px-6">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <h2 className="text-2xl font-bold text-dark text-center mb-10">Get started in 4 steps</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {STEPS.map((s) => (
-              <div key={s.num} className="flex flex-col items-center text-center">
-                <div className="w-10 h-10 rounded-full bg-primary-light text-primary font-bold text-lg flex items-center justify-center mb-4 flex-shrink-0">
-                  {s.num}
+          <div className="flex flex-col lg:flex-row items-stretch gap-3">
+            {STEPS.map((s, i) => (
+              <div key={s.num} className="flex lg:flex-row items-center gap-3 flex-1">
+                <div className="flex-1 rounded-card border border-surface-border bg-surface-section p-6 flex flex-col h-full">
+                  <div className="w-9 h-9 rounded-full bg-primary-light text-primary font-bold text-base flex items-center justify-center mb-4 flex-shrink-0">
+                    {s.num}
+                  </div>
+                  <h3 className="text-sm font-semibold text-dark mb-2">{s.title}</h3>
+                  <p className="text-sm text-dark-muted leading-relaxed">{s.description}</p>
                 </div>
-                <h3 className="text-sm font-semibold text-dark mb-2">{s.title}</h3>
-                <p className="text-sm text-dark-muted leading-relaxed">{s.description}</p>
+                {i < STEPS.length - 1 && (
+                  <div className="hidden lg:flex items-center flex-shrink-0 text-surface-border">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-primary/40">
+                      <path d="M9 18l6-6-6-6"/>
+                    </svg>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -365,7 +374,7 @@ export default function LandingPage() {
       <section className="py-16 px-6 border-t border-surface-border">
         <div className="max-w-xl mx-auto text-center">
           <h2 className="text-2xl font-bold text-dark mb-3">Start planning your semester today</h2>
-          <p className="text-dark-muted mb-8">Create an account in seconds. No FHNW system access required — just an email and a password.</p>
+          <p className="text-dark-muted mb-8">Create an account in seconds. No FHNW system access required. Just an email and a password.</p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link
               to="/register"
