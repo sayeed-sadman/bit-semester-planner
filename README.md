@@ -356,6 +356,7 @@ All endpoints follow these principles consistently:
 | `DELETE` | `/api/modules/{id}` | Delete a module (Admin only) |
 | `GET` | `/api/modules/{id}/pdf` | Stream the official module description PDF |
 | `POST` | `/api/modules/{id}/pdf` | Upload or replace a module description PDF (Admin only) |
+| `DELETE` | `/api/modules/{id}/pdf` | Delete the official module description PDF (Admin only) |
 | `POST` | `/api/modules/{id}/pdf/from-upload/{uploadId}` | Promote a temp upload to the official module PDF (Admin only) |
 
 **Semester Planner**
@@ -393,12 +394,14 @@ All endpoints follow these principles consistently:
 | `POST` | `/api/chat/stream` | Submit a question and receive a streamed SSE response |
 | `POST` | `/api/rag/upload` | Upload a PDF or DOCX for AI analysis |
 | `GET` | `/api/rag/uploads` | List all uploaded documents |
-| `DELETE` | `/api/rag/uploads/{id}` | Delete an uploaded document |
+| `GET` | `/api/rag/uploads/{id}/file` | View or download the original uploaded file (Student only) |
+| `DELETE` | `/api/rag/uploads/{id}` | Delete an uploaded document and its file and chunks |
+| `DELETE` | `/api/rag/uploads/unlinked` | Delete all unlinked temp uploads for the current user — called on logout |
 | `GET` | `/api/rag/match-module` | Find the best matching module for a document title (Admin only) |
 
 **OpenAPI Documentation**
 
-All 30 endpoints are documented using OpenAPI 3.0 via `springdoc-openapi`. The interactive Swagger UI is available at `/swagger-ui.html` on the running application and requires no login. The raw API specification is accessible at `/api-docs`.
+All endpoints are documented using OpenAPI 3.0 via `springdoc-openapi`. The interactive Swagger UI is available at `/swagger-ui.html` on the running application and requires no login. The raw API specification is accessible at `/api-docs`.
 
 ---
 
