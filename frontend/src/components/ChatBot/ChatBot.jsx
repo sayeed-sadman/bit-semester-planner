@@ -798,17 +798,30 @@ export default function ChatBot({ onSuggestNote }) {
                       Upload a document (PDF or DOCX)
                     </p>
                     <div className="flex gap-2">
-                      <label className="flex-1 min-w-0 cursor-pointer">
-                        <input
-                          type="file"
-                          accept=".pdf,.docx,.doc"
-                          className="hidden"
-                          onChange={handleFileChange}
-                        />
-                        <span className="block px-3 py-1.5 text-xs border border-surface-border rounded-input text-dark-muted hover:border-primary hover:text-primary transition-colors truncate">
-                          {selectedFile ? selectedFile.name : "Choose file…"}
-                        </span>
-                      </label>
+                      <div className="flex-1 min-w-0 relative">
+                        <label className="cursor-pointer block">
+                          <input
+                            type="file"
+                            accept=".pdf,.docx,.doc"
+                            className="hidden"
+                            onChange={handleFileChange}
+                          />
+                          <span className="block px-3 py-1.5 text-xs border border-surface-border rounded-input text-dark-muted hover:border-primary hover:text-primary transition-colors truncate pr-6">
+                            {selectedFile ? selectedFile.name : "Choose file…"}
+                          </span>
+                        </label>
+                        {selectedFile && (
+                          <button
+                            onClick={() => { setSelectedFile(null); setUploadStatus(null); }}
+                            className="absolute right-1.5 top-1/2 -translate-y-1/2 text-dark-muted hover:text-dark transition-colors"
+                            aria-label="Clear selected file"
+                          >
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                              <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                            </svg>
+                          </button>
+                        )}
+                      </div>
                       <button
                         onClick={handleUpload}
                         disabled={!selectedFile || uploadStatus === "uploading"}
