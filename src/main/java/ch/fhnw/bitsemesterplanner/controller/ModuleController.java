@@ -4,6 +4,7 @@ import ch.fhnw.bitsemesterplanner.business.service.ModuleService;
 import ch.fhnw.bitsemesterplanner.config.KnowledgeSeeder;
 import ch.fhnw.bitsemesterplanner.data.domain.Module;
 import ch.fhnw.bitsemesterplanner.data.domain.ModuleType;
+import ch.fhnw.bitsemesterplanner.data.repository.DocumentUploadRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -30,10 +31,12 @@ public class ModuleController {
 
     private final ModuleService moduleService;
     private final KnowledgeSeeder knowledgeSeeder;
+    private final DocumentUploadRepository documentUploadRepository;
 
-    public ModuleController(ModuleService moduleService, KnowledgeSeeder knowledgeSeeder) {
+    public ModuleController(ModuleService moduleService, KnowledgeSeeder knowledgeSeeder, DocumentUploadRepository documentUploadRepository) {
         this.moduleService = moduleService;
         this.knowledgeSeeder = knowledgeSeeder;
+        this.documentUploadRepository = documentUploadRepository;
     }
 
     @GetMapping
@@ -123,6 +126,11 @@ public class ModuleController {
             Path dest = Paths.get("docs/knowledge", module.getTitle() + ".pdf");
             Files.createDirectories(dest.getParent());
             Files.copy(temp, dest, StandardCopyOption.REPLACE_EXISTING);
+            Files.deleteIfExists(temp);
+            documentUploadRepository.findById(uploadId).ifPresent(upload -> {
+                upload.setModule(module);
+                documentUploadRepository.save(upload);
+            });
             new Thread(() -> knowledgeSeeder.indexIfNeeded(dest)).start();
             return ResponseEntity.ok().build();
         } catch (Exception e) {
