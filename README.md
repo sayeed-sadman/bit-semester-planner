@@ -723,7 +723,7 @@ The following sequence demonstrates all major application features using the see
 
 **API Documentation**
 
-20. **Explore the API documentation.** Navigate to the Swagger UI URL from [Section 7.3](#73-application-urls-and-credentials). Review all 30 documented REST endpoints across Auth, Modules, Planner, Notes, Calendars, Chat, and Document RAG groups. No login is required to access the documentation.
+20. **Explore the API documentation.** Navigate to the Swagger UI URL from [Section 7.3](#73-application-urls-and-credentials). Review all documented REST endpoints across Auth, Modules, Planner, Notes, Calendars, Chat, and Document RAG groups. No login is required to access the documentation.
 
 ---
 
