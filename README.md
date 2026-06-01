@@ -588,14 +588,14 @@ Go to `http://localhost:5173` in your browser.
 | Swagger UI | `https://{codespace-name}-8080.app.github.dev/swagger-ui.html` |
 | H2 Console | `https://{codespace-name}-8080.app.github.dev/h2-console` |
 
-**Application Login**
+**Application Login Demo Credentials**
 
 | Role | Email | Password |
 |------|-------|----------|
 | Admin | `admin@fhnw.ch` | `admin123` |
 | Student | `student@fhnw.ch` | `student123` |
 
-**H2 Console**
+**H2 Console Login Credentials**
 
 | Field | Value |
 |-------|-------|
