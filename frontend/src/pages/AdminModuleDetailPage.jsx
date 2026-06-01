@@ -249,7 +249,7 @@ export default function AdminModuleDetailPage() {
             Upload / Replace Official Description PDF
           </span>
           {pdfExists
-            ? <span className="text-xs font-medium text-success">PDF on file</span>
+            ? <span className="text-xs font-medium text-success">{module?.title}.pdf</span>
             : <span className="text-xs font-medium text-dark-muted">No PDF uploaded</span>
           }
         </div>
