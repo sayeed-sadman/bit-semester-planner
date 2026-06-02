@@ -1,6 +1,11 @@
 #!/bin/bash
-# Runs on every container start (create and restart) via postStartCommand.
-# Starts backend and frontend in the background if not already running.
+# Runs via postAttachCommand on every Codespace start (create and restart).
+# In VS Code Docker Desktop, VS Code tasks handle auto-start instead.
+
+if [ "$CODESPACES" != "true" ]; then
+    echo "[start.sh] Not in Codespaces — VS Code tasks handle auto-start."
+    exit 0
+fi
 
 WORKSPACE=/workspaces/bit-semester-planner
 
