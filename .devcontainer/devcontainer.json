@@ -8,7 +8,7 @@
   },
   "postCreateCommand": "cd /workspaces/bit-semester-planner && chmod +x mvnw 2>/dev/null || true && ./mvnw dependency:resolve --no-transfer-progress && cd frontend && npm install --prefer-offline",
   "portsAttributes": {
-    "8080": { "label": "Backend API", "onAutoForward": "notify" },
+    "8080": { "label": "Backend API", "onAutoForward": "silent" },
     "5173": { "label": "Frontend", "onAutoForward": "openBrowser" }
   }
 }
