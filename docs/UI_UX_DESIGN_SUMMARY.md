@@ -4,7 +4,7 @@
 
 This document describes every page, component, interaction, and navigation flow implemented in the BIT Semester Planner React frontend. It reflects the actual codebase as of June 2026 and supersedes any earlier Figma-based specification.
 
-The app has 11 routes across 9 distinct page components, plus shared overlay components (modals, popups) and a persistent floating chatbot. Authentication uses HTTP Basic with credentials stored in `localStorage` under `auth_credentials`.
+The app has 11 routes across 11 distinct page components, plus shared overlay components (modals, popups) and a persistent floating chatbot. Authentication uses HTTP Basic with credentials stored in `localStorage` under `auth_credentials`.
 
 ---
 
@@ -82,8 +82,8 @@ A single unified Navbar component (`src/components/layout/Navbar.jsx`) that adap
 |---------|---------|
 | Height | 68px |
 | Background | White, bottom border `#E0E4EB`, shadow `shadow-navbar` |
-| Logo | Blue 8x8px rounded square with 4 white squares (2x2 grid icon) + "BIT Semester Planner" in `text-base font-semibold` |
-| Logo click | Not authenticated: `/` — Authenticated (student): `/dashboard` — Authenticated (admin): `/admin/modules` |
+| Logo | Blue 32x32px rounded square with 4 white squares (2x2 grid icon) + "BIT Semester Planner" in `text-base font-semibold` |
+| Logo click | Not authenticated: `/`: Authenticated (student): `/dashboard`: Authenticated (admin): `/admin/modules` |
 
 **Not authenticated (public):**
 - Right side: "Log in" (outlined button) + "Create account" (blue filled button)
@@ -339,7 +339,7 @@ Each row has a "View Details" button that navigates to `/admin/modules/:id`.
 
 **Header area:**
 - "Back to Catalog" link (left)
-- "Official Description" button (blue, left) — opens PdfViewerModal for the module PDF
+- "Official Description" button (blue, left): opens PdfViewerModal for the module PDF
 - "Module Detail" title (centered)
 - "Delete Module" button (red, right)
 
@@ -395,14 +395,14 @@ Each field shows in a white card:
 **Auth:** ADMIN role required
 **File:** `src/pages/AdminAddModulePage.jsx`
 
-**Header:** PageHeader component — "Back to Catalog" link (left) + "Add New Module" title (center).
+**Header:** PageHeader component: "Back to Catalog" link (left) + "Add New Module" title (center).
 
 **Form (ModuleFormCard component):** Fields: Title, Description, Credits, Lecturer Name, Lecturer Email, Semester, Campus, Module Type (dropdown: COMPULSORY / ELECTIVE). Required fields: title, semester, credits, moduleType, lecturerName, lecturerEmail, campus.
 
 **PDF section (optional):** File picker for PDF upload. If file selected and module created, PDF is uploaded via `POST /api/modules/:id/pdf`.
 
 **Action buttons (bottom right):**
-- "Cancel" (outlined) — navigate to `/admin/modules`
+- "Cancel" (outlined): navigate to `/admin/modules`
 - "Save Module" (blue, disabled while saving)
 
 **Interactions:**
@@ -436,7 +436,7 @@ Each field shows in a white card:
 **Module list (scrollable):**
 Each module row (`ModuleRowPlanner`) shows:
 - Module title (truncated), "Semester X · Y ECTS" + Badge
-- Action buttons: "View Detail" (outlined, navigates to `/modules/:id?from=planner`), "My Notes" (indigo bg, opens NotesModal overlay), "Remove" (red bg, opens ConfirmModal)
+- Action buttons: "View Detail" (outlined, navigates to `/modules/:id?from=planner`), "My Notes" (`bg-indigo-50 text-indigo-600`, opens NotesModal overlay), "Remove" (`bg-red-50 text-red-600`, opens ConfirmModal)
 
 Modules sorted: compulsory first, then by semester (ascending).
 
@@ -520,7 +520,7 @@ All time-grid views: current-time red line indicator, auto-scroll to 07:00 on vi
 **Auth:** STUDENT role required
 **File:** `src/pages/NoteDetailPage.jsx`
 
-**Header:** PageHeader — "Back to My Planner" link + "[Module Title] — My Note" title.
+**Header:** PageHeader: "Back to My Planner" link + "[Module Title]: My Note" title.
 
 **Subtitle:** "lecturerName · lecturerEmail"
 
@@ -590,7 +590,7 @@ All time-grid views: current-time red line indicator, auto-scroll to 07:00 on vi
 **Back link:** "Back to Catalog" (`/modules`) or "Back to My Planner" (`/dashboard`) depending on `?from=planner` param.
 
 **Header area:**
-- "Official Description" button (blue, left) — opens PdfViewerModal
+- "Official Description" button (blue, left): opens PdfViewerModal
 - "Module Detail" title (centered)
 - Right button (depends on auth/planner state):
   - Not authenticated: "Login to add" (blue, link to `/login`)
@@ -633,7 +633,7 @@ All time-grid views: current-time red line indicator, auto-scroll to 07:00 on vi
 - New password + Confirm new password (side by side on sm+)
 
 **Buttons (bottom of card):**
-- Students only: "Delete Account" (danger outlined, left side) — opens ConfirmModal
+- Students only: "Delete Account" (danger outlined, left side): opens ConfirmModal
 - "Save Changes" (blue, right side)
 
 **Delete Account:** ConfirmModal. On confirm: `DELETE /api/auth/me`, clear auth, navigate to `/`.
@@ -810,8 +810,8 @@ Module tables remain scrollable at all widths. Modals remain centered with `max-
 **Student Module Catalog is public:** Unauthenticated users can browse and view module details. The "Add" button becomes "Login to add" for unauthenticated visitors.
 
 **Notes flow has two entry points:**
-1. NotesModal overlay (from dashboard "My Notes" button) — quick inline edit
-2. NoteDetailPage (`/notes/:moduleId`) — full-page editor, reachable via expand icon in NotesModal
+1. NotesModal overlay (from dashboard "My Notes" button): quick inline edit
+2. NoteDetailPage (`/notes/:moduleId`): full-page editor, reachable via expand icon in NotesModal
 
 **ChatBot panels share priority:** If `showNotePanel` is true, the note panel is shown. If `moduleMatchResult` is set (admin upload), the admin panel shows. Otherwise the chat UI shows.
 
