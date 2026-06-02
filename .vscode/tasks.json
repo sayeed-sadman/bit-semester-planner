@@ -10,8 +10,7 @@
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",
-        "panel": "dedicated",
-        "label": "Backend"
+        "panel": "dedicated"
       }
     },
     {
@@ -36,8 +35,7 @@
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",
-        "panel": "dedicated",
-        "label": "Frontend"
+        "panel": "dedicated"
       }
     }
   ]
