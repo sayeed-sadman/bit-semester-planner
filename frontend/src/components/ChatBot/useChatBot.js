@@ -144,7 +144,6 @@ export function useChatBot() {
         ]);
       }
     } catch (err) {
-      console.error("Chat stream error:", err);
       setMessages((prev) => [
         ...prev,
         {
@@ -182,7 +181,6 @@ export function useChatBot() {
 
     if (!res.ok) {
       const errorText = await res.text();
-      console.error("Upload failed:", res.status, errorText);
       throw new Error(errorText || "Upload failed");
     }
 

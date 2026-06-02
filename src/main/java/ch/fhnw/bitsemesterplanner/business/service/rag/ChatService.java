@@ -163,15 +163,11 @@ public class ChatService {
                                 String text = node.path("delta").path("text").asText("");
                                 if (!text.isEmpty()) return Stream.of(text);
                             }
-                        } catch (Exception e) {
-                            System.err.println("STREAM ERROR: " + e.getMessage());
-                            e.printStackTrace(System.err);
+                        } catch (Exception ignored) {
                         }
                         return Stream.empty();
                     });
         } catch (Exception e) {
-            System.err.println("STREAM ERROR: " + e.getMessage());
-            e.printStackTrace(System.err);
             throw new RuntimeException("Failed to stream chat response", e);
         }
     }

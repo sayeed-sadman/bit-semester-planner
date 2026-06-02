@@ -91,7 +91,6 @@ public class RagService {
             return result;
 
         } catch (Exception e) {
-            System.err.println("[RagService] Embedding failed, using zero vector: " + e.getMessage());
             return new float[64];
         }
     }

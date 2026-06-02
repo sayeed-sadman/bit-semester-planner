@@ -170,23 +170,17 @@ public class ChatController {
                         try {
                             emitter.send(SseEmitter.event().data(chunk.replace("\n", "\\n")));
                         } catch (IOException e) {
-                            System.err.println("STREAM ERROR: " + e.getMessage());
-                            e.printStackTrace(System.err);
                             throw new RuntimeException(e);
                         }
                     });
                     emitter.complete();
                 } catch (Exception e) {
-                    System.err.println("STREAM ERROR: " + e.getMessage());
-                    e.printStackTrace(System.err);
                     emitter.completeWithError(e);
                 }
             }).start();
 
             return emitter;
         } catch (Exception e) {
-            System.err.println("STREAM ERROR: " + e.getMessage());
-            e.printStackTrace(System.err);
             throw e;
         }
     }
