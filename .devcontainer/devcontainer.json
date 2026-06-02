@@ -7,7 +7,7 @@
     }
   },
   "postCreateCommand": "cd /workspaces/bit-semester-planner && chmod +x mvnw 2>/dev/null || true && ./mvnw dependency:resolve -q && cd frontend && npm install",
-  "postStartCommand": "bash /workspaces/bit-semester-planner/.devcontainer/start.sh",
+  "postAttachCommand": "bash /workspaces/bit-semester-planner/.devcontainer/start.sh || true",
   "forwardPorts": [8080],
   "portsAttributes": {
     "8080": { "label": "Backend API", "onAutoForward": "notify" },
