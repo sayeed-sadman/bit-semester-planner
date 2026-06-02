@@ -574,23 +574,29 @@ Access to each endpoint group is governed by Spring Security rules enforced in `
 
 ### 7.1 How to Run on GitHub Codespaces
 
+**Automatic Start**
+
 1. Open the repository on GitHub and click **Code > Codespaces > Create codespace on main**.
 2. Wait for the container to build. The backend and frontend start automatically.
-3. When prompted, click **Open in Browser** for port `5173` to access the frontend.
+3. The frontend opens automatically on port `5173`. If the popup is blocked by the browser, navigate to the **PORTS** tab and click **Open in Browser** next to port `5173`.
 
 The required Anthropic API key for the AI assistant is pre-configured as a repository secret and is automatically available on GitHub Codespaces for contributors. Non-contributors who fork the repository can add their own `ANTHROPIC_API_KEY` as a Codespaces secret in their GitHub account settings and it will be injected automatically into their Codespace.
 
-**Manual Start Commands (if auto-start fails or after restarting a Codespace)**
+**Manual Start Commands (If auto-start fails)**
+
+Start the backend:
 
 ```bash
-# Start backend
 ./mvnw spring-boot:run
+```
 
-# Start frontend (in a new terminal once backend is ready)
+Once the backend is ready, start the frontend in a new terminal:
+
+```bash
 cd frontend && npm run dev
 ```
 
-Once the frontend starts, open port `5173` in the browser. In the Ports panel, find port `5173` and click **Open in Browser**.
+Once the frontend starts, navigate to the **PORTS** tab and click **Open in Browser** next to port `5173`.
 
 ### 7.2 How to Run Locally
 
@@ -600,11 +606,11 @@ Once the frontend starts, open port `5173` in the browser. In the Ports panel, f
 |-------------|---------|
 | Java 17 or higher | Install from [Adoptium](https://adoptium.net), pick Temurin 17 LTS or later |
 | Node.js 20 | Install from [nodejs.org](https://nodejs.org), pick the v20 LTS installer |
-| Git | Install from [git-scm.com](https://git-scm.com/downloads), includes Git Bash on Windows |
+| Git | Install from [git-scm.com](https://git-scm.com/downloads), includes **Git Bash** on Windows |
 | Maven | Wrapper included (`./mvnw`), no separate install needed |
 | Anthropic API Key | Set as the `ANTHROPIC_API_KEY` environment variable (see step 2 below) |
 
-> All commands below should be run in **Git Bash** (Windows), or any terminal on Mac/Linux.
+*[All commands below should be run in **Git Bash** (Windows), or any terminal on Mac/Linux.]*
 
 **1. Clone the repository**
 
@@ -615,7 +621,7 @@ git clone https://github.com/sayeed-sadman/bit-semester-planner.git
 cd bit-semester-planner
 ```
 
-**2. Set the Anthropic API key (optional)**
+**2. Set the Anthropic API key (Optional)**
 
 This step is only needed if you want the AI chat feature to work. Without it the app runs normally: basic module info extraction from uploaded documents (PDF and DOCX) still works, but AI-powered chat responses, RAG-based retrieval, and AI-enhanced description generation will not.
 
@@ -688,7 +694,7 @@ The following sequence demonstrates all major application features using the see
 
 1. **Open the application.** Navigate to the frontend URL (port 5173). The landing page loads with a feature overview and entry points for login and registration.
 
-2. **Browse the module catalogue.** Navigate to `/modules`. The catalogue is publicly accessible without an account. Observe the 8 available BIT modules: 5 COMPULSORY and 3 ELECTIVE, listed alphabetically. A **Login to add** button is shown in place of the Add button for unauthenticated visitors.
+2. **Browse the module catalogue.** Click **Browse Modules** on the landing page. The catalogue is publicly accessible without an account. Observe the 8 available BIT modules: 5 COMPULSORY and 3 ELECTIVE, listed alphabetically. A **Login to add** button is shown for unauthenticated visitors.
 
 3. **View an official module description.** Click **View Detail** on any module (e.g. **Internet Technology**). On the detail page, click **Official Description** to open the PDF viewer overlay. Close it with the X button, the Escape key, or by clicking outside the panel.
 
@@ -704,13 +710,13 @@ The following sequence demonstrates all major application features using the see
 
 7. **Trigger the elective cap rule (BR-01).** Attempt to add **Social Engineering with Africa** to the planner. Observe the error: `You have reached the maximum of 2 elective modules for your semester plan.`
 
-8. **Create a module note.** On the Student Dashboard, locate **Internet Technology** in the planner. Click the note icon to open the inline note editor. Enter a note and save it.
+8. **Create a module note.** On the Student Dashboard, locate **Internet Technology** in the planner. Click **My Notes** to open the inline note editor. Enter a note and save it.
 
 9. **Open the full-page notes editor.** Click the **Open full page** button on the same module to navigate to the dedicated notes page. Edit and save the note from the full-page view.
 
 10. **Connect a calendar.** On the dashboard, click **Add Calendar**. Paste a publicly accessible ICS feed URL (e.g. an Outlook or Google Calendar export). Confirm that events appear in the weekly calendar view.
 
-11. **Inspect a calendar event.** Click on any event. A popup shows the full event title, date, time range, and calendar name. If the event overlaps with another, an overlap warning is displayed.
+11. **Inspect a calendar event.** Click on any event. A popup shows the full event title, date, time range, and calendar name. To test overlap detection, add a second calendar with an event that conflicts in time with one from the first calendar. An overlap warning is displayed when two timed events from different calendars share the same time window.
 
 12. **Query the ChatBot with calendar context.** Open the ChatBot panel. Ask: *"Do I have anything scheduled this week?"* The assistant incorporates the connected calendar events into its response.
 
@@ -726,17 +732,25 @@ The following sequence demonstrates all major application features using the see
 
 16. **Log in as admin.** Log out. Log in with email `admin@fhnw.ch` and password `admin123`.
 
-17. **Upload a module PDF via ChatBot.** Open the ChatBot and upload one of the official module PDFs from `docs/knowledge/module-catalog/`. If the filename matches an existing module, the panel confirms the match and shows a **View Module →** link. If no match is found, a pre-filled Create New Module form appears with extracted data.
+17. **Browse the module catalogue.** Navigate to the **Module Catalogue** from the admin navbar. All 8 BIT modules are listed. Use the semester and type dropdowns to filter by semester or module type.
 
-18. **Ask the assistant about a module.** Ask: *"Give me detailed information from the official description of Algorithms and Data Structures."* The assistant retrieves content from the indexed knowledge base and responds accurately.
+18. **Edit a module.** Click on any module to open its detail page. Each field has an **Edit** button. Update a value and click **Save**. A confirmation toast appears to confirm the change.
 
-19. **Edit the admin profile.** Navigate to the profile page. Update your name or password (current password required). Note that the email field is locked and cannot be changed for admin accounts.
+19. **Create a new module.** Return to the catalogue and click **Add New Module**. Fill in the module details and submit. The new module appears in the catalogue.
+
+20. **Delete a module.** Open the newly created module's detail page and click **Delete Module**. Confirm the action in the modal to permanently remove it from the catalogue.
+
+21. **Upload a module PDF via ChatBot.** Open the ChatBot and upload one of the official module PDFs from `docs/knowledge/module-catalog/`. The assistant extracts the module title from the document content and matches it against existing modules. If a match is found, the panel confirms it and shows a **View Module →** link. If no match is found, a pre-filled Create New Module form appears with the extracted data.
+
+22. **Ask the assistant about a module.** Ask: *"Give me detailed information from the official description of Algorithms and Data Structures."* The assistant retrieves content from the indexed knowledge base and responds accurately.
+
+23. **Edit the admin profile.** Navigate to the profile page. Update your name or password (current password required). Note that the email field is locked and cannot be changed for admin accounts.
 
 ---
 
 **API Documentation**
 
-20. **Explore the API documentation.** Navigate to the Swagger UI URL from [Section 7.3](#73-application-urls-and-credentials). Review all documented REST endpoints across Auth, Modules, Planner, Notes, Calendars, Chat, and Document RAG groups. No login is required to access the documentation.
+24. **Explore the API documentation.** Navigate to the Swagger UI URL from [Section 7.3](#73-application-urls-and-credentials). Review all documented REST endpoints across Auth, Modules, Planner, Notes, Calendars, Chat, and Document RAG groups. No login is required to access the documentation.
 
 ---
 

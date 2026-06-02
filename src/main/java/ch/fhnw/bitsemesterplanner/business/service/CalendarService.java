@@ -82,7 +82,10 @@ public class CalendarService {
                 if (start == null) continue;
                 if (end == null) end = start.plusHours(1);
 
-                events.add(new CalendarEventDTO(title, start, end, calendarName, false));
+                String dtStartValue = dtStartProp != null ? dtStartProp.getValue() : "";
+                boolean allDay = !dtStartValue.contains("T");
+
+                events.add(new CalendarEventDTO(title, start, end, calendarName, false, allDay));
             }
             return events;
         } catch (Exception e) {
@@ -101,11 +104,13 @@ public class CalendarService {
             }
         }
 
-        // Mark overlapping events
+        // Mark overlapping events — only between different calendars, excluding all-day events
         for (int i = 0; i < allEvents.size(); i++) {
             for (int j = i + 1; j < allEvents.size(); j++) {
                 CalendarEventDTO a = allEvents.get(i);
                 CalendarEventDTO b = allEvents.get(j);
+                if (a.isAllDay() || b.isAllDay()) continue;
+                if (a.getCalendarName().equals(b.getCalendarName())) continue;
                 if (a.getStartDateTime().isBefore(b.getEndDateTime()) &&
                         b.getStartDateTime().isBefore(a.getEndDateTime())) {
                     a.setOverlapping(true);

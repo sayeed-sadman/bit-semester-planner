@@ -15,4 +15,5 @@ public class CalendarEventDTO {
     private String calendarName;
     @JsonProperty("isOverlapping")
     private boolean isOverlapping;
+    private boolean allDay;
 }
