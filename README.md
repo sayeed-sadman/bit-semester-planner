@@ -792,9 +792,9 @@ Students and admins can upload PDF or DOCX files for AI-assisted analysis. Stude
 │  Chunking                                        │
 │  chunk_size = 400 words   overlap = 50 words     │
 │  Sliding window over extracted text              │
-└────────┬─────────────────────────────────────────┘
-         │
-    ┌────┴──────────────────────┐
+└───────────────┬──────────────────────────────────┘
+                │
+    ┌───────────┴───────────────┐
     │                           │
  STUDENT                      ADMIN
     │                           │
@@ -822,12 +822,12 @@ Students and admins can upload PDF or DOCX files for AI-assisted analysis. Stude
 │ file to          │           Links to module     Dismisses / logs out
 │ docs/student-    │                  │                  │
 │ uploads/         │                  ▼                  ▼
-└──────────────────┘   ┌─────────────────────┐  ┌──────────────────────┐
-                       │ Copy temp file to   │  │ Delete temp file     │
+└──────────────────┘   ┌─────────────────────┐  ┌───────────────────────┐
+                       │ Copy temp file to   │  │ Delete temp file      │
                        │ docs/knowledge/     │  │ Delete DocumentUpload │
-                       │ module-catalog/     │  │ No chunks to delete  │
-                       │ Delete temp file    │  │ No chunks ever saved │
-                       │ Save chunks to      │  └──────────────────────┘
+                       │ module-catalog/     │  │ No chunks to delete   │
+                       │ Delete temp file    │  │ No chunks ever saved  │
+                       │ Save chunks to      │  └───────────────────────┘
                        │ DocumentChunk (same │
                        │ 40-chunk limit)     │
                        │ Set module FK on    │
@@ -865,7 +865,7 @@ Students and admins can upload PDF or DOCX files for AI-assisted analysis. Stude
 │  Cosine Similarity Ranking                            │
 │  score(q, c) = (q · c) / (‖q‖ × ‖c‖)                  │
 │  Computed in Java for every candidate chunk           │
-│  Top-K = 5 chunks selected by descending score        │
+│  Top-K = 10 chunks selected by descending score       │
 └──────────┬────────────────────────────────────────────┘
            │
            ▼
@@ -873,7 +873,7 @@ Students and admins can upload PDF or DOCX files for AI-assisted analysis. Stude
 │  Prompt Construction  (ChatService.buildSystemPrompt) │
 │  Base system prompt                                   │
 │  + Role context (PUBLIC / STUDENT / ADMIN)            │
-│  + [CONTEXT] top-5 chunk texts [/CONTEXT]             │
+│  + [CONTEXT] top-10 chunk texts [/CONTEXT]            │
 │  + [NOTES] student's module notes [/NOTES]            │
 │  + [CALENDAR] upcoming events [/CALENDAR]             │
 │  + Current date header                                │
