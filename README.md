@@ -768,34 +768,45 @@ Students and admins can upload PDF or DOCX files for AI-assisted analysis. Stude
 
 ### 8.2 RAG Pipeline
 
+<table width="100%"><tr>
+<td width="50%" valign="top">
+
 #### Ingestion Phase
 
 ```mermaid
 flowchart TD
-    A["File Upload<br/>PDF or DOCX via POST /api/rag/upload"] --> B["Text Extraction<br/>Apache PDFBox  (PDF → plain text)<br/>Apache POI     (DOCX → plain text)"]
-    B --> C["Save DocumentUpload<br/>rawText stored in DB"]
-    C --> D["Chunking<br/>chunk_size = 400 words   overlap = 50 words<br/>Sliding window over extracted text"]
+    A["<b>File Upload</b><br/>─────────────<br/><i>PDF or DOCX<br/>via POST /api/rag/upload</i>"]
+    --> B["<b>Text Extraction</b><br/>─────────────<br/><i>Apache PDFBox → PDF to plain text<br/>Apache POI → DOCX to plain text</i>"]
+    B --> C["<b>Save DocumentUpload</b><br/>─────────────<br/><i>rawText stored in DB</i>"]
+    C --> D["<b>Chunking</b><br/>─────────────<br/><b>chunk_size</b> <i>= 400 words</i><br/><b>overlap</b> <i>= 50 words</i><br/><i>Sliding window over extracted text</i>"]
     D --> E{Role}
-    E -->|STUDENT| F["Embed chunks<br/>first 40: real 64-float via Anthropic API<br/>rest: zero-filled float[64]"]
-    E -->|ADMIN| G["Embed chunks IN MEMORY only<br/>first 40: real 64-float via Anthropic<br/>rest: zero-filled float[64]<br/>Used to generate AI description suggestion only, not persisted"]
-    F --> H["Save chunks to DocumentChunk in database"]
-    H --> I["Save original file to docs/knowledge/student-uploads/"]
-    G --> J["Save temp PDF to<br/>docs/knowledge/module-catalog/.temp/{uploadId}.pdf"]
-    J --> K{"Admin action?"}
-    K -->|Links to module| L["Copy temp file to docs/knowledge/module-catalog/<br/>Delete temp file<br/>Save chunks to DocumentChunk (same 40-chunk limit)<br/>Set module FK on DocumentUpload"]
-    K -->|"Dismisses / logs out"| M["Delete temp file<br/>Delete DocumentUpload<br/>No chunks to delete<br/>No chunks ever saved"]
+    E -->|STUDENT| F["<b>Embed chunks</b><br/>─────────────<br/><b>first 40:</b> <i>real 64-float<br/>via Anthropic API</i><br/><b>rest:</b> <i>zero-filled float[64]</i>"]
+    E -->|ADMIN| G["<b>Embed chunks IN MEMORY only</b><br/>─────────────<br/><b>first 40:</b> <i>real 64-float<br/>via Anthropic API</i><br/><b>rest:</b> <i>zero-filled float[64]</i><br/><i>Used for AI description<br/>suggestion only<br/>Not persisted to database</i>"]
+    F --> H["<b>Save chunks to DocumentChunk</b><br/>─────────────<br/><i>Stored in database</i>"]
+    H --> I["<b>Save original file</b><br/>─────────────<br/><i>docs/knowledge/student-uploads/</i>"]
+    G --> J["<b>Save temp PDF</b><br/>─────────────<br/><i>docs/knowledge/module-catalog/<br/>.temp/{uploadId}.pdf</i>"]
+    J --> K{"<b>Admin action?</b>"}
+    K -->|Links to module| L["<b>Link to module</b><br/>─────────────<br/><i>Copy temp file to module-catalog/<br/>Delete temp file<br/>Save chunks to DocumentChunk<br/>Same 40-chunk limit applies<br/>Set module FK on DocumentUpload</i>"]
+    K -->|"Dismisses / logs out"| M["<b>Dismiss</b><br/>─────────────<br/><i>Delete temp file<br/>Delete DocumentUpload<br/>No chunks to delete<br/>No chunks ever saved</i>"]
 ```
+
+</td>
+<td width="50%" valign="top">
 
 #### Retrieval Phase
 
 ```mermaid
 flowchart TD
-    A["User Chat Message"] --> B["Query Embedding<br/>Same pseudo-embedding process:<br/>POST /v1/messages → parse float[64] from response"]
-    B --> C["Candidate Retrieval<br/>Knowledge base chunks (student = null, from KnowledgeSeeder + module-linked admin uploads)<br/>+ student's own chunks (student = current user, if userId provided)<br/>Deserialise embeddingJson → float[64] per chunk"]
-    C --> D["Cosine Similarity Ranking<br/>score(q, c) = (q · c) / (‖q‖ × ‖c‖)<br/>Computed in Java for every candidate chunk<br/>Top-K = 10 chunks selected by descending score"]
-    D --> E["Prompt Construction (ChatService.buildSystemPrompt)<br/>Base system prompt<br/>+ Role context (PUBLIC / STUDENT / ADMIN)<br/>+ [CONTEXT] top-10 chunk texts [/CONTEXT]<br/>+ [NOTES] student's module notes [/NOTES]<br/>+ [CALENDAR] upcoming events [/CALENDAR]<br/>+ Current date header"]
-    E --> F["Response Generation<br/>POST https://api.anthropic.com/v1/messages<br/>Model: claude-haiku-4-5-20251001   max_tokens: 1024<br/>Streaming: content_block_delta SSE events<br/>Non-streaming: single synchronous response"]
+    A["<b>User Chat Message</b>"]
+    --> B["<b>Query Embedding</b><br/>─────────────<br/><i>Same pseudo-embedding process<br/>POST /v1/messages<br/>→ parse float[64] from response</i>"]
+    B --> C["<b>Candidate Retrieval</b><br/>─────────────<br/><i>Knowledge base chunks<br/>(student = null,<br/>from KnowledgeSeeder +<br/>module-linked admin uploads)<br/>+ student's own chunks<br/>(student = current user,<br/>if userId provided)<br/>Deserialise embeddingJson<br/>→ float[64] per chunk</i>"]
+    C --> D["<b>Cosine Similarity Ranking</b><br/>─────────────<br/><i>score(q, c) = (q · c) / (‖q‖ × ‖c‖)<br/>Computed in Java<br/>for every candidate chunk<br/>Top-K = 10 chunks<br/>by descending score</i>"]
+    D --> E["<b>Prompt Construction</b><br/><i>ChatService.buildSystemPrompt</i><br/>─────────────<br/><i>Base system prompt<br/>+ Role context<br/>(PUBLIC / STUDENT / ADMIN)<br/>+ [CONTEXT] top-10 chunk texts<br/>[/CONTEXT]<br/>+ [NOTES] student's module notes<br/>[/NOTES]<br/>+ [CALENDAR] upcoming events<br/>[/CALENDAR]<br/>+ Current date header</i>"]
+    E --> F["<b>Response Generation</b><br/>─────────────<br/><i>POST /v1/messages (Anthropic API)<br/>Model: claude-haiku-4-5-20251001<br/>max_tokens: 1024<br/>Streaming: content_block_delta SSE<br/>Non-streaming: synchronous response</i>"]
 ```
+
+</td>
+</tr></table>
 
 Shared knowledge documents are seeded at startup by `KnowledgeSeeder` and available to all users including unauthenticated visitors: the 9 official BIT module PDFs in `docs/knowledge/module-catalog/` and the BIT programme reference documents (electives, specializations, administrative info) in `docs/knowledge/programme/`.
 
