@@ -731,7 +731,7 @@ export default function ChatBot({ onSuggestNote }) {
                       {isAdmin
                         ? `Hi ${user?.firstName}! Upload module documents to update the catalog, or ask me anything about modules, electives, specializations and BIT programme administration.`
                         : isStudent
-                        ? `Hi ${user?.firstName}! Ask me about your modules, schedule or uploaded documents, as well as the BIT programme structure, electives, specializations and bachelor thesis requirements.`
+                        ? `Hi ${user?.firstName}! Ask me about the BIT programme, your modules, schedule or uploaded documents.`
                         : "Ask me about the BIT programme: modules, electives, specializations, bachelor thesis or career paths. Log in for personalised study assistance."}
                     </p>
                   )}

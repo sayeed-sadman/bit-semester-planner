@@ -770,123 +770,31 @@ Students and admins can upload PDF or DOCX files for AI-assisted analysis. Stude
 
 #### Ingestion Phase
 
-```
-┌──────────────────┐
-│   File Upload    │  PDF or DOCX via POST /api/rag/upload
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────────────────────────────────────┐
-│  Text Extraction                                 │
-│  Apache PDFBox  (PDF  → plain text)              │
-│  Apache POI     (DOCX → plain text)              │
-└────────┬─────────────────────────────────────────┘
-         │
-         ▼
-┌──────────────────────────────────────────────────┐
-│  Save DocumentUpload (rawText stored in DB)      │
-└────────┬─────────────────────────────────────────┘
-         │
-         ▼
-┌──────────────────────────────────────────────────┐
-│  Chunking                                        │
-│  chunk_size = 400 words   overlap = 50 words     │
-│  Sliding window over extracted text              │
-└───────────────┬──────────────────────────────────┘
-                │
-    ┌───────────┴───────────────┐
-    │                           │
- STUDENT                      ADMIN
-    │                           │
-    ▼                           ▼
-┌───────────────────┐    ┌───────────────────────────────────────────┐
-│ Embed chunks      │    │ Embed chunks IN MEMORY only               │
-│ (first 40: real   │    │ (first 40: real 64-float via Anthropic,   │
-│  64-float via     │    │  rest: zero-filled float[64])             │
-│  Anthropic API;   │    │ Used to generate AI description           │
-│  rest: zero-      │    │ suggestion only, not persisted            │
-│  filled float[64])│    └──────────────────┬────────────────────────┘
-└────────┬──────────┘                       │
-         │                                  ▼
-         ▼                    ┌──────────────────────────────────────┐
-┌──────────────────┐          │ Save temp PDF to                     │
-│ Save chunks to   │          │ docs/knowledge/module-catalog/       │
-│ DocumentChunk    │          │ .temp/{uploadId}.pdf                 │
-│ in database      │          └──────────────────┬───────────────────┘
-│                  │                             │
-└────────┬─────────┘                             ▼
-         │                    ┌──────────────────────────────────────┐
-         ▼                    │ Admin action?                        │
-┌──────────────────┐          └───────┬──────────────────┬───────────┘
-│ Save original    │                  │                  │
-│ file to          │           Links to module     Dismisses / logs out
-│ docs/student-    │                  │                  │
-│ uploads/         │                  ▼                  ▼
-└──────────────────┘   ┌─────────────────────┐  ┌───────────────────────┐
-                       │ Copy temp file to   │  │ Delete temp file      │
-                       │ docs/knowledge/     │  │ Delete DocumentUpload │
-                       │ module-catalog/     │  │ No chunks to delete   │
-                       │ Delete temp file    │  │ No chunks ever saved  │
-                       │ Save chunks to      │  └───────────────────────┘
-                       │ DocumentChunk (same │
-                       │ 40-chunk limit)     │
-                       │ Set module FK on    │
-                       │ DocumentUpload      │
-                       └─────────────────────┘
+```mermaid
+flowchart TD
+    A["File Upload<br/>PDF or DOCX via POST /api/rag/upload"] --> B["Text Extraction<br/>Apache PDFBox  (PDF → plain text)<br/>Apache POI     (DOCX → plain text)"]
+    B --> C["Save DocumentUpload<br/>rawText stored in DB"]
+    C --> D["Chunking<br/>chunk_size = 400 words   overlap = 50 words<br/>Sliding window over extracted text"]
+    D --> E{Role}
+    E -->|STUDENT| F["Embed chunks<br/>first 40: real 64-float via Anthropic API<br/>rest: zero-filled float[64]"]
+    E -->|ADMIN| G["Embed chunks IN MEMORY only<br/>first 40: real 64-float via Anthropic<br/>rest: zero-filled float[64]<br/>Used to generate AI description suggestion only, not persisted"]
+    F --> H["Save chunks to DocumentChunk in database"]
+    H --> I["Save original file to docs/knowledge/student-uploads/"]
+    G --> J["Save temp PDF to<br/>docs/knowledge/module-catalog/.temp/{uploadId}.pdf"]
+    J --> K{"Admin action?"}
+    K -->|Links to module| L["Copy temp file to docs/knowledge/module-catalog/<br/>Delete temp file<br/>Save chunks to DocumentChunk (same 40-chunk limit)<br/>Set module FK on DocumentUpload"]
+    K -->|"Dismisses / logs out"| M["Delete temp file<br/>Delete DocumentUpload<br/>No chunks to delete<br/>No chunks ever saved"]
 ```
 
 #### Retrieval Phase
 
-```
-┌──────────────────────┐
-│  User Chat Message   │
-└──────────┬───────────┘
-           │
-           ▼
-┌───────────────────────────────────────────────────────┐
-│  Query Embedding                                      │
-│  Same pseudo-embedding process:                       │
-│  POST /v1/messages → parse float[64] from response    │
-└──────────┬────────────────────────────────────────────┘
-           │
-           ▼
-┌───────────────────────────────────────────────────────┐
-│  Candidate Retrieval                                  │
-│  Knowledge base chunks   (student = null,             │
-│                           from KnowledgeSeeder +      │
-│                           module-linked admin uploads)│
-│  + student's own chunks  (student = current user,     │
-│                           if userId provided)         │
-│  Deserialise embeddingJson → float[64] per chunk      │
-└──────────┬────────────────────────────────────────────┘
-           │
-           ▼
-┌───────────────────────────────────────────────────────┐
-│  Cosine Similarity Ranking                            │
-│  score(q, c) = (q · c) / (‖q‖ × ‖c‖)                  │
-│  Computed in Java for every candidate chunk           │
-│  Top-K = 10 chunks selected by descending score       │
-└──────────┬────────────────────────────────────────────┘
-           │
-           ▼
-┌───────────────────────────────────────────────────────┐
-│  Prompt Construction  (ChatService.buildSystemPrompt) │
-│  Base system prompt                                   │
-│  + Role context (PUBLIC / STUDENT / ADMIN)            │
-│  + [CONTEXT] top-10 chunk texts [/CONTEXT]            │
-│  + [NOTES] student's module notes [/NOTES]            │
-│  + [CALENDAR] upcoming events [/CALENDAR]             │
-│  + Current date header                                │
-└──────────┬────────────────────────────────────────────┘
-           │
-           ▼
-┌───────────────────────────────────────────────────────┐
-│  Response Generation                                  │
-│  POST https://api.anthropic.com/v1/messages           │
-│  Model: claude-haiku-4-5-20251001   max_tokens: 1024  │
-│  Streaming: content_block_delta SSE events            │
-│  Non-streaming: single synchronous response           │
-└───────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    A["User Chat Message"] --> B["Query Embedding<br/>Same pseudo-embedding process:<br/>POST /v1/messages → parse float[64] from response"]
+    B --> C["Candidate Retrieval<br/>Knowledge base chunks (student = null, from KnowledgeSeeder + module-linked admin uploads)<br/>+ student's own chunks (student = current user, if userId provided)<br/>Deserialise embeddingJson → float[64] per chunk"]
+    C --> D["Cosine Similarity Ranking<br/>score(q, c) = (q · c) / (‖q‖ × ‖c‖)<br/>Computed in Java for every candidate chunk<br/>Top-K = 10 chunks selected by descending score"]
+    D --> E["Prompt Construction (ChatService.buildSystemPrompt)<br/>Base system prompt<br/>+ Role context (PUBLIC / STUDENT / ADMIN)<br/>+ [CONTEXT] top-10 chunk texts [/CONTEXT]<br/>+ [NOTES] student's module notes [/NOTES]<br/>+ [CALENDAR] upcoming events [/CALENDAR]<br/>+ Current date header"]
+    E --> F["Response Generation<br/>POST https://api.anthropic.com/v1/messages<br/>Model: claude-haiku-4-5-20251001   max_tokens: 1024<br/>Streaming: content_block_delta SSE events<br/>Non-streaming: single synchronous response"]
 ```
 
 Shared knowledge documents are seeded at startup by `KnowledgeSeeder` and available to all users including unauthenticated visitors: the 9 official BIT module PDFs in `docs/knowledge/module-catalog/` and the BIT programme reference documents (electives, specializations, administrative info) in `docs/knowledge/programme/`.
