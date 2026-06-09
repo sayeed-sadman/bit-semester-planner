@@ -12,7 +12,7 @@ BIT Semester Planner is a web application for FHNW Business Information Technolo
 | Renjita Byju Resmi | `@RenjitaBR` | Security design review, authentication and role-based access control specification, API security feedback |
 
 ## Links
-- **Video Presentation:** *to be added*
+- **Video Presentation:**  [bit-semester-planner](https://fhnw365-my.sharepoint.com/:v:/r/personal/sayeed_sadman_students_fhnw_ch/Documents/Group%20Work/4th%20Semester/Internet%20Technology/Video%20Presentation/Basel%2011_bit-semester-planner.mp4?csf=1&web=1&e=nRJHcx&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D) (FHNW organisation account required!!!)
 - **Web Application:** Runs on GitHub Codespaces - See [Section 7](#7-demonstrator) for instructions
 - **OpenAPI Documentation:** `https://{codespace-name}-8080.app.github.dev/swagger-ui.html`
 
