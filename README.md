@@ -2,7 +2,7 @@
 
 BIT Semester Planner is a web application for FHNW Business Information Technology students to plan their semester, manage module notes, connect external calendars, and interact with an AI study assistant backed by a RAG pipeline.
 
-## Group Members
+## Group Members (Basel-11)
 
 | Name | GitHub Username | Contribution |
 |------|----------------|--------------|
